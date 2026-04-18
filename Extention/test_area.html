@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Onpoint Admin - Chat Simulation</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-light: #eef2ff;
+            --secondary: #64748b;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --bg-body: #f8fafc;
+            --bg-sidebar: #ffffff;
+            --border: #e2e8f0;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            display: flex;
+            height: 100vh;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            overflow: hidden;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 300px;
+            background: var(--bg-sidebar);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+            box-shadow: 4px 0 24px rgba(0, 0, 0, 0.02);
+            z-index: 10;
+        }
+
+        .sidebar-header {
+            padding: 24px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .sidebar-header h2 {
+            font-size: 18px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--primary);
+        }
+
+        .user-info {
+            margin-top: 12px;
+            padding: 12px;
+            background: var(--bg-body);
+            border-radius: 12px;
+        }
+
+        .user-info .name {
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .user-info .role {
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        .channel-list {
+            flex: 1;
+            padding: 16px;
+            overflow-y: auto;
+            list-style: none;
+        }
+
+        .channel-items__el {
+            padding: 12px 16px;
+            margin-bottom: 8px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border: 1px solid transparent;
+        }
+
+        .channel-items__el:hover {
+            background: var(--primary-light);
+            color: var(--primary);
+        }
+
+        .channel-items__el.active {
+            background: var(--primary-light);
+            color: var(--primary);
+            border-color: rgba(99, 102, 241, 0.1);
+            font-weight: 700;
+        }
+
+        .channel-avatar {
+            width: 36px;
+            height: 36px;
+            background: #e2e8f0;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: #ffffff;
+            position: relative;
+        }
+
+        .chat-header {
+            padding: 20px 32px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(8px);
+            z-index: 5;
+        }
+
+        .chat-header h3 {
+            font-size: 16px;
+            font-weight: 700;
+        }
+
+        .chat-body {
+            flex: 1;
+            background: #fcfdfe;
+            padding: 32px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            scroll-behavior: smooth;
+        }
+
+        /* Messages */
+        .msg {
+            max-width: 65%;
+            padding: 12px 18px;
+            font-size: 14px;
+            line-height: 1.6;
+            position: relative;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .msg.received-customer {
+            background: white;
+            color: var(--text-main);
+            align-self: flex-start;
+            border-radius: 4px 20px 20px 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+            border: 1px solid var(--border);
+        }
+
+        .msg.sent {
+            background: var(--primary);
+            color: white;
+            align-self: flex-end;
+            border-radius: 20px 20px 4px 20px;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
+        }
+
+        /* Footer & Buttons */
+        .chat-footer {
+            padding: 24px 32px;
+            border-top: 1px solid var(--border);
+            background: white;
+        }
+
+        .input-container {
+            max-width: 900px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .textarea-wrapper {
+            position: relative;
+            width: 100%;
+        }
+
+        textarea {
+            width: 100%;
+            height: 100px;
+            padding: 16px;
+            border: 2px solid var(--border);
+            border-radius: 16px;
+            resize: none;
+            font-family: inherit;
+            font-size: 14px;
+            outline: none;
+            transition: all 0.2s;
+            background: var(--bg-body);
+        }
+
+        textarea:focus {
+            border-color: var(--primary);
+            background: white;
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+        }
+
+        .action-toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .trigger-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .btn-trigger {
+            padding: 8px 14px;
+            border-radius: 10px;
+            border: none;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-trigger:hover {
+            transform: translateY(-2px);
+            filter: brightness(1.1);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-send {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 28px;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-send:hover {
+            background: #4f46e5;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+        }
+
+        .instruction {
+            padding: 12px;
+            font-size: 11px;
+            color: var(--text-muted);
+            text-align: center;
+            background: var(--bg-body);
+        }
+
+        /* Mascot Alert Simulation (styled like your screenshot) */
+        #mascot-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 23, 42, 0.4);
+            backdrop-filter: blur(4px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .mascot-card {
+            background: white;
+            padding: 40px;
+            border-radius: 32px;
+            width: 440px;
+            text-align: center;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            animation: popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        @keyframes popIn {
+            0% {
+                transform: scale(0.8);
+                opacity: 0;
+            }
+
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .mascot-img {
+            width: 140px;
+            height: 140px;
+            margin: 0 auto 24px;
+            background: #f1f5f9;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 64px;
+            border: 4px solid white;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
+        }
+
+        .mascot-card h4 {
+            font-size: 24px;
+            font-weight: 800;
+            margin-bottom: 12px;
+        }
+
+        .mascot-card p {
+            color: var(--text-muted);
+            font-size: 14px;
+            line-height: 1.5;
+            margin-bottom: 32px;
+        }
+
+        .mascot-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .mascot-btn {
+            flex: 1;
+            padding: 14px;
+            border-radius: 12px;
+            border: none;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .mascot-btn.primary {
+            background: #0f172a;
+            color: white;
+        }
+
+        .mascot-btn.secondary {
+            background: #f1f5f9;
+            color: var(--text-main);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h2>🧿 Onpoint Admin</h2>
+            <div class="user-info">
+                <div class="name">Nguyễn Văn A</div>
+                <div class="role">CS Specialist (Team 1) • ID: 888999</div>
+            </div>
+        </div>
+        <div class="sidebar-nav" style="padding: 16px; border-bottom: 1px solid var(--border);">
+            <div class="nav-item active" id="nav-chat"
+                style="padding: 10px; cursor: pointer; border-radius: 8px; font-weight: 700; margin-bottom: 4px; display: flex; align-items: center; gap: 8px;">
+                💬 Chat Simulation
+            </div>
+            <div class="nav-item" id="nav-ticket"
+                style="padding: 10px; cursor: pointer; border-radius: 8px; color: var(--text-muted); display: flex; align-items: center; gap: 8px;">
+                🎫 Add new Ticket
+            </div>
+        </div>
+
+        <div id="chat-sidebar-content">
+            <ul class="channel-list">
+                <li class="channel-items__el active">
+                    <div class="channel-avatar">📱</div>
+                    <span class="channel-name">Brother - Tiktok</span>
+                </li>
+                <li class="channel-items__el">
+                    <div class="channel-avatar">💄</div>
+                    <span class="channel-name">Senka - Lazada</span>
+                </li>
+                <li class="channel-items__el">
+                    <div class="channel-avatar">🧸</div>
+                    <span class="channel-name">Growplus - Shopee</span>
+                </li>
+            </ul>
+        </div>
+        <div class="instruction">
+            Gõ tin nhắn bên phải để test highlight.<br>Nhấn nút màu để giả lập tin nhắn lỗi.
+        </div>
+    </div>
+
+    <div class="main-content" id="chat-main-section">
+        <div class="chat-header">
+            <h3 id="chat-title">
+                <span class="current-session-label">Đang chat:</span>
+                <span class="h6 mb-0 mr-1" id="customer-name-display">Brother - Tiktok</span>
+            </h3>
+            <div style="font-size: 12px; color: var(--success); font-weight: 600;">● Trực tuyến</div>
+        </div>
+
+        <div class="chat-body" id="chat-body">
+            <div class="msg received-customer">
+                <div class="chat-item chat-item--customer">
+                    <div class="chat-item__body">
+                        <div class="chat-item__content">
+                            <div>
+                                <div>Chào bạn, shop còn hàng Brother không?</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="chat-footer">
+            <div class="input-container">
+                <div class="textarea-wrapper">
+                    <textarea id="test-textarea" placeholder="Nhập tin nhắn để kiểm duyệt..."></textarea>
+                </div>
+
+                <div class="action-toolbar">
+                    <div class="trigger-buttons">
+                        <button class="btn-trigger" id="logistics-btn" style="background: #0ea5e9;">🚚 Giao
+                            chậm</button>
+                        <button class="btn-trigger" id="quality-btn" style="background: #ef4444;">📦 Lỗi sp</button>
+                        <button class="btn-trigger" id="fake-btn" style="background: #f59e0b;">🧐 Nghi giả</button>
+                        <button class="btn-trigger" id="gifts-btn" style="background: #6366f1;">🎁 Thiếu quà</button>
+                        <button class="btn-trigger" id="angry-btn" style="background: #b91c1c;">🤬 Khách gắt</button>
+                        <button class="btn-trigger" id="exclude-btn" style="background: #10b981;">💡 Hỏi info</button>
+                        <button class="btn-trigger" id="clear-alert-btn" style="background: #64748b;">🔄 Xóa
+                            Alert</button>
+                        <button class="btn-trigger" id="test-pronoun-1" style="background: #8b5cf6;">🧪 Test: Anh/Chị +
+                            Anh</button>
+                        <button class="btn-trigger" id="test-pronoun-2" style="background: #8b5cf6;">🧪 Test: Anh hoặc
+                            chị</button>
+                        <button class="btn-trigger" id="test-pronoun-3" style="background: #8b5cf6;">🧪 Test: Anh và
+                            chị</button>
+                    </div>
+                    <button class="button--icon btn btn-primary btn-sm btn-send" id="send-btn">Gửi tin (Enter)</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Ticket Simulation Section (Hidden by default) -->
+    <div class="main-content" id="ticket-main-section" style="display: none; padding: 40px; overflow-y: auto;">
+        <h2
+            style="margin-bottom: 30px; font-weight: 800; border-bottom: 2px solid var(--primary); padding-bottom: 10px; display: inline-block;">
+            Add new Ticket</h2>
+
+        <form class="ticket-form">
+            <div class="row" style="display: flex; gap: 20px; margin-bottom: 20px;">
+                <div class="col" style="flex: 1;">
+                    <div class="text-bold-600 mb-1" style="font-weight: 600; margin-bottom: 8px;">Subject <span
+                            class="text-danger" style="color: var(--danger);">*</span></div>
+                    <div class="position-relative form-group"><input class="form-control" name="subject"
+                            value="Update Customer's Request"
+                            style="width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 8px;">
+                    </div>
+                </div>
+                <div class="col" style="flex: 1;">
+                    <div class="text-bold-600 mb-1" style="font-weight: 600; margin-bottom: 8px;">Customer <span
+                            class="text-danger" style="color: var(--danger);">*</span></div>
+                    <div class="position-relative form-group"><input class="form-control" name="customer_name"
+                            value="Lydiemvithuy"
+                            style="width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 8px; background: #f1f5f9;">
+                    </div>
+                </div>
+                <div class="col-sm-4" style="flex: 1;">
+                    <div class="text-bold-600 mb-1" style="font-weight: 600; margin-bottom: 8px;">Platform & Brand/Store
+                        <span class="text-danger" style="color: var(--danger);">*</span>
+                    </div>
+                    <div class="form-control"
+                        style="padding: 10px; border: 1px solid var(--border); border-radius: 8px;">Lazada - Cetaphil
+                        Skincare - Lazada</div>
+                </div>
+            </div>
+
+            <div class="row" style="display: flex; gap: 20px; margin-bottom: 20px;">
+                <div class="col" style="flex: 1;">
+                    <div class="text-bold-600 mb-1" style="font-weight: 600; margin-bottom: 8px;">PIC <span
+                            class="text-danger" style="color: var(--danger);">*</span></div>
+                    <div class="form-control"
+                        style="padding: 10px; border: 1px solid var(--border); border-radius: 8px;">csostt50@onpoint.vn
+                        - TTU::Thanh Sang</div>
+                </div>
+                <div class="col" style="flex: 1;">
+                    <div class="text-bold-600 mb-1" style="font-weight: 600; margin-bottom: 8px;">Ticket Type</div>
+                    <div class="form-control"
+                        style="padding: 10px; border: 1px solid var(--border); border-radius: 8px;">Live Chat</div>
+                </div>
+                <div class="col" style="flex: 1;">
+                    <div class="text-bold-600 mb-1" style="font-weight: 600; margin-bottom: 8px;">Root Cause</div>
+                    <div class="position-relative form-group">
+                        <select name="root_cause_id_select" id="sim-root-cause"
+                            style="width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 8px;">
+                            <option value="">Select...</option>
+                            <option value="1">Lỗi Ahamove: Cập nhật sai trạng thái đơn hàng</option>
+                            <option value="2">Khác</option>
+                        </select>
+                        <input name="root_cause_id" type="hidden" id="real-root-cause-id" value="">
+                    </div>
+                </div>
+                <div class="col" style="flex: 1;">
+                    <div class="text-bold-600 mb-1" style="font-weight: 600; margin-bottom: 8px;">Status</div>
+                    <div class="form-control"
+                        style="padding: 10px; border: 1px solid var(--border); border-radius: 8px;">Solved</div>
+                </div>
+            </div>
+
+            <div class="row" style="display: flex; gap: 20px; margin-bottom: 20px;">
+                <div class="col" style="flex: 1;">
+                    <div class="text-bold-600 mb-1" style="font-weight: 600; margin-bottom: 8px;">Concern Issue <span
+                            class="text-danger" style="color: var(--danger);">*</span></div>
+                    <div class="position-relative form-group">
+                        <select id="sim-concern-issue"
+                            style="width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 8px; border-color: var(--primary);">
+                            <option value="">Select...</option>
+                            <option value="Khiếu Nại::Dịch vụ::Các vấn đề liên quan đến lắp đặt">Khiếu Nại::Dịch vụ::Các
+                                vấn đề liên quan đến lắp đặt</option>
+                            <option value="Tư vấn::Sản phẩm">Tư vấn::Sản phẩm</option>
+                        </select>
+                        <!-- Simulated result for content.js detection -->
+                        <div id="sim-active-concern-value" class="css-1uccc91-singleValue" style="display:none;"></div>
+                        <input name="concern_id" type="hidden" value="1619">
+                    </div>
+                </div>
+                <div class="col" style="flex: 1;">
+                    <div class="text-bold-600 mb-1" style="font-weight: 600; margin-bottom: 8px;">Request Time <span
+                            class="text-danger" style="color: var(--danger);">*</span></div>
+                    <input class="form-control" value="04-03-2026, 12:43"
+                        style="width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 8px;">
+                </div>
+                <div class="col" style="flex: 1;">
+                    <div class="text-bold-600 mb-1" style="font-weight: 600; margin-bottom: 8px;">Reply Time <span
+                            class="text-danger" style="color: var(--danger);">*</span></div>
+                    <input class="form-control" value="04-03-2026, 12:43"
+                        style="width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 8px;">
+                </div>
+            </div>
+
+            <div class="row" style="display: flex; gap: 20px; margin-bottom: 20px;">
+                <div class="col" style="flex: 1;">
+                    <div class="text-bold-600 mb-1" style="font-weight: 600; margin-bottom: 8px;">Order Number</div>
+                    <input class="form-control" name="order_id" value="" placeholder="Nhập mã đơn hàng..."
+                        style="width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 8px;">
+                </div>
+                <div class="col" style="flex: 1;">
+                    <div class="text-bold-600 mb-1" style="font-weight: 600; margin-bottom: 8px;">Order item SKU</div>
+                    <input class="form-control" name="order_item_sku" value="" placeholder="Mã SKU..."
+                        style="width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 8px;">
+                </div>
+                <div class="col" style="flex: 1;">
+                    <div class="text-bold-600 mb-1" style="font-weight: 600; margin-bottom: 8px;">Order product name
+                    </div>
+                    <input class="form-control" name="order_item_name" value="" placeholder="Tên sản phẩm..."
+                        style="width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 8px;">
+                </div>
+            </div>
+
+            <div class="row" style="margin-bottom: 20px;">
+                <div class="col" style="width: 100%;">
+                    <div class="text-bold-600 mb-1" style="font-weight: 600; margin-bottom: 8px;">Description</div>
+                    <div class="quill" style="border: 1px solid var(--border); border-radius: 12px; overflow: hidden;">
+                        <div class="ql-toolbar"
+                            style="background: #f8fafc; padding: 10px; border-bottom: 1px solid var(--border);">
+                            <span style="font-weight: 700; color: var(--text-muted); font-size: 12px;">Rich Text Editor
+                                (Simulated)</span>
+                        </div>
+                        <div class="ql-container" style="height: 150px; background: white;">
+                            <div class="ql-editor" contenteditable="true" data-placeholder="Nhập mô tả chi tiết..."
+                                style="height: 100%; padding: 15px; outline: none;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row" style="display: flex; justify-content: flex-end; gap: 12px;">
+                <button type="button" class="btn btn-light"
+                    style="padding: 12px 24px; border-radius: 10px; border: 1px solid var(--border); background: white; cursor: pointer;">Back</button>
+                <button type="button" class="btn btn-primary" id="ticket-save-btn"
+                    style="padding: 12px 40px; border-radius: 10px; border: none; background: var(--primary); color: white; font-weight: 700; cursor: pointer; box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);">Save</button>
+            </div>
+        </form>
+    </div>
+
+    <script src="content.js"></script>
+    <script src="test_area.js"></script>
+</body>
+
+</html>
