@@ -131,6 +131,16 @@
             <label>BÁO CÁO</label>
             <span>Xem lịch sử</span>
           </button>
+
+          <!-- NEW: Macro Toggle Button -->
+          <button id="btnOpenMacro" class="btn-sync highlight-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+              style="width: 16px; height: 16px;">
+              <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
+            </svg>
+            <label>MACRO</label>
+            <span>Tìm kiếm mẫu</span>
+          </button>
         </div>
         <div id="syncMessage" class="status-msg"></div>
 
@@ -150,6 +160,58 @@
             </svg>
             <span>Gỡ cài đặt</span>
           </button>
+        </div>
+      </div>
+
+      <!-- MACRO VIEW (New Integration) -->
+      <div id="macroView" class="view">
+        <div class="view-header" style="display: flex; align-items: center; gap: 12px; margin-bottom: 20px; padding: 0 5px;">
+           <button id="btnBackToMain" style="background: none; border: none; cursor: pointer; padding: 4px; display: flex; align-items: center; justify-content: center; border-radius: 50%; width: 32px; height: 32px;">
+             <svg viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="2.5" style="width: 20px; height: 20px;">
+               <polyline points="15 18 9 12 15 6"></polyline>
+             </svg>
+           </button>
+           <h2 style="margin: 0; font-size: 1.1rem; color: #1e293b;">Hệ thống Macro</h2>
+        </div>
+
+        <!-- Macro Login (If not authenticated) -->
+        <div id="macroLoginSection" style="display: none; padding: 0 5px;">
+          <div class="welcome-section" style="margin-bottom: 15px;">
+            <h1 style="font-size: 1.25rem;">Xác thực Macro</h1>
+            <p>Sử dụng tài khoản hệ thống Macro-Vercel</p>
+          </div>
+          <div class="form-group">
+            <div class="input-field">
+              <input type="text" id="macroUsername" placeholder="Email / Tên đăng nhập" autocomplete="off">
+            </div>
+            <div class="input-field">
+              <input type="password" id="macroPassword" placeholder="Mật khẩu hệ thống Macro">
+            </div>
+            <button id="btnMacroLogin" class="btn-primary">
+              <span>Đăng nhập Macro</span>
+            </button>
+            <div id="macroLoginMessage" class="status-msg"></div>
+          </div>
+        </div>
+
+        <!-- Macro Search Content (If authenticated) -->
+        <div id="macroContentSection" style="display: none; padding: 0 5px;">
+          <div class="search-container" style="margin-bottom: 15px;">
+            <div class="input-field">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+              </svg>
+              <input type="text" id="macroSearchInput" placeholder="Tìm theo tiêu đề hoặc nội dung..." autocomplete="off">
+            </div>
+          </div>
+          <div id="macroResults" class="macro-list" style="max-height: 250px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px;">
+            <div class="empty-state" style="text-align: center; padding: 20px; color: #64748b; font-size: 0.9rem;">Nhập từ khóa để tìm kiếm...</div>
+          </div>
+          
+          <div class="macro-footer-actions" style="margin-top: 15px; text-align: right;">
+             <button id="btnMacroLogout" style="background: none; border: none; color: #ef4444; font-size: 0.75rem; cursor: pointer; text-decoration: underline;">Đăng xuất Macro</button>
+          </div>
         </div>
       </div>
     </div>

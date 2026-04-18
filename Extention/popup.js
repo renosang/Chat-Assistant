@@ -1,5 +1,6 @@
 
 const API_BASE_URL = "https://gemini-config-api.vercel.app/api";
+const MACRO_API_BASE_URL = "http://localhost:5000/api"; // Mặc định trỏ về backend hệ thống Macro
 
 document.addEventListener('DOMContentLoaded', () => {
   const loginView = document.getElementById('loginView');
@@ -23,6 +24,20 @@ document.addEventListener('DOMContentLoaded', () => {
   const closeGuide = document.getElementById('closeGuide');
   const linkDownload = document.getElementById('linkDownload');
   const extensionVersion = document.getElementById('extensionVersion');
+
+  // macro system elements
+  const macroView = document.getElementById('macroView');
+  const btnOpenMacro = document.getElementById('btnOpenMacro');
+  const btnBackToMain = document.getElementById('btnBackToMain');
+  const macroLoginSection = document.getElementById('macroLoginSection');
+  const macroContentSection = document.getElementById('macroContentSection');
+  const btnMacroLogin = document.getElementById('btnMacroLogin');
+  const macroUsernameInput = document.getElementById('macroUsername');
+  const macroPasswordInput = document.getElementById('macroPassword');
+  const macroLoginMessage = document.getElementById('macroLoginMessage');
+  const macroSearchInput = document.getElementById('macroSearchInput');
+  const macroResultsContainer = document.getElementById('macroResults');
+  const btnMacroLogout = document.getElementById('btnMacroLogout');
 
   if (extensionVersion) {
     extensionVersion.textContent = 'v' + chrome.runtime.getManifest().version;
@@ -79,6 +94,156 @@ document.addEventListener('DOMContentLoaded', () => {
         const userParam = data.username ? `?user=${encodeURIComponent(data.username.toUpperCase())}` : '';
         chrome.tabs.create({ url: chrome.runtime.getURL('admin_report.html' + userParam) });
       });
+    });
+  }
+
+  // --- Macro System Integration logic ---
+  btnOpenMacro.addEventListener('click', () => {
+    loginView.classList.remove('active');
+    settingsView.classList.remove('active');
+    macroView.classList.add('active');
+    checkMacroAuthStatus();
+  });
+
+  btnBackToMain.addEventListener('click', () => {
+    macroView.classList.remove('active');
+    settingsView.classList.add('active');
+  });
+
+  function checkMacroAuthStatus() {
+    chrome.storage.sync.get(['macroAuthToken'], (data) => {
+      if (data.macroAuthToken) {
+        macroLoginSection.style.display = 'none';
+        macroContentSection.style.display = 'block';
+      } else {
+        macroLoginSection.style.display = 'block';
+        macroContentSection.style.display = 'none';
+        macroLoginMessage.textContent = '';
+      }
+    });
+  }
+
+  btnMacroLogin.addEventListener('click', async () => {
+    const email = macroUsernameInput.value.trim();
+    const password = macroPasswordInput.value.trim();
+
+    if (!email || !password) {
+      showMessage(macroLoginMessage, 'Vui lòng nhập tài khoản Macro.', 'red');
+      return;
+    }
+
+    setLoading(btnMacroLogin, true, 'Đang xác thực Macro...');
+    try {
+      // Vì Route Login của dự án hiện tại là POST /api/auth/login
+      const response = await fetch(`${MACRO_API_BASE_URL}/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });
+
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.message || 'Đăng nhập Macro thất bại.');
+
+      chrome.storage.sync.set({ macroAuthToken: result.token }, () => {
+        checkMacroAuthStatus();
+      });
+    } catch (error) {
+      showMessage(macroLoginMessage, error.message, 'red');
+    } finally {
+      setLoading(btnMacroLogin, false, 'Đăng nhập Macro');
+    }
+  });
+
+  btnMacroLogout.addEventListener('click', () => {
+    chrome.storage.sync.remove(['macroAuthToken'], () => {
+      checkMacroAuthStatus();
+    });
+  });
+
+  let searchTimeout;
+  macroSearchInput.addEventListener('input', (e) => {
+    const q = e.target.value.trim();
+    clearTimeout(searchTimeout);
+    
+    if (!q) {
+      macroResultsContainer.innerHTML = '<div class="empty-state">Nhập từ khóa để tìm kiếm...</div>';
+      return;
+    }
+
+    searchTimeout = setTimeout(() => searchMacros(q), 400);
+  });
+
+  async function searchMacros(q) {
+    chrome.storage.sync.get(['macroAuthToken'], async (data) => {
+      if (!data.macroAuthToken) return;
+
+      try {
+        const response = await fetch(`${MACRO_API_BASE_URL}/macros/search?q=${encodeURIComponent(q)}`, {
+          headers: { 'Authorization': `Bearer ${data.macroAuthToken}` }
+        });
+        
+        if (response.status === 401) {
+          chrome.storage.sync.remove(['macroAuthToken'], () => checkMacroAuthStatus());
+          return;
+        }
+
+        const macros = await response.json();
+        renderMacros(macros);
+      } catch (error) {
+        macroResultsContainer.innerHTML = `<div class="empty-state" style="color: #ef4444;">Lỗi: ${error.message}</div>`;
+      }
+    });
+  }
+
+  function renderMacros(macros) {
+    if (!macros || macros.length === 0) {
+      macroResultsContainer.innerHTML = '<div class="empty-state">Không tìm thấy macro phù hợp.</div>';
+      return;
+    }
+
+    macroResultsContainer.innerHTML = '';
+    macros.forEach(m => {
+      const item = document.createElement('div');
+      item.className = 'macro-item';
+      
+      const categoryName = m.category ? (m.category.name || m.category) : 'CHƯA PHÂN LOẠI';
+      
+      item.innerHTML = `
+        <div class="m-category">${categoryName}</div>
+        <div class="m-title">${m.title}</div>
+        <div class="m-preview">${m.content}</div>
+      `;
+
+      item.addEventListener('click', () => {
+        navigator.clipboard.writeText(m.content).then(() => {
+          const originalTitle = item.querySelector('.m-title').textContent;
+          item.querySelector('.m-title').textContent = '✅ Đã copy!';
+          item.style.borderColor = '#10b981';
+          
+          // Log usage to backend
+          incrementMacroUsage(m._id);
+
+          setTimeout(() => {
+            item.querySelector('.m-title').textContent = originalTitle;
+            item.style.borderColor = '#edf2f7';
+          }, 1500);
+        });
+      });
+      macroResultsContainer.appendChild(item);
+    });
+  }
+
+  async function incrementMacroUsage(id) {
+    chrome.storage.sync.get(['macroAuthToken'], async (data) => {
+      if (!data.macroAuthToken) return;
+      try {
+        await fetch(`${MACRO_API_BASE_URL}/macros/${id}/increment-usage`, {
+          method: 'PUT',
+          headers: { 'Authorization': `Bearer ${data.macroAuthToken}` }
+        });
+      } catch (e) {
+        console.error('Failed to log usage:', e);
+      }
     });
   }
 

@@ -544,3 +544,35 @@ body {
   font-size: 10px;
   font-weight: 800;
 }
+/* --- Macro System Integration --- */
+.btn-sync.highlight-btn {
+  background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+  color: white;
+  border: none;
+}
+.btn-sync.highlight-btn svg { color: white; }
+.btn-sync.highlight-btn:hover { opacity: 0.9; transform: translateY(-2px); }
+
+.macro-list::-webkit-scrollbar { width: 4px; }
+.macro-list::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
+
+.macro-item {
+  background: white; border: 1px solid #edf2f7; border-radius: 18px;
+  padding: 12px 14px; cursor: pointer; transition: all 0.2s;
+  display: flex; flex-direction: column; gap: 4px; text-align: left;
+  margin-bottom: 8px;
+}
+.macro-item:hover {
+  border-color: #6366f1; box-shadow: 0 4px 12px rgba(99, 102, 241, 0.1);
+  background-color: #f8fafc;
+}
+.macro-item .m-title { font-weight: 700; font-size: 0.85rem; color: #1e293b; }
+.macro-item .m-category { font-size: 0.65rem; color: #6366f1; font-weight: 700; text-transform: uppercase; }
+.macro-item .m-preview {
+  font-size: 0.75rem; color: #64748b; line-height: 1.4;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+}
+.link-btn { background: none; border: none; color: #6366f1; font-size: 0.75rem; cursor: pointer; padding: 0; font-weight: 700; }
+.link-btn:hover { text-decoration: underline; }
+.empty-state { text-align: center; padding: 30px; color: #64748b; font-size: 0.9rem; font-weight: 600; }
+
