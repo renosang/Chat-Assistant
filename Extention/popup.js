@@ -1,6 +1,6 @@
 
 const API_BASE_URL = "https://gemini-config-api.vercel.app/api";
-const MACRO_API_BASE_URL = "http://localhost:5000/api"; // Mặc định trỏ về backend hệ thống Macro
+const MACRO_API_BASE_URL = "https://macro-react-xi.vercel.app/api";
 
 document.addEventListener('DOMContentLoaded', () => {
   const loginView = document.getElementById('loginView');
@@ -124,21 +124,20 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   btnMacroLogin.addEventListener('click', async () => {
-    const email = macroUsernameInput.value.trim();
+    const username = macroUsernameInput.value.trim();
     const password = macroPasswordInput.value.trim();
 
-    if (!email || !password) {
-      showMessage(macroLoginMessage, 'Vui lòng nhập tài khoản Macro.', 'red');
+    if (!username || !password) {
+      showMessage(macroLoginMessage, 'Vui lòng nhập tên đăng nhập và mật khẩu.', 'red');
       return;
     }
 
     setLoading(btnMacroLogin, true, 'Đang xác thực Macro...');
     try {
-      // Vì Route Login của dự án hiện tại là POST /api/auth/login
       const response = await fetch(`${MACRO_API_BASE_URL}/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password })
+        body: JSON.stringify({ username, password })
       });
 
       const result = await response.json();
