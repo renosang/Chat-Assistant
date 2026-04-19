@@ -381,6 +381,26 @@
   display: flex;
   flex-direction: column;
   gap: 8px;
+  max-height: 400px;
+}
+
+#macro-search-results {
+  flex: 1;
+  overflow-y: auto;
+  padding-right: 4px;
+  max-height: 340px;
+}
+
+/* Custom scrollbar for macro results */
+#macro-search-results::-webkit-scrollbar {
+  width: 5px;
+}
+#macro-search-results::-webkit-scrollbar-track {
+  background: transparent;
+}
+#macro-search-results::-webkit-scrollbar-thumb {
+  background: #e2e8f0;
+  border-radius: 10px;
 }
 
 #macro-search-input {
@@ -620,6 +640,68 @@
   color: white !important;
   border-color: #4f46e5 !important;
   box-shadow: 0 2px 6px rgba(79, 70, 229, 0.2) !important;
+}
+
+/* --- TOOLBAR WARNING --- */
+.gemini-toolbar-status {
+  display: none;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+  padding: 0 16px !important;
+  margin-left: 14px !important;
+  font-size: 12px !important;
+  font-weight: 800 !important;
+  border-radius: 20px !important;
+  height: 28px !important;
+  min-width: 120px !important;
+  max-width: fit-content !important;
+  white-space: nowrap !important;
+  transition: all 0.2s ease !important;
+  box-sizing: border-box !important;
+  line-height: 28px !important;
+  text-align: center !important;
+}
+
+.gemini-toolbar-status.critical {
+  display: flex !important;
+  color: #ef4444 !important;
+  background: #fee2e2 !important;
+  border: 1px solid rgba(239, 68, 68, 0.3) !important;
+}
+
+.gemini-toolbar-status.pulse {
+  animation: gemini-pulse-red 1.5s infinite ease-in-out !important;
+}
+
+.gemini-toolbar-status.minor {
+  display: flex !important;
+  color: #92400e !important;
+  background: #fef3c7 !important;
+  border: 1px solid rgba(146, 64, 14, 0.3) !important;
+}
+
+.gemini-toolbar-status.perfect {
+  display: flex !important;
+  color: #166534 !important;
+  background: #dcfce7 !important;
+  border: 1px solid rgba(22, 101, 52, 0.3) !important;
+}
+
+.gemini-toolbar-status.pulse-green {
+  animation: gemini-pulse-green 2s infinite ease-in-out !important;
+}
+
+@keyframes gemini-pulse-red {
+  0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+  50% { transform: scale(1.02); box-shadow: 0 0 0 8px rgba(239, 68, 68, 0); }
+  100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+}
+
+@keyframes gemini-pulse-green {
+  0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.4); }
+  50% { transform: scale(1.02); box-shadow: 0 0 0 8px rgba(34, 197, 94, 0); }
+  100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
 }
 
 .gemini-fragment-divider {

@@ -70,25 +70,9 @@ document.addEventListener('DOMContentLoaded', () => {
         div.className = 'msg ' + (type === 'received' ? 'received-customer' : 'sent');
 
         if (type === 'received') {
-            div.innerHTML = `
-                <div class="chat-item chat-item--customer">
-                    <div class="chat-item__body">
-                        <div class="chat-item__content">
-                            <div><div>${text}</div></div>
-                        </div>
-                    </div>
-                </div>
-            `;
+            div.innerHTML = `<div>${text}</div>`;
         } else {
-            div.innerHTML = `
-                <div class="chat-item">
-                    <div class="chat-item__body">
-                        <div class="chat-item__content">
-                            <div><div>${text}</div></div>
-                        </div>
-                    </div>
-                </div>
-            `;
+            div.innerHTML = `<div>${text}</div>`;
         }
 
         chatBody.appendChild(div);
@@ -129,10 +113,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // Enter Key
     textarea.addEventListener('keydown', (e) => {
         if (e.key === 'Enter' && !e.shiftKey) {
-            // content.js handles blocking, we just wait a bit to see if text was cleared/sent
-            setTimeout(() => {
-                // Not much to do here, performUiSend is triggered by button click simulation usually
-            }, 10);
+            e.preventDefault();
+            performUiSend();
         }
     });
 

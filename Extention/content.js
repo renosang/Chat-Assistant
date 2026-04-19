@@ -900,6 +900,8 @@ function setChatText(el, text) {
   // ---------- UI ----------
 
   function showSuggestionPanel(analysis) {
+    const latestVal = getChatText(currentActiveTextarea);
+    updateToolbarStatus(analysis, latestVal);
     if (!suggestionPanel) createUIElements();
     if (!suggestionPanel) return; // Critical failure safety
 
@@ -1169,6 +1171,7 @@ function setChatText(el, text) {
     const nowVal = getChatText(currentActiveTextarea).trim();
     if (!nowVal) {
       hideUI();
+      updateToolbarStatus(null, ""); // Explicitly clear toolbar when truly empty
       return;
     }
 
@@ -1188,10 +1191,12 @@ function setChatText(el, text) {
       const latestVal = getChatText(textareaRef).trim();
       if (!latestVal) {
         hideUI();
+        updateToolbarStatus(null, ""); 
         return;
       }
 
       const analysis = getAnalysis(latestVal);
+      updateToolbarStatus(analysis, latestVal);
 
       const isDifferent = analysis.suggestedText !== latestVal;
       const hasError =
@@ -1217,18 +1222,25 @@ function setChatText(el, text) {
     if (geminiOverlay) {
       geminiOverlay.style.display = "none";
     }
+    forceAllowSend = false;
+
+    // REMOVED: statusPill.style.display = "none" from here
+    // Toolbar should be managed solely by updateToolbarStatus(analysis, text)
+    // to allow 'Perfect' label to persist even when suggestion panel is hidden.
   }
 
   // ---------- SEND BLOCK HOOKS ----------
 
-  // 1) Block Enter-to-send (Enter without Shift)
   function onTextareaKeyDown(ev) {
-    if (!currentActiveTextarea) return;
-    if (ev.target !== currentActiveTextarea) return;
-
     if (ev.key === "Enter" && !ev.shiftKey) {
       const blocked = enforceBlockIfNeeded(ev);
       if (blocked) return;
+      
+      // If not blocked, check if message sent (cleared) after a short delay
+      setTimeout(() => {
+        const val = getChatText(ev.target).trim();
+        if (!val) hideUI();
+      }, 300);
     }
 
     if (ev.key === "Escape") hideUI();
@@ -1276,6 +1288,13 @@ function setChatText(el, text) {
 
     const blocked = enforceBlockIfNeeded(ev);
     if (blocked) return;
+
+    // Not blocked: check if message sent after delay
+    setTimeout(() => {
+      const activeEl = currentActiveTextarea || document.activeElement;
+      const val = getChatText(activeEl).trim();
+      if (!val) hideUI();
+    }, 300);
   }
 
   // ---------- CONFIG & CACHE ----------
@@ -1975,7 +1994,8 @@ function setChatText(el, text) {
     element.dataset.geminiAttached = "true";
 
     element.addEventListener("input", handleInput);
-    element.addEventListener("keydown", onTextareaKeyDown);
+    // Use capture: true to intercept Enter before page scripts
+    element.addEventListener("keydown", onTextareaKeyDown, { capture: true });
   }
 
   // ---------- INIT ----------
@@ -2141,6 +2161,72 @@ function setChatText(el, text) {
       });
       toolbar.appendChild(pBtn);
     });
+
+    // --- Toolbar Warning Status ---
+    const statusPill = document.createElement("div");
+    statusPill.id = "gemini-toolbar-status";
+    statusPill.className = "gemini-toolbar-status";
+    statusPill.style.display = "none"; 
+    toolbar.appendChild(statusPill);
+  }
+
+  function isCritical(analysis) {
+    return (analysis.forbidden?.length > 0 || analysis.brands?.length > 0 || analysis.platforms?.length > 0);
+  }
+
+  function updateToolbarStatus(analysis, text) {
+    const statusPill = document.getElementById("gemini-toolbar-status");
+    if (!statusPill) return;
+
+    // 1. Hide if empty text
+    if (!text || text.trim().length === 0) {
+      statusPill.classList.remove("pulse", "pulse-green", "minor", "perfect", "critical");
+      statusPill.style.display = "none";
+      statusPill.innerHTML = ""; // Clear content to prevent sizing artifacts
+      return;
+    }
+
+    // Reset classes for active states
+    statusPill.classList.remove("pulse", "pulse-green", "minor", "perfect", "critical");
+    statusPill.style.display = "flex";
+    statusPill.innerHTML = "";
+
+    // 2. Critical Errors (Highest Priority - Red)
+    // If any critical error is found, we show it and STOP (return) to avoid yellow override
+    if (analysis.forbidden?.length > 0) {
+      statusPill.innerHTML = `⚠️ CÓ TỪ CẤM`;
+      statusPill.classList.add("pulse", "critical");
+      return;
+    } 
+    
+    if (analysis.brands?.length > 0) {
+      statusPill.innerHTML = `⚠️ SAI BRAND`;
+      statusPill.classList.add("pulse", "critical");
+      return;
+    } 
+    
+    if (analysis.platforms?.length > 0) {
+      statusPill.innerHTML = `⚠️ SAI SÀN`;
+      statusPill.classList.add("pulse", "critical");
+      return;
+    } 
+
+    // 3. Minor Errors (Only if there are REAL grammar warnings or typo/formatting issues)
+    // We ignore if it's just a slight difference in punctuation/spacing
+    const hasWarnings = (analysis.grammar || []).some(g => g && g.msg && !g.msg.startsWith("Đã sửa") && !g.msg.startsWith("Đã thêm"));
+    const cleanSuggested = (analysis.suggestedText || "").replace(/[.,!?\s]/g, "");
+    const cleanCurrent = (text || "").replace(/[.,!?\s]/g, "");
+    const isActuallyDifferent = cleanSuggested !== cleanCurrent;
+
+    if (hasWarnings || analysis.typos?.length > 0 || isActuallyDifferent) {
+      statusPill.classList.add("minor");
+      statusPill.innerHTML = "📝 KIỂM TRA LẠI";
+    }
+    // 4. Perfect State (Everything good - Green)
+    else {
+      statusPill.classList.add("perfect", "pulse-green");
+      statusPill.innerHTML = "✨ QUÁ TUYỆT VỜI";
+    }
   }
 
 
@@ -2204,12 +2290,12 @@ function setChatText(el, text) {
     macroSearchOverlay.style.left = `${Math.max(10, left)}px`;
 
     // Smart Top positioning (Above or Below)
-    // Based on search results max-height 240px + padding + input ~ 340px total
-    const estimatedHeight = 340; 
-    if (rect.top > estimatedHeight + 40) {
-      macroSearchOverlay.style.top = `${rect.top - estimatedHeight}px`;
+    // We use a safe estimate or wait for first render, but better to prefer UP if room.
+    const estimatedHeight = 420; // Max height with scroll + input
+    if (rect.top > estimatedHeight) {
+      macroSearchOverlay.style.top = `${rect.top - estimatedHeight - 10}px`;
     } else {
-      macroSearchOverlay.style.top = `${rect.bottom + 12}px`;
+      macroSearchOverlay.style.top = `${rect.bottom + 10}px`;
     }
 
     const input = macroSearchOverlay.querySelector("#macro-search-input");
@@ -2397,20 +2483,30 @@ function setChatText(el, text) {
     return true;
   }
 
+  function stripHtml(html) {
+    if (!html) return "";
+    try {
+      const doc = new DOMParser().parseFromString(html, 'text/html');
+      return doc.body.textContent || html.replace(/<[^>]*>/g, '');
+    } catch (e) {
+      return html.replace(/<[^>]*>/g, '');
+    }
+  }
+
   function renderMacroAsHtml(content) {
     if (!content) return "";
     let obj = content;
     if (typeof content === 'string' && (content.startsWith('{') || content.startsWith('['))) {
       try { obj = JSON.parse(content); } catch(e) { obj = content; }
     }
-    if (typeof obj === 'string') return escapeHtml(obj);
+    if (typeof obj === 'string') return stripHtml(obj);
 
     const parseNode = (node) => {
       if (!node) return "";
       
       // Text node
       if (typeof node.text === 'string') {
-        let text = escapeHtml(node.text);
+        let text = escapeHtml(stripHtml(node.text));
         
         // Handle format (Lexical style)
         if (node.format) {
@@ -2480,21 +2576,14 @@ function setChatText(el, text) {
       try { obj = JSON.parse(content); } catch (e) { obj = content; }
     }
 
-    const stripHtml = (html) => {
-      if (!html) return "";
-      const doc = new DOMParser().parseFromString(html, 'text/html');
-      return doc.body.textContent || html.replace(/<[^>]*>/g, '');
-    };
-
     if (typeof obj === 'string') return stripHtml(obj);
     
     try {
       const extract = (node) => {
         if (!node) return "";
-        if (typeof node.text === 'string') return node.text; // Return as-is, no stripHtml yet to avoid losing spaces
+        if (typeof node.text === 'string') return stripHtml(node.text);
         
         if (Array.isArray(node)) {
-          // Join with no space, but the nodes themselves SHOULD contain the spaces
           return node.map(extract).join("");
         }
         
@@ -2519,7 +2608,17 @@ function setChatText(el, text) {
   // Global capture to block send click & submit
   document.addEventListener("click", onGlobalClickCapture, true);
   document.addEventListener("submit", onFormSubmit, true);
+  // Absoulte block: capture Enter at document level for any textarea
+  document.addEventListener("keydown", (e) => {
+    const el = e.target;
+    if (el && (el.tagName === "TEXTAREA" || el.isContentEditable)) {
+      if (e.key === "Enter" && !e.shiftKey) {
+        onTextareaKeyDown(e);
+      }
+    }
+  }, true);
 }
+
 
 // Auto-hide when clicking outside
 document.addEventListener("mousedown", (e) => {
