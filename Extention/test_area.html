@@ -244,6 +244,25 @@
             align-items: center;
         }
 
+        /* Shopee-like Toolbar Utilities */
+        .d-flex { display: flex !important; }
+        .align-items-center { align-items: center !important; }
+        .gap-2 { gap: 8px !important; }
+        .text-left { text-align: left !important; }
+        .col { flex: 1 1 0%; }
+        
+        .mock-toolbar-btn {
+            padding: 4px;
+            color: #64748b;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+        .mock-toolbar-btn:hover {
+            background: rgba(0,0,0,0.05);
+            color: #1e293b;
+        }
+
         .trigger-buttons {
             display: flex;
             flex-wrap: wrap;
@@ -452,6 +471,15 @@
 
         <div class="chat-footer">
             <div class="input-container">
+                <!-- Mock Shopee Chat Toolbar (Extension injects Quick Macro here) -->
+                <div class="text-left d-flex align-items-center gap-2 col" style="padding: 0 0 10px 0; border-bottom: 1px solid #f1f5f9; margin-bottom: 12px;">
+                    <span class="mock-toolbar-btn" title="Stickers">😊</span>
+                    <span class="mock-toolbar-btn" title="Image">🖼️</span>
+                    <span class="mock-toolbar-btn" title="Voucher">🎟️</span>
+                    <span class="mock-toolbar-btn" title="Order">🛒</span>
+                    <!-- The Quick Macro button will be injected right here as the last item or within the flow -->
+                </div>
+
                 <div class="textarea-wrapper">
                     <textarea id="test-textarea" placeholder="Nhập tin nhắn để kiểm duyệt..."></textarea>
                 </div>
