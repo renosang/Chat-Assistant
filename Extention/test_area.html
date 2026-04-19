@@ -202,6 +202,50 @@
             box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
         }
 
+        /* Chat Item Structure (provided by user style) */
+        .chat-item {
+            display: flex;
+            gap: 12px;
+            width: 100%;
+        }
+
+        .chat-item--customer {
+            flex-direction: row;
+        }
+
+        .chat-avatar {
+            flex-shrink: 0;
+            margin-top: 4px;
+        }
+
+        .avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            overflow: hidden;
+            background: #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .chat-item__body {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            max-width: 100%;
+        }
+
+        .chat-item__content {
+            word-break: break-word;
+        }
+
+        .sent-time {
+            font-size: 10px;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
         /* Footer & Buttons */
         .chat-footer {
             padding: 24px 32px;

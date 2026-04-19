@@ -177,7 +177,17 @@ function setChatText(el, text) {
 
     emojis: ["😠", "😡", "🤬", "👿", "👎", "😤", "☹️", "😟"],
     lastAnalyzedText: null,
-    lastActiveSession: null
+    lastActiveSession: null,
+    // Compiled regex cache
+    compiled: {
+      complaint: null,
+      logistics: null,
+      quality: null,
+      fake: null,
+      gifts: null,
+      service: null,
+      exclude: null
+    }
   };
 
   let moodAlertPanel = null;
@@ -1327,7 +1337,26 @@ function setChatText(el, text) {
       });
     }
 
-    console.log("[Gemini Content] Updated Config.");
+    console.log("[Gemini Content] Updated Static Config.");
+
+    // Merge & Compile Mood Indicators (Empathy Analysis)
+    const remoteMood = config.moodIndicators || {};
+    const mergeAndCompile = (key, defaultList) => {
+      const remoteList = remoteMood[key] || [];
+      const combined = [...new Set([...defaultList, ...remoteList])];
+      MOOD_INDICATORS[key] = combined; // Update list for reference
+      MOOD_INDICATORS.compiled[key === "fakeSuspicion" ? "fake" : key] = createRegex(combined);
+    };
+
+    mergeAndCompile("complaint", MOOD_INDICATORS.complaint);
+    mergeAndCompile("logistics", MOOD_INDICATORS.logistics);
+    mergeAndCompile("quality", MOOD_INDICATORS.quality);
+    mergeAndCompile("fakeSuspicion", MOOD_INDICATORS.fakeSuspicion);
+    mergeAndCompile("gifts", MOOD_INDICATORS.gifts);
+    mergeAndCompile("service", MOOD_INDICATORS.service);
+    mergeAndCompile("exclude", MOOD_INDICATORS.exclude);
+
+    console.log("[Gemini Content] Empathy Mood Indicators Compiled.");
   }
 
   // ---------- DIFF & HIGHLIGHT ----------
@@ -1609,51 +1638,31 @@ function setChatText(el, text) {
 
     const lower = text.toLowerCase();
 
-    // Exclusion Check (Don't trigger for pure info requests)
-    if (MOOD_INDICATORS.exclude.some(w => lower.includes(w))) {
+    // Exclusion Check
+    if (MOOD_INDICATORS.compiled.exclude && MOOD_INDICATORS.compiled.exclude.test(lower)) {
       return results;
     }
 
-    // Priority 1: Specific Empathy Categories
-    // - Quality/Damage
-    if (MOOD_INDICATORS.quality.some(w => lower.includes(w))) {
-      results.isNegative = true;
-      results.category = "quality";
-      results.reasons.push("QUALITY_ISSUE");
-    }
-    // - Fake Suspicion
-    else if (MOOD_INDICATORS.fakeSuspicion.some(w => lower.includes(w))) {
-      results.isNegative = true;
-      results.category = "fake";
-      results.reasons.push("FAKE_SUSPICION");
-    }
-    // - Logistics/Delivery
-    else if (MOOD_INDICATORS.logistics.some(w => lower.includes(w))) {
-      results.isNegative = true;
-      results.category = "logistics";
-      results.reasons.push("LOGISTICS_ISSUE");
-    }
-    // - Gifts/Promos
-    else if (MOOD_INDICATORS.gifts.some(w => lower.includes(w))) {
-      results.isNegative = true;
-      results.category = "gifts";
-      results.reasons.push("PROMO_ISSUE");
-    }
-    // - Service Experience (Pushing/Frustration)
-    else if (MOOD_INDICATORS.service.some(w => lower.includes(w))) {
-      results.isNegative = true;
-      results.category = "service";
-      results.reasons.push("SERVICE_ISSUE");
-    }
-    // - General Complaint
-    else if (MOOD_INDICATORS.complaint.some(w => lower.includes(w))) {
-      results.isNegative = true;
-      results.category = "complaint";
-      results.reasons.push("COMPLAINT");
+    // Check compiled categories
+    const categories = [
+      { key: "quality", label: "QUALITY_ISSUE" },
+      { key: "fake", label: "FAKE_SUSPICION" },
+      { key: "logistics", label: "LOGISTICS_ISSUE" },
+      { key: "gifts", label: "PROMO_ISSUE" },
+      { key: "service", label: "SERVICE_ISSUE" },
+      { key: "complaint", label: "COMPLAINT" }
+    ];
+
+    for (const cat of categories) {
+      if (MOOD_INDICATORS.compiled[cat.key] && MOOD_INDICATORS.compiled[cat.key].test(lower)) {
+        results.isNegative = true;
+        results.category = cat.key;
+        results.reasons.push(cat.label);
+        // Note: we continue to pick up all reasons, but first one sets category
+      }
     }
 
-    // Priority 2: Intensive Mood (CAPS / Punc) - These can overlap
-    // 1. CAPS LOCK detection
+    // Priority 2: Intensive Mood (CAPS / Punc)
     const letters = text.replace(/[^\p{L}]/gu, "");
     if (letters.length > 5) {
       const caps = letters.replace(/[\p{Ll}]/gu, "").length;
@@ -1664,14 +1673,13 @@ function setChatText(el, text) {
       }
     }
 
-    // 2. Excessive Punctuation
     if (/([?!]){3,}/.test(text)) {
       results.isNegative = true;
       results.reasons.push("PUNCTUATION");
       if (!results.category) results.category = "angry";
     }
 
-    // 4. Negative Emojis
+    // Emojis
     for (const emoji of MOOD_INDICATORS.emojis) {
       if (text.includes(emoji)) {
         results.isNegative = true;
@@ -1771,63 +1779,94 @@ function setChatText(el, text) {
   }
 
   function scanCustomerMessages() {
-    // proactive check for session changes (especially for admin.onpoint flow)
     const ctx = getCurrentContext();
     const sessionKey = `${ctx.currentBrand}-${ctx.currentMarketplace}-${ctx.customerId}`;
 
     if (MOOD_INDICATORS.lastActiveSession && MOOD_INDICATORS.lastActiveSession !== sessionKey) {
-      console.log("[Gemini Sentiment] Session changed, forcing re-scan.");
-      MOOD_INDICATORS.lastAnalyzedText = null; // Force scan
-      updateMoodAlert({ isNegative: false }); // Reset alert for new session until scanned
+      MOOD_INDICATORS.lastAnalyzedText = null;
+      updateMoodAlert({ isNegative: false });
     }
     MOOD_INDICATORS.lastActiveSession = sessionKey;
 
-    // Target messages that are likely from the customer (received/left side)
-    const selectors = [
-      ".chat-item.chat-item--customer .chat-item__content", // Admin.onpoint exact
-      ".chat-item--customer .chat-item__content",
-      ".msg.received .chat-item__content",
-      ".chat-item--received .chat-item__content",
-      ".left-message .chat-item__content",
-      ".chat-item__content:not(.sent):not(.right)" // Fallback for mixed lists
-    ];
-
-    let allCustomerMsgs = [];
-    for (const sel of selectors) {
-      const found = document.querySelectorAll(sel);
-      if (found.length) {
-        allCustomerMsgs = Array.from(found);
-        break;
-      }
+    // 1. Find ALL messages in the current view
+    // We need both customer and agent messages to detect "Agent Silence"
+    const allMessagesRaw = document.querySelectorAll(".chat-item, .shopee-messenger-chat-item, .msg-item");
+    if (!allMessagesRaw.length && ctx.currentMarketplace === "shopee") {
+      // Fallback for Shopee if main class isn't found
+      const shopeeMsgs = document.querySelectorAll(".shopee-messenger-chat-item");
+      if (!shopeeMsgs.length) return;
     }
 
-    if (!allCustomerMsgs.length) return;
+    const msgs = Array.from(allMessagesRaw).slice(-10); // Take last 10 for interaction context
+    if (!msgs.length) return;
 
-    // Analyze the LAST 5 messages for better context (in case of scrolling/reading)
-    const recentMsgs = allCustomerMsgs.slice(-5);
-    const combinedText = recentMsgs.map(m => m.innerText.trim()).join(" | ");
+    // Identify which ones are from 'customer'
+    const customerMsgs = msgs.filter(m => {
+      // Admin system (provided by user)
+      if (m.classList.contains("chat-item--customer")) return true;
+      // Shopee
+      if (m.classList.contains("shopee-messenger-chat-item--customer")) return true;
+      // Lazada / Fallbacks
+      if (m.classList.contains("received") || m.classList.contains("msg-item--customer")) return true;
+      // Generic left alignment check
+      const style = window.getComputedStyle(m);
+      if (style.textAlign === "left" || style.justifyContent.includes("flex-start")) return true;
+      return false;
+    });
 
-    // Simple deduplication using combined text
-    if (combinedText === MOOD_INDICATORS.lastAnalyzedText) return;
+    if (!customerMsgs.length) return;
+
+    // 2. Interaction Pass: Agent Silence detection
+    // If the last 3-4 messages are ALL from the customer, trigger empathy for wait time
+    let customerStreak = 0;
+    for (let i = msgs.length - 1; i >= 0; i--) {
+      const isCustomer = customerMsgs.includes(msgs[i]);
+      if (isCustomer) customerStreak++;
+      else break; // Agent replied
+    }
+
+    // 3. Last 5 text extraction for semantic pass
+    const recentCustomerMsgs = customerMsgs.slice(-5);
+    const combinedText = recentCustomerMsgs.map(m => m.innerText.trim()).join(" | ");
+
+    if (combinedText === MOOD_INDICATORS.lastAnalyzedText && customerStreak < 3) return;
     MOOD_INDICATORS.lastAnalyzedText = combinedText;
 
-    // Find the most 'moody' message among the last 5
     let finalMood = { isNegative: false, reasons: [], category: null };
 
-    // Iterate from newest to oldest
-    for (let i = recentMsgs.length - 1; i >= 0; i--) {
-      const text = recentMsgs[i].innerText.trim();
-      if (!text) continue;
+    // Pass A: Silent Treatment (Urgency)
+    if (customerStreak >= 3) {
+      finalMood.isNegative = true;
+      finalMood.category = "service";
+      finalMood.reasons.push("AGENT_SILENCE");
+    }
 
-      const mood = analyzeMood(text);
+    // Pass B: Keyword Analysis (individual and combined)
+    // Individual most recent first
+    for (let i = recentCustomerMsgs.length - 1; i >= 0; i--) {
+      const mood = analyzeMood(recentCustomerMsgs[i].innerText);
       if (mood.isNegative) {
-        // Prioritize the FIRST negative mood found (the most recent one)
-        finalMood = mood;
-        break;
+        finalMood.isNegative = true;
+        if (!finalMood.category) finalMood.category = mood.category;
+        mood.reasons.forEach(r => { if (!finalMood.reasons.includes(r)) finalMood.reasons.push(r); });
       }
     }
 
-    console.log("[Gemini Sentiment] Final mood from recent history:", finalMood);
+    // Combined pass (for semantic build-up)
+    const combinedMood = analyzeMood(combinedText);
+    if (combinedMood.isNegative) {
+      finalMood.isNegative = true;
+      if (!finalMood.category) finalMood.category = combinedMood.category;
+      combinedMood.reasons.forEach(r => { if (!finalMood.reasons.includes(r)) finalMood.reasons.push(r); });
+    }
+
+    // Check for Repetition (Manual check on combinedText)
+    // If multiple distinct complaints exist
+    if (finalMood.reasons.length >= 2) {
+      finalMood.category = "angry"; // Escalated
+      finalMood.reasons.push("REPETITIVE_CONCERN");
+    }
+
     updateMoodAlert(finalMood);
   }
 

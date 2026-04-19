@@ -70,9 +70,24 @@ document.addEventListener('DOMContentLoaded', () => {
         div.className = 'msg ' + (type === 'received' ? 'received-customer' : 'sent');
 
         if (type === 'received') {
-            div.innerHTML = `<div>${text}</div>`;
+            div.className = 'msg received-customer chat-item chat-item--customer';
+            div.innerHTML = `
+                <div class="chat-avatar"><div class="avatar m-0"><img src="/images/portrait/default.png" alt="" height="25" width="25"></div></div>
+                <div class="chat-item__body">
+                    <div title="" class="chat-item__content">
+                        <div><div>${text}</div></div>
+                    </div>
+                </div>
+            `;
         } else {
-            div.innerHTML = `<div>${text}</div>`;
+            div.className = 'msg sent chat-item';
+            div.innerHTML = `
+                <div class="chat-item__body">
+                    <div title="" class="chat-item__content">
+                        <div><div>${text}</div></div>
+                    </div>
+                </div>
+            `;
         }
 
         chatBody.appendChild(div);
