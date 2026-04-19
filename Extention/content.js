@@ -844,8 +844,10 @@ function setChatText(el, text) {
         <p class="gemini-alert-msg">Đang <strong>${issue}</strong> kìa! Kiểm tra lại nha không là bị ký warning đó. 😂</p>
         <div class="gemini-alert-actions">
            <button class="gemini-alert-btn-main" id="gemini-alert-fix">Kiểm tra ngay</button>
-           <button class="gemini-alert-btn-sub" id="gemini-alert-bypass">Vẫn gửi</button>
-           <button class="gemini-alert-btn-sub" id="gemini-alert-close">Đóng</button>
+           <div class="gemini-alert-btn-sub-row">
+             <button class="gemini-alert-btn-sub" id="gemini-alert-bypass">Vẫn gửi</button>
+             <button class="gemini-alert-btn-sub" id="gemini-alert-close">Đóng</button>
+           </div>
         </div>
       </div>
     </div>
@@ -1823,7 +1825,12 @@ function setChatText(el, text) {
       return;
     }
 
-    // Create Overlay
+    // Create Panel
+    suggestionPanel = document.createElement("div");
+    suggestionPanel.id = "gemini-suggestion-panel";
+    document.body.appendChild(suggestionPanel);
+
+    // Create Overlay (append after panel for sibling CSS selectors)
     geminiOverlay = document.createElement("div");
     geminiOverlay.id = "gemini-overlay";
     geminiOverlay.style.cssText = `
@@ -1838,11 +1845,6 @@ function setChatText(el, text) {
     `;
     geminiOverlay.addEventListener("click", hideUI);
     document.body.appendChild(geminiOverlay);
-
-    // Create Panel
-    suggestionPanel = document.createElement("div");
-    suggestionPanel.id = "gemini-suggestion-panel";
-    document.body.appendChild(suggestionPanel);
   }
 
   function createMoodUI() {
