@@ -11,18 +11,30 @@
   display: none;
   position: fixed;
   z-index: 2147483647;
-  width: 400px;
+  width: 380px;
   max-width: 92vw;
-  border-radius: 14px;
+  min-width: 280px;
+  min-height: 100px;
+  border-radius: 12px;
   overflow: hidden;
+  resize: both;
   background: #ffffff;
   border: 1px solid rgba(17, 24, 39, 0.10);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1), 0 22px 60px rgba(0, 0, 0, 0.18);
-  transition: opacity 0.2s ease, transform 0.2s ease, width 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08), 0 20px 50px rgba(0, 0, 0, 0.15);
+  transition: opacity 0.2s ease, width 0.3s ease;
+}
+
+#gemini-suggestion-panel:not(.gemini-dragging) {
+  transition: opacity 0.2s ease, transform 0.2s ease, width 0.3s ease, top 0.3s ease, left 0.3s ease;
+}
+
+#gemini-suggestion-panel.gemini-is-minimized {
+  width: 200px !important;
+  height: auto !important;
 }
 
 #gemini-suggestion-panel.gemini-wide {
-  width: 600px;
+  width: 580px;
 }
 
 .gemini-panel {
@@ -35,107 +47,124 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 8px 12px;
-  background: linear-gradient(180deg, rgba(99, 102, 241, 0.14) 0%, rgba(255, 255, 255, 1) 100%);
-  border-bottom: 1px solid rgba(17, 24, 39, 0.08);
+  padding: 6px 10px;
+  background: linear-gradient(180deg, rgba(99, 102, 241, 0.1) 0%, rgba(255, 255, 255, 1) 100%);
+  border-bottom: 1px solid rgba(17, 24, 39, 0.06);
+  user-select: none;
+}
+
+.gemini-dragging .gemini-panel-header {
+  background: linear-gradient(180deg, rgba(99, 102, 241, 0.2) 0%, rgba(255, 255, 255, 1) 100%);
+}
+
+.gemini-min-btn {
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  transition: all 0.2s;
+}
+
+.gemini-min-btn:hover {
+  background: rgba(17, 24, 39, 0.05);
 }
 
 .gemini-title {
-  font-weight: 900;
-  font-size: 13px;
-  color: rgba(17, 24, 39, 0.92);
+  font-weight: 800;
+  font-size: 11.5px;
+  color: rgba(17, 24, 39, 0.9);
 }
 
 .gemini-x {
   border: 0;
   background: transparent;
   cursor: pointer;
-  font-weight: 900;
-  color: rgba(17, 24, 39, 0.65);
-  padding: 6px 8px;
-  border-radius: 10px;
+  font-weight: 800;
+  color: rgba(17, 24, 39, 0.5);
+  padding: 4px 6px;
+  border-radius: 8px;
 }
 
 .gemini-x:hover {
-  background: rgba(17, 24, 39, 0.06);
+  background: rgba(17, 24, 39, 0.05);
 }
 
 .gemini-panel-body {
-  padding: 8px 12px 0px;
+  padding: 6px 10px 0px;
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  /* Prevent body scroll, use box scroll */
   flex: 1;
 }
 
 .gemini-panel-footer {
-  padding: 12px;
+  padding: 10px;
   background: white;
-  border-top: 1px solid rgba(17, 24, 39, 0.08);
-  border-bottom-left-radius: 12px;
-  border-bottom-right-radius: 12px;
+  border-top: 1px solid rgba(17, 24, 39, 0.06);
   z-index: 10;
 }
 
 .gemini-section-title {
-  font-size: 12px;
-  font-weight: 900;
-  color: rgba(17, 24, 39, 0.70);
-  margin: 2px 0 10px;
+  font-size: 10.5px;
+  font-weight: 800;
+  color: rgba(17, 24, 39, 0.6);
+  margin: 2px 0 6px;
 }
 
 .gemini-empty {
-  padding: 10px 12px;
-  border-radius: 12px;
-  border: 1px dashed rgba(17, 24, 39, 0.18);
-  background: rgba(17, 24, 39, 0.02);
-  font-size: 12.5px;
-  color: rgba(17, 24, 39, 0.85);
-  margin-bottom: 10px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  border: 1px dashed rgba(17, 24, 39, 0.15);
+  background: rgba(17, 24, 39, 0.01);
+  font-size: 12px;
+  color: rgba(17, 24, 39, 0.8);
+  margin-bottom: 8px;
 }
 
 .gemini-list {
-  margin: 5px 0 5px 4px;
+  margin: 4px 0 4px 2px;
   padding: 0;
-  font-size: 12px;
-  line-height: 1.5;
+  font-size: 11.5px;
+  line-height: 1.4;
   color: #374151;
-  /* Slate 700 */
   list-style: none;
 }
 
 .gemini-list li {
-  margin: 6px 0;
+  margin: 4px 0;
   display: flex;
   align-items: flex-start;
-  gap: 12px;
+  gap: 10px;
   position: relative;
   font-weight: 400;
-  padding: 4px 8px;
-  border-radius: 8px;
+  padding: 3px 6px;
+  border-radius: 6px;
   transition: background 0.2s ease;
 }
 
 .gemini-list li:hover {
-  background: rgba(17, 24, 39, 0.03) !important;
+  background: rgba(17, 24, 39, 0.02) !important;
 }
 
-/* Premium SVG Icon System */
+/* Icons */
 .gemini-list li::before {
   content: "";
   display: inline-block;
-  width: 14px;
-  height: 14px;
+  width: 12px;
+  height: 12px;
   flex-shrink: 0;
-  margin-top: 3px;
+  margin-top: 2px;
   background-size: contain;
   background-repeat: no-repeat;
 }
 
 .gemini-crit-error {
   color: #b91c1c !important;
-  /* Rich red */
   font-weight: 600 !important;
 }
 
@@ -145,7 +174,6 @@
 
 .gemini-processed-msg {
   color: #374151 !important;
-  /* Slate 700 - Default text color */
 }
 
 .gemini-processed-msg::before {
@@ -154,7 +182,6 @@
 
 .gemini-warn-msg {
   color: #d97706 !important;
-  /* Amber */
 }
 
 .gemini-warn-msg::before {
@@ -174,7 +201,6 @@
 
 .gemini-highlight-amber {
   color: #f59e0b !important;
-  /* Amber/Orange */
   font-weight: 800 !important;
   text-decoration: underline decoration-thickness(1px);
 }
@@ -185,23 +211,23 @@
   text-decoration: underline decoration-thickness(3px) !important;
 }
 
-/* Suggestion (collapsible) */
+/* Suggestion Box */
 .gemini-details {
-  border-radius: 12px;
-  border: 1px solid rgba(17, 24, 39, 0.08);
+  border-radius: 10px;
+  border: 1px solid rgba(17, 24, 39, 0.05);
   background: #fff;
   overflow: hidden;
-  margin-top: 10px;
+  margin-top: 6px;
 }
 
 .gemini-summary {
   list-style: none;
   cursor: pointer;
-  padding: 10px 12px;
+  padding: 8px 10px;
   font-weight: 800;
-  font-size: 13px;
+  font-size: 11.5px;
   background: rgba(17, 24, 39, 0.02);
-  color: rgba(17, 24, 39, 0.9);
+  color: rgba(17, 24, 39, 0.8);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -212,74 +238,47 @@
 }
 
 .gemini-summary-hint {
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 700;
-  color: #6b7280;
-  opacity: 0.8;
-}
-
-.gemini-summary-hint::after {
-  content: "Nhấn để mở";
-}
-
-.gemini-details[open] .gemini-summary-hint::after {
-  content: "Nhấn để đóng";
+  color: #9ca3af;
 }
 
 .gemini-suggest-wrap {
-  padding: 12px;
+  padding: 8px 10px;
 }
 
-/* Pronoun Switcher - Pill Style */
+/* Pronoun Switcher */
 .gemini-pronoun-bar {
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin-bottom: 12px;
-  padding: 8px 12px;
+  gap: 6px;
+  margin-bottom: 8px;
+  padding: 6px 10px;
   background: #f5f3ff;
-  /* Very soft indigo */
-  border-radius: 12px;
+  border-radius: 10px;
   border: 1px solid #e0e7ff;
 }
 
 .gemini-pronoun-label {
-  font-size: 12px;
+  font-size: 10.5px;
   font-weight: 800;
   color: #4f46e5;
-  /* Indigo */
   white-space: nowrap;
 }
 
-.gemini-pronoun-group {
-  display: flex;
-  gap: 6px;
-  flex-wrap: wrap;
-}
-
 .gemini-pronoun-btn {
-  padding: 5px 12px;
-  font-size: 12px;
+  padding: 4px 10px;
+  font-size: 11px;
   font-weight: 600;
-  border-radius: 20px;
-  /* Pill shape */
+  border-radius: 16px;
   background: #ffffff;
   border: 1px solid #c7d2fe;
   color: #4338ca;
   cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s;
 }
 
-.gemini-pronoun-btn:hover {
-  background: #4f46e5;
-  color: white;
-  border-color: #4f46e5;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.2);
-}
-
-.gemini-pronoun-btn.active {
+.gemini-pronoun-btn:hover, .gemini-pronoun-btn.active {
   background: #4f46e5;
   color: white;
   border-color: #4f46e5;
@@ -288,16 +287,14 @@
 /* Editable Suggestion Box */
 .gemini-suggest-edit {
   width: 100%;
-  min-height: 80px;
-  max-height: 320px;
-  /* Specific height for editor scroll */
-  padding: 12px;
+  min-height: 60px;
+  max-height: 240px;
+  padding: 10px;
   background: #f9fafb;
-  border: 1.5px dashed #d1d5db;
-  /* Dashed as in image */
-  border-radius: 12px;
-  font-size: 13px;
-  line-height: 1.6;
+  border: 1.5px dashed #e5e7eb;
+  border-radius: 10px;
+  font-size: 12px;
+  line-height: 1.5;
   color: #374151;
   overflow-y: auto;
   outline: none;
@@ -311,20 +308,15 @@
   background: #ffffff;
   border-color: #6366f1;
   border-style: solid;
-  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
-}
-
-#gemini-suggestion-panel .gemini-edit-area {
-  display: none;
-  /* We use contenteditable instead for highlights + edit */
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.08);
 }
 
 /* Actions logic */
 .gemini-actions {
   display: grid;
-  grid-template-columns: 1fr 100px;
-  gap: 12px;
-  margin-top: 15px;
+  grid-template-columns: 1fr 80px;
+  gap: 10px;
+  margin-top: 5px;
 }
 
 .gemini-actions-alone {
@@ -333,33 +325,30 @@
 
 .gemini-apply-btn {
   background: #111827;
-  /* Dark as in image */
   color: #fff;
   border: none;
-  padding: 12px;
-  border-radius: 12px;
+  height: 36px;
+  border-radius: 10px;
   font-weight: 800;
   cursor: pointer;
-  font-size: 14px;
+  font-size: 12.5px;
   transition: all 0.2s;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .gemini-apply-btn:hover {
   background: #1f2937;
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .gemini-secondary-btn {
   background: #fff;
   color: #374151;
-  border: 1px solid #d1d5db;
-  padding: 12px;
-  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  height: 36px;
+  border-radius: 10px;
   font-weight: 700;
   cursor: pointer;
-  font-size: 14px;
+  font-size: 12.5px;
   transition: all 0.2s;
 }
 
@@ -367,111 +356,151 @@
   background: #f9fafb;
 }
 
-/* Fun Blocking Alert Popup */
-.gemini-block-alert {
-  padding: 30px;
-  background: white;
+/* --- QUICK MACRO STYLES --- */
+#gemini-macro-overlay {
+  display: none;
+  position: fixed;
+  z-index: 2147483647;
+  width: 440px;
+  max-width: 95vw;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+  padding: 10px;
+  font-family: 'Plus Jakarta Sans', sans-serif !important;
+}
+
+.macro-search-container {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  text-align: center;
-  border-radius: 20px;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
-  width: 100%;
-  max-width: 420px;
-  animation: gemini-bounce-in 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  gap: 8px;
 }
 
-.gemini-alert-mascot {
-  width: 140px;
-  height: 140px;
-  margin-bottom: 20px;
-  background: #f3f4f6;
-  border-radius: 50%;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  overflow: hidden !important;
-  border: 4px solid #f9fafb;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-}
-
-.gemini-alert-mascot img {
+#macro-search-input {
   width: 100% !important;
-  height: 100% !important;
-  object-fit: cover !important;
-  display: block !important;
+  padding: 8px 12px !important;
+  border-radius: 8px !important;
+  border: 1px solid rgba(0, 0, 0, 0.08) !important;
+  background: #f8fafc !important;
+  font-size: 12px !important;
 }
 
-.gemini-alert-title {
-  font-size: 22px;
-  font-weight: 800;
-  color: #111827;
-  margin: 0 0 12px 0;
-}
-
-.gemini-alert-msg {
-  font-size: 16px;
-  line-height: 1.6;
-  color: #4b5563;
-  margin: 0 0 25px 0;
-}
-
-.gemini-alert-actions {
-  display: flex;
-  gap: 12px;
-  width: 100%;
-}
-
-.gemini-alert-btn-main {
-  flex: 2;
-  background: #111827;
-  color: white;
-  border: none;
-  padding: 14px;
-  border-radius: 12px;
-  font-weight: 700;
+.macro-search-item {
+  padding: 10px;
+  border-radius: 8px;
   cursor: pointer;
   transition: all 0.2s;
+  border-bottom: 1px solid rgba(0,0,0,0.01);
 }
 
-.gemini-alert-btn-main:hover {
-  background: #1f2937;
-  transform: translateY(-2px);
+.macro-search-item strong {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #1a202c;
 }
 
-.gemini-alert-btn-sub {
-  flex: 1;
-  background: #f3f4f6;
-  color: #374151;
-  border: none;
-  padding: 14px;
+.macro-search-item p {
+  font-size: 12.5px;
+  color: #64748b;
+  line-height: 1.4;
+}
+
+/* Full Preview */
+#gemini-macro-full-preview {
+  display: none;
+  position: fixed;
+  z-index: 2147483647;
+  width: 380px;
+  max-width: 40vw;
+  max-height: 380px;
+  background: rgba(255, 255, 255, 0.98);
+  backdrop-filter: blur(15px);
+  border: 1px solid rgba(99, 102, 241, 0.15);
   border-radius: 12px;
-  font-weight: 600;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.2);
+  padding: 14px;
+}
+
+#gemini-macro-full-preview strong {
+  font-size: 14px;
+  color: #4f46e5;
+  margin-bottom: 8px;
+  border-bottom: 1px solid rgba(0,0,0,0.04);
+  padding-bottom: 6px;
+}
+
+#gemini-macro-full-preview p {
+  font-size: 13px;
+  color: #1e293b;
+  line-height: 1.5;
+}
+
+/* Resize & Opacity UI */
+.gemini-resize-handle {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 14px;
+  height: 14px;
+  cursor: nwse-resize;
+  background: linear-gradient(135deg, transparent 50%, rgba(99, 102, 241, 0.3) 50%);
+  border-bottom-right-radius: 12px;
+  pointer-events: none;
+}
+
+#gemini-opacity-slider {
+  -webkit-appearance: none;
+  background: #e0e7ff;
+  border-radius: 10px;
+  outline: none;
+  height: 3px;
+}
+
+#gemini-opacity-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 10px;
+  height: 10px;
+  background: #6366f1;
+  border-radius: 50%;
   cursor: pointer;
-  transition: background 0.2s;
+  box-shadow: 0 0 3px rgba(0,0,0,0.1);
 }
 
-.gemini-alert-btn-sub:hover {
-  background: #e5e7eb;
+/* --- PRONOUN QUICK SWITCHER --- */
+.gemini-pronoun-quick-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 0 8px !important;
+  margin-left: 6px !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  color: #64748b !important;
+  background: #ffffff !important;
+  border: 1px solid rgba(0, 0, 0, 0.08) !important;
+  border-radius: 6px !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+  height: 24px !important;
+  user-select: none !important;
+  white-space: nowrap !important;
+  vertical-align: middle !important;
+  box-sizing: border-box !important;
 }
 
-@keyframes gemini-bounce-in {
-  0% {
-    opacity: 0;
-    transform: scale(0.3);
-  }
-
-  50% {
-    opacity: 1;
-    transform: scale(1.05);
-  }
-
-  70% {
-    transform: scale(0.9);
-  }
-
-  100% {
-    transform: scale(1);
-  }
+.gemini-pronoun-quick-btn:hover {
+  background: #f1f5f9 !important;
+  border-color: rgba(99, 102, 241, 0.3) !important;
+  color: #4f46e5 !important;
 }
+
+.gemini-pronoun-quick-btn.active {
+  background: #4f46e5 !important;
+  color: white !important;
+  border-color: #4f46e5 !important;
+  box-shadow: 0 2px 6px rgba(79, 70, 229, 0.2) !important;
+}
+

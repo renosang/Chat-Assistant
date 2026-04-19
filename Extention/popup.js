@@ -159,92 +159,11 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  let searchTimeout;
-  macroSearchInput.addEventListener('input', (e) => {
-    const q = e.target.value.trim();
-    clearTimeout(searchTimeout);
-    
-    if (!q) {
-      macroResultsContainer.innerHTML = '<div class="empty-state">Nhập từ khóa để tìm kiếm...</div>';
-      return;
-    }
-
-    searchTimeout = setTimeout(() => searchMacros(q), 400);
+  btnMacroLogout.addEventListener('click', () => {
+    chrome.storage.sync.remove(['macroAuthToken'], () => {
+      checkMacroAuthStatus();
+    });
   });
-
-  async function searchMacros(q) {
-    chrome.storage.sync.get(['macroAuthToken'], async (data) => {
-      if (!data.macroAuthToken) return;
-
-      try {
-        const response = await fetch(`${MACRO_API_BASE_URL}/macros/search?q=${encodeURIComponent(q)}`, {
-          headers: { 'Authorization': `Bearer ${data.macroAuthToken}` }
-        });
-        
-        if (response.status === 401) {
-          chrome.storage.sync.remove(['macroAuthToken'], () => checkMacroAuthStatus());
-          return;
-        }
-
-        const macros = await response.json();
-        renderMacros(macros);
-      } catch (error) {
-        macroResultsContainer.innerHTML = `<div class="empty-state" style="color: #ef4444;">Lỗi: ${error.message}</div>`;
-      }
-    });
-  }
-
-  function renderMacros(macros) {
-    if (!macros || macros.length === 0) {
-      macroResultsContainer.innerHTML = '<div class="empty-state">Không tìm thấy macro phù hợp.</div>';
-      return;
-    }
-
-    macroResultsContainer.innerHTML = '';
-    macros.forEach(m => {
-      const item = document.createElement('div');
-      item.className = 'macro-item';
-      
-      const categoryName = m.category ? (m.category.name || m.category) : 'CHƯA PHÂN LOẠI';
-      
-      item.innerHTML = `
-        <div class="m-category">${categoryName}</div>
-        <div class="m-title">${m.title}</div>
-        <div class="m-preview">${m.content}</div>
-      `;
-
-      item.addEventListener('click', () => {
-        navigator.clipboard.writeText(m.content).then(() => {
-          const originalTitle = item.querySelector('.m-title').textContent;
-          item.querySelector('.m-title').textContent = '✅ Đã copy!';
-          item.style.borderColor = '#10b981';
-          
-          // Log usage to backend
-          incrementMacroUsage(m._id);
-
-          setTimeout(() => {
-            item.querySelector('.m-title').textContent = originalTitle;
-            item.style.borderColor = '#edf2f7';
-          }, 1500);
-        });
-      });
-      macroResultsContainer.appendChild(item);
-    });
-  }
-
-  async function incrementMacroUsage(id) {
-    chrome.storage.sync.get(['macroAuthToken'], async (data) => {
-      if (!data.macroAuthToken) return;
-      try {
-        await fetch(`${MACRO_API_BASE_URL}/macros/${id}/increment-usage`, {
-          method: 'PUT',
-          headers: { 'Authorization': `Bearer ${data.macroAuthToken}` }
-        });
-      } catch (e) {
-        console.error('Failed to log usage:', e);
-      }
-    });
-  }
 
   chrome.storage.onChanged.addListener((changes, namespace) => {
     if (namespace === 'sync' && (changes.authToken || changes.username)) {
