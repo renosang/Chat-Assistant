@@ -14,6 +14,9 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
   let userSavedOpacity = 1.0;
   let isMinimized = false;
   let sessionPronounPrefs = {}; // Store selected pronoun per sessionKey
+  let macroSearchOverlay = null;
+  let macroFullPreview = null;
+  let macroHideTimer = null;
 
   /**
    * Helper to replace pronouns while preserving case
@@ -38,10 +41,32 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
       if (match[0] === match[0].toUpperCase()) {
         return replacement.charAt(0).toUpperCase() + replacement.slice(1);
       }
-      // 3. Lowercase
-      return replacement;
-    });
+    // 3. Lowercase
+    return replacement;
+  });
+}
+
+/**
+ * Helper to get text from either a textarea or a contenteditable element
+ */
+function getChatText(el) {
+  if (!el) return "";
+  return el.tagName === "TEXTAREA" ? el.value : el.innerText;
+}
+
+/**
+ * Helper to set text to either a textarea or a contenteditable element
+ */
+function setChatText(el, text) {
+  if (!el) return;
+  if (el.tagName === "TEXTAREA") {
+    el.value = text;
+  } else {
+    el.innerText = text;
   }
+  // Dispatch input event for both types
+  el.dispatchEvent(new Event("input", { bubbles: true }));
+}
 
 
 
@@ -285,7 +310,7 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
 
   function getAnalysis(text) {
     if (!cachedConfig || !text) {
-      return { forbidden: [], brands: [], platforms: [], typos: [], grammar: [], formatting: [], suggestedText: "" };
+      return { forbidden: [], brands: [], platforms: [], typos: [], grammar: [], formatting: [], suggestedText: text || "" };
     }
 
     const results = { forbidden: [], brands: [], platforms: [], typos: [], grammar: [], formatting: [], suggestedText: "" };
@@ -682,7 +707,7 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
       }
     }
 
-    const latestVal = (currentActiveTextarea?.value || "").trim();
+    const latestVal = getChatText(currentActiveTextarea).trim();
     if (!latestVal) return false;
 
     if (!cachedConfig) return false;
@@ -847,7 +872,7 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
       // LOG: Bypass action
       reportQualityAction("bypass_block", {
         issue: issue,
-        text: (currentActiveTextarea?.value || "").trim()
+        text: getChatText(currentActiveTextarea).trim()
       });
 
       forceAllowSend = true;
@@ -874,10 +899,14 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
 
   function showSuggestionPanel(analysis) {
     if (!suggestionPanel) createUIElements();
+    if (!suggestionPanel) return; // Critical failure safety
 
-    // Reset positioning from Fun Alert if necessary
+    // Force visibility and top-most layer
+    suggestionPanel.style.display = "block";
     suggestionPanel.style.position = "fixed"; 
-    suggestionPanel.style.zIndex = "9999999";
+    suggestionPanel.style.zIndex = "2147483647";
+    suggestionPanel.style.visibility = "visible";
+    suggestionPanel.style.opacity = "1";
 
     if (isMinimized) {
       suggestionPanel.classList.add("gemini-is-minimized");
@@ -902,8 +931,8 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
       suggestionPanel.style.height = userSavedSize.height;
     }
 
-    const valNow = (currentActiveTextarea?.value || "");
-    const suggestedText = analysis.suggestedText || "";
+    const valNow = getChatText(currentActiveTextarea);
+    const suggestedText = analysis.suggestedText || valNow || "";
     const isDifferent = suggestedText !== valNow;
 
     const critKeywords = ["Từ cấm", "Sai Brand", "Sai Sàn"];
@@ -970,29 +999,30 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
       suggestionPanel.classList.remove("gemini-wide");
     }
 
-    // Pronoun Switcher UI - Premium Pill Style
-    let pronounBarHtml = "";
-    if (pronounConflict) {
-      pronounBarHtml = `
-      <div class="gemini-pronoun-bar">
-        <span class="gemini-pronoun-label">Đổi tất cả:</span>
-        <div class="gemini-pronoun-group">
-          <button class="gemini-pronoun-btn" data-type="ac">Anh/Chị</button>
-          <button class="gemini-pronoun-btn" data-type="a">Anh</button>
-          <button class="gemini-pronoun-btn" data-type="c">Chị</button>
-        </div>
-      </div>
-    `;
-    }
-
     const hasErrors = finalLines.length > 0;
     const showEditor = (hasErrors || isDifferent || pronounConflict);
 
-    const highlightedText = showEditor
+    const fullHighlightedText = showEditor
       ? diffHighlight(valNow, suggestedText, pronounConflict, analysis)
       : escapeHtml(suggestedText);
 
-    // Store analysis state for live updates
+    let displayHtml = fullHighlightedText;
+    let isFragmented = false;
+
+    // Focused View: Only show lines with errors/changes if the text is multiline
+    if (showEditor && suggestedText.includes('\n')) {
+      const lines = fullHighlightedText.split('\n');
+      const errorLines = lines.filter(l => l.includes('gemini-highlight-') || l.includes('gemini-processed-'));
+      
+      if (errorLines.length > 0 && errorLines.length < lines.length) {
+        displayHtml = errorLines.join('<div class="gemini-fragment-divider">...</div>');
+        isFragmented = true;
+      }
+    }
+
+    // Store state for the Apply button
+    suggestionPanel.__fullSuggestedText = suggestedText;
+    suggestionPanel.__isFragmented = isFragmented;
     suggestionPanel.__analysis_source = valNow;
 
     const suggestHtml = showEditor
@@ -1004,8 +1034,7 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
         </summary>
 
         <div class="gemini-suggest-wrap">
-          ${pronounBarHtml}
-          <div class="gemini-suggest-edit" id="gemini-suggest-content" contenteditable="true" spellcheck="false" style="max-height: 200px; overflow-y: auto;">${highlightedText}</div>
+          <div class="gemini-suggest-edit ${isFragmented ? 'gemini-is-fragmented' : ''}" id="gemini-suggest-content" contenteditable="${isFragmented ? 'false' : 'true'}" spellcheck="false" style="max-height: 250px; overflow-y: auto;">${displayHtml}</div>
         </div>
       </details>
     `
@@ -1097,51 +1126,33 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
 
     document.getElementById("gemini-apply-suggest")?.addEventListener("click", () => {
       if (!currentActiveTextarea) return;
+      
       const editDiv = document.getElementById("gemini-suggest-content");
-      // Use innerText to get clean plain text regardless of highlight spans
-      const finalValue = editDiv ? editDiv.innerText : suggestedText;
+      let finalValue = "";
+      
+      if (suggestionPanel.__isFragmented) {
+        // In focused mode, we use the pre-calculated full suggestion
+        finalValue = suggestionPanel.__fullSuggestedText;
+      } else {
+        // In standard mode, we use the text from the editable box (allowing user edits)
+        finalValue = editDiv ? editDiv.innerText : suggestionPanel.__fullSuggestedText;
+      }
 
       // LOG: Correction action
       reportQualityAction("apply_fix", {
-        original: (currentActiveTextarea.value || ""),
+        original: getChatText(currentActiveTextarea),
         suggested: finalValue
       });
 
-      currentActiveTextarea.value = finalValue;
-      currentActiveTextarea.dispatchEvent(new Event("input", { bubbles: true }));
+      if (currentActiveTextarea.tagName === "TEXTAREA") {
+        currentActiveTextarea.value = finalValue;
+        currentActiveTextarea.dispatchEvent(new Event("input", { bubbles: true }));
+      } else {
+        currentActiveTextarea.innerText = finalValue;
+        // Dispatch input for contenteditable as well
+        currentActiveTextarea.dispatchEvent(new Event("input", { bubbles: true }));
+      }
       hideUI();
-    });
-
-    // Handle pronoun switching
-    suggestionPanel.querySelectorAll('.gemini-pronoun-btn').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        const type = e.target.dataset.type;
-        const editDiv = document.getElementById("gemini-suggest-content");
-
-        // PRESERVE EDITS: Get the current text from the box instead of the original suggestion
-        let textToProcess = editDiv ? editDiv.innerText : suggestedText;
-
-        const B = "(^|[^\\p{L}\\p{N}])";
-        const E = "(?=$|[^\\p{L}\\p{N}])";
-        const rxAll = new RegExp(`${B}(anh\\s*\\/\\s*chị|chị\\s*\\/\\s*anh|a\\s*\\/\\s*c|anh|chị|bạn|mình)${E}`, "giu");
-
-        let replacer = "anh/chị";
-        if (type === 'a') replacer = "anh";
-        if (type === 'c') replacer = "chị";
-
-        const newText = textToProcess.split('\n').map(line => {
-          return line.replace(rxAll, (full, b, word) => {
-            const isUpper = word[0] === word[0].toUpperCase() && word[0] !== word[0].toLowerCase();
-            let final = replacer;
-            if (isUpper) final = final.charAt(0).toUpperCase() + final.slice(1);
-            return b + final;
-          });
-        }).join('\n');
-
-        // Re-render panel with new text to apply highlights to the new pronouns
-        analysis.suggestedText = newText;
-        showSuggestionPanel(analysis);
-      });
     });
 
     // --- Live Error Detection & Update Logic ---
@@ -1222,6 +1233,9 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
 
     const rect = currentActiveTextarea.getBoundingClientRect();
     const panelHeight = suggestionPanel.offsetHeight || 160;
+    const panelWidth = suggestionPanel.offsetWidth || 400;
+    const viewportWidth = window.innerWidth;
+    const viewportHeight = window.innerHeight;
 
     // Predict positioning
     let topPos = rect.top - panelHeight - 40;
@@ -1229,25 +1243,24 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
     // If not enough space above, move below
     if (topPos < 10) {
       topPos = rect.bottom + 10;
-      // Ensure it doesn't go off screen bottom
-      const viewportHeight = window.innerHeight;
       if (topPos + panelHeight > viewportHeight - 10) {
-        // If no space bottom either, stick to top of screen as fallback
-        topPos = 10;
+        topPos = 10; // Fallback to safe top
       }
+    }
+
+    // Failsafe: if topPos is still wacky or textarea is hidden
+    if (rect.width === 0 || rect.height === 0 || isNaN(topPos)) {
+      topPos = 20; 
     }
 
     suggestionPanel.style.top = `${topPos}px`;
 
-    // Horizontal positioning with viewport constraint
+    // Horizontal positioning
     let leftPos = rect.left;
-    const panelWidth = suggestionPanel.offsetWidth || 400;
-    const viewportWidth = window.innerWidth;
-
     if (leftPos + panelWidth > viewportWidth - 20) {
       leftPos = viewportWidth - panelWidth - 20;
     }
-    if (leftPos < 10) leftPos = 10;
+    if (leftPos < 10 || isNaN(leftPos)) leftPos = 10;
 
     suggestionPanel.style.left = `${leftPos}px`;
   }
@@ -1255,7 +1268,7 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
   function handleInput(e) {
     currentActiveTextarea = e.target;
 
-    const nowVal = (currentActiveTextarea?.value || "").trim();
+    const nowVal = getChatText(currentActiveTextarea).trim();
     if (!nowVal) {
       hideUI();
       return;
@@ -1267,7 +1280,14 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
     typingTimer = setTimeout(() => {
       if (!textareaRef || textareaRef !== currentActiveTextarea) return;
 
-      const latestVal = (textareaRef.value || "").trim();
+      // Ensure config is loaded or try to reload
+      if (!cachedConfig) {
+        chrome.storage.local.get("remoteConfig", (data) => {
+          if (data.remoteConfig) updateCachedConfig(data.remoteConfig);
+        });
+      }
+
+      const latestVal = getChatText(textareaRef).trim();
       if (!latestVal) {
         hideUI();
         return;
@@ -1396,119 +1416,60 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
   // ---------- DIFF & HIGHLIGHT ----------
 
   function diffHighlight(original, suggested, pronounConflict = null, analysis = null) {
-    const words1 = original.split(/(\s+)/);
-    const words2 = suggested.split(/(\s+)/);
+    const sOrig = (original || "").trim();
+    const sSug = (suggested || sOrig || "").trim();
+    const words1 = sOrig.split(/(\s+)/);
+    const words2 = sSug.split(/(\s+)/);
 
-    // Regex for pronouns
-    const pronounRegex = /(^|[^a-zA-Z0-9À-ỹ])(anh|chị|bạn|mình|a\/c|anh\/chị|chị\/anh)(?=$|[^a-zA-Z0-9À-ỹ])/gi;
-
-    // Helper to check if a word is actually in the error list
-    const isWordInErrors = (word, errorList) => {
-      if (!errorList || !errorList.length) return false;
-      const cleanW = word.trim().toLowerCase();
-      return errorList.some(err => {
-        if (err.msg && err.msg.toLowerCase().includes(`"${cleanW}"`)) return true;
-        if (err.word && err.word.trim().toLowerCase() === cleanW) return true;
-        return false;
-      });
+    const pronounRegex = /(?<!\p{L})(anh[\s/]+chị|anh\s+chị|anh|chị)(?!\p{L})/giu;
+    
+    const isWordInErrors = (word, list) => {
+      if (!list || !list.length) return false;
+      const c = word.trim().toLowerCase();
+      return list.some(e => (e.msg && e.msg.toLowerCase().includes(`"${c}"`)) || (e.word && e.word.trim().toLowerCase() === c));
     };
 
-    const isWordInGrammarErrors = (word, grammarList) => {
-      if (!grammarList || !grammarList.length) return false;
-      const cleanW = word.trim().toLowerCase();
-      return grammarList.some(err =>
-        err.msg && err.msg.toLowerCase().includes(`"${cleanW}"`) &&
-        (err.msg.includes("Telex") || err.msg.includes("VNI") || err.msg.includes("bất thường"))
-      );
+    const isGrammarError = (word, list) => {
+      if (!list || !list.length) return false;
+      const c = word.trim().toLowerCase();
+      return list.some(e => e.msg && e.msg.toLowerCase().includes(`"${c}"`) && (e.msg.includes("Telex") || e.msg.includes("VNI") || e.msg.includes("bất thường")));
     };
 
     let html = "";
-    let i = 0, j = 0;
-
-    while (j < words2.length) {
-      const w1 = words1[i] || "";
+    let i = 0;
+    for (let j = 0; j < words2.length; j++) {
       const w2 = words2[j];
+      const w1 = words1[i] || "";
 
-      const telexPattern = /[jfrsx]$/i;
-      const vniPattern = /[1-9]$/;
-
-      // Reset regex state
       pronounRegex.lastIndex = 0;
-      const isPronoun = pronounRegex.test(w2);
-
-      let isCrit = false;
-      let isWarn = false;
+      const isP = pronounRegex.test(w2);
+      let isC = false, isW = false;
 
       if (analysis) {
-        if (isWordInErrors(w2, analysis.forbidden) ||
-          isWordInErrors(w2, analysis.brands) ||
-          isWordInErrors(w2, analysis.platforms)) {
-          isCrit = true;
-        }
-        if (!isCrit && isWordInGrammarErrors(w2, analysis.grammar)) {
-          isWarn = true;
-        }
+        if (isWordInErrors(w2, analysis.forbidden) || isWordInErrors(w2, analysis.brands) || isWordInErrors(w2, analysis.platforms)) isC = true;
+        if (!isC && isGrammarError(w2, analysis.grammar)) isW = true;
       }
 
-      // Use normalization for comparison to avoid NFC/NFD mismatch
       if (w1.normalize() === w2.normalize()) {
-        if (isCrit) {
-          html += `<span class="gemini-highlight-red">${escapeHtml(w2)}</span>`;
-        } else if (isPronoun && pronounConflict) {
-          html += `<span class="gemini-highlight-blue">${escapeHtml(w2)}</span>`;
-        } else if (isWarn) {
-          html += `<span class="gemini-highlight-amber">${escapeHtml(w2)}</span>`;
-        } else {
-          html += escapeHtml(w2);
-        }
-
+        if (isC) html += `<span class="gemini-highlight-red">${escapeHtml(w2)}</span>`;
+        else if (isP && pronounConflict) html += `<span class="gemini-highlight-blue">${escapeHtml(w2)}</span>`;
+        else if (isW) html += `<span class="gemini-highlight-amber">${escapeHtml(w2)}</span>`;
+        else html += escapeHtml(w2);
         i++;
       } else {
-        // Something changed. Fast-forward space matches to prevent cascading diff errors
-        if (w1.trim().normalize() === w2.trim().normalize()) {
-          const spaceClass = w2.trim() === "" ? "gemini-processed-msg gemini-highlight-space" : "gemini-processed-text";
-          html += `<span class="${spaceClass}">${escapeHtml(w2)}</span>`;
-          i++;
-          j++;
-          continue;
+        // Mismatch
+        if (isC) html += `<span class="gemini-highlight-red">${escapeHtml(w2)}</span>`;
+        else if (isP) html += `<span class="gemini-highlight-blue">${escapeHtml(w2)}</span>`;
+        else if (isW) html += `<span class="gemini-highlight-amber">${escapeHtml(w2)}</span>`;
+        else {
+          const cls = w2.trim() === "" ? "gemini-processed-msg gemini-highlight-space" : "gemini-processed-text";
+          html += `<span class="${cls}">${escapeHtml(w2)}</span>`;
         }
-
-        if (isCrit) {
-          html += `<span class="gemini-highlight-red">${escapeHtml(w2)}</span>`;
-        } else if (isPronoun) {
-          html += `<span class="gemini-highlight-blue">${escapeHtml(w2)}</span>`;
-        } else if (isWarn) {
-          html += `<span class="gemini-highlight-amber">${escapeHtml(w2)}</span>`;
-        } else {
-          // It's a non-critical difference (e.g. grammar correction)
-          const highlightClass = w2.trim() === "" ? "gemini-processed-msg gemini-highlight-space" : "gemini-processed-text";
-          html += `<span class="${highlightClass}">${escapeHtml(w2)}</span>`;
-        }
-
-        // Re-sync logic
-        const s1 = superClean(w1);
-        const s2 = superClean(w2);
-        if (s1 === s2 || i >= words1.length) {
-          i++;
-        } else {
-          // Search ahead in words1 (original) to see if this was a deletion or insertion
-          // Increased window to 10 for better resilience with long paragraphs
-          let found = false;
-          for (let k = i + 1; k < Math.min(i + 10, words1.length); k++) {
-            if (words1[k].normalize() === w2.normalize() || superClean(words1[k]) === s2) {
-              i = k + 1;
-              found = true;
-              break;
-            }
-          }
-          if (!found && w1.trim() && w2.trim()) {
-            i++; // Assume replacement
-          }
-        }
+        // Sync
+        if (words1[i+1] && words1[i+1].normalize() === w2.normalize()) i += 2;
+        else if (w1.trim() && w2.trim()) i++;
       }
-      j++;
     }
-
     return html;
   }
 
@@ -2143,15 +2104,14 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
   }, true);
 
   function scan() {
-    document.querySelectorAll("textarea").forEach(attachListeners);
+    const chatInputs = document.querySelectorAll("textarea, [contenteditable='true'], .shopee-text-area__content, .chat-input-container [contenteditable]");
+    chatInputs.forEach(attachListeners);
     scanCustomerMessages();
     injectMacroToolbarButton(); // Tích hợp vào thanh công cụ chat
   }
   setInterval(scan, 2000);
 
   // --- QUICK MACRO INTEGRATION ---
-  let macroSearchOverlay = null;
-  let macroFullPreview = null;
 
   function applyPronounChange(targetPronoun) {
     const ctx = getCurrentContext();
@@ -2323,6 +2283,16 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
       macroFullPreview.id = "gemini-macro-full-preview";
       macroFullPreview.innerHTML = `<div class="preview-inner"></div>`;
       document.body.appendChild(macroFullPreview);
+
+      // Keep preview open when hovering it
+      macroFullPreview.addEventListener("mouseenter", () => {
+        if (macroHideTimer) clearTimeout(macroHideTimer);
+      });
+      macroFullPreview.addEventListener("mouseleave", () => {
+        macroHideTimer = setTimeout(() => {
+          macroFullPreview.style.display = "none";
+        }, 300);
+      });
     }
 
     const rect = triggerEl.getBoundingClientRect();
@@ -2380,13 +2350,24 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
           const plainText = extractTextFromContent(m.content);
           const div = document.createElement("div");
           div.className = "macro-search-item";
-          div.innerHTML = `<strong>${m.title}</strong><p>${plainText.substring(0, 60)}...</p>`;
+          
+          const categoryName = (m.category && m.category.name) ? m.category.name : (m.category || "Chưa phân loại");
+          
+          div.innerHTML = `
+            <div class="m-category-tag">${escapeHtml(categoryName)}</div>
+            <strong>${escapeHtml(m.title)}</strong>
+            <p>${escapeHtml(plainText.substring(0, 80))}...</p>
+          `;
           
           div.addEventListener("mouseenter", () => {
+            if (macroHideTimer) clearTimeout(macroHideTimer);
             if (macroFullPreview) {
               const inner = macroFullPreview.querySelector(".preview-inner");
               if (inner) {
-                inner.innerHTML = `<strong>${m.title}</strong><p>${plainText}</p>`;
+                inner.innerHTML = `
+                  <strong>${escapeHtml(m.title)}</strong>
+                  <div class="m-content">${escapeHtml(plainText)}</div>
+                `;
               }
               macroFullPreview.style.display = "block";
               
@@ -2398,14 +2379,12 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
               let top = itemRect.top;
               
               // If no space on right, show on left
-              if (left + 410 > window.innerWidth) {
-                left = overlayRect.left - 412;
+              if (left + 420 > window.innerWidth) {
+                left = overlayRect.left - 422;
               }
               
-              // Vertical adjustment to stay in viewport
-              const previewRect = macroFullPreview.getBoundingClientRect();
-              const previewHeight = previewRect.height;
-              
+              // Vertical adjustment
+              const previewHeight = macroFullPreview.offsetHeight || 300;
               if (top + previewHeight > window.innerHeight) {
                 top = window.innerHeight - previewHeight - 20;
               }
@@ -2416,7 +2395,9 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
           });
 
           div.addEventListener("mouseleave", () => {
-            if (macroFullPreview) macroFullPreview.style.display = "none";
+            macroHideTimer = setTimeout(() => {
+              if (macroFullPreview) macroFullPreview.style.display = "none";
+            }, 300);
           });
 
           div.addEventListener("click", () => {
@@ -2535,7 +2516,9 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
       if (!html) return "";
       const doc = new DOMParser().parseFromString(html, 'text/html');
       const text = doc.body.textContent || "";
-      return (text.trim() || html.replace(/<[^>]*>/g, '')).trim();
+      // Don't trim() here because this is often used for individual nodes in a sequence.
+      // Trimming here causes words to stick together (e.g. "word " + "word" becomes "wordword").
+      return text || html.replace(/<[^>]*>/g, '');
     };
 
     // 1. If it's still a string, it might be HTML or plain text
