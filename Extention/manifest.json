@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAyY6N9g2M9H/f4D7QY+mU7Lp7E6L8uPzE/O0Q7W1Xm0Q7W1Xm0Q7W1Xm0Q7W1Xm0Q7W1Xm0Q7W1Xm0Q7W1Xm0Q7W1Xm0Q7W1Xm0Q7W1Xm0Q7W1Xm0Q7W1Xm0Q7W1Xm0Q7W1Xm0Q7W1Xm0Q7W1Xm0Q7W1Xm0Q7W1Xm0Q7W1Xm0Q7W1Xm0Q7W1Xm0Q7W1Xm0Q7W1Xm0Q7W1Xm0Q7W1Xm0Q7W1Xm0Q7W1Xm0Q7W1Xm0Q7W1Xm0Q7W1Xm0Q7W1Xm0Q7W1Xm0Q7W1Xm0Q7W1Xm0Q7W1Xm0Q7W1Xm0Q7W1Xm0Q7W1Xm0QIDAQAB",
-  "name": "Trợ lý Chat Gemini",
-  "version": "4.1",
+  "name": "Trợ Lý Chat",
+  "version": "4.2",
   "description": "Hệ thống kiểm duyệt Onpoint - Tích hợp nhận diện Brand & Sàn đa nền tảng.",
   "permissions": [
     "storage",
