@@ -2217,7 +2217,7 @@ function setChatText(el, text) {
     span.style.marginLeft = "4px";
     span.addEventListener("click", (e) => {
       e.stopPropagation();
-      showMacroSearchOverlay(span);
+      openMacroSearchOverlay(span);
     });
 
     toolbar.appendChild(span);
@@ -2246,7 +2246,7 @@ function setChatText(el, text) {
   }
 
 
-  function showMacroSearchOverlay(triggerEl) {
+  function openMacroSearchOverlay(triggerEl) {
     if (!macroSearchOverlay) {
       macroSearchOverlay = document.createElement("div");
       macroSearchOverlay.id = "gemini-macro-overlay";
@@ -2348,6 +2348,7 @@ function setChatText(el, text) {
 
         filteredMacros.forEach(m => {
           const plainText = extractTextFromContent(m.content);
+          const richHtml = renderMacroAsHtml(m.content);
           const div = document.createElement("div");
           div.className = "macro-search-item";
           
@@ -2366,7 +2367,7 @@ function setChatText(el, text) {
               if (inner) {
                 inner.innerHTML = `
                   <strong>${escapeHtml(m.title)}</strong>
-                  <div class="m-content">${escapeHtml(plainText)}</div>
+                  <div class="m-content">${richHtml}</div>
                 `;
               }
               macroFullPreview.style.display = "block";
@@ -2498,72 +2499,122 @@ function setChatText(el, text) {
     return true;
   }
 
-  function extractTextFromContent(content) {
+  function renderMacroAsHtml(content) {
     if (!content) return "";
-    
-    // Check if it's a JSON string representing an object or array
     let obj = content;
     if (typeof content === 'string' && (content.startsWith('{') || content.startsWith('['))) {
-      try {
-        obj = JSON.parse(content);
-      } catch (e) {
-        obj = content;
+      try { obj = JSON.parse(content); } catch(e) { obj = content; }
+    }
+    if (typeof obj === 'string') return escapeHtml(obj);
+
+    const parseNode = (node) => {
+      if (!node) return "";
+      
+      // Text node
+      if (typeof node.text === 'string') {
+        let text = escapeHtml(node.text);
+        
+        // Handle format (Lexical style)
+        if (node.format) {
+          if (node.format & 1) text = `<strong>${text}</strong>`; // Bold
+          if (node.format & 2) text = `<em>${text}</em>`;   // Italic
+          if (node.format & 8) text = `<u>${text}</u>`;   // Underline
+        }
+        
+        // Handle style (colors/highlights)
+        if (node.style) {
+          const styles = node.style.split(';').filter(s => s.trim());
+          const validStyles = styles.filter(s => s.includes('color') || s.includes('background-color'));
+          if (validStyles.length) {
+            text = `<span style="${validStyles.join(';')}">${text}</span>`;
+          }
+        }
+
+        // Slate style
+        if (node.bold) text = `<strong>${text}</strong>`;
+        if (node.italic) text = `<em>${text}</em>`;
+        if (node.underline) text = `<u>${text}</u>`;
+        if (node.color) text = `<span style="color: ${node.color}">${text}</span>`;
+        if (node.backgroundColor) text = `<span style="background-color: ${node.backgroundColor}">${text}</span>`;
+
+        return text;
       }
+
+      if (Array.isArray(node)) return node.map(parseNode).join("");
+
+      if (node.children && Array.isArray(node.children)) {
+        const inner = node.children.map(parseNode).join("");
+        const type = node.type;
+        
+        switch (type) {
+          case 'bulleted-list': case 'bullet': return `<ul style="margin: 4px 0; padding-left: 1.5em; list-style-type: disc; display: block;">${inner}</ul>`;
+          case 'numbered-list': case 'number': return `<ol style="margin: 4px 0; padding-left: 1.5em; list-style-type: decimal; display: block;">${inner}</ol>`;
+          case 'list-item': case 'listitem': return `<li style="display: list-item; margin-bottom: 2px;">${inner}</li>`;
+          case 'h1': case 'h2': case 'h3': case 'heading': 
+            return `<div style="font-weight: 800; font-size: 1.1em; margin: 10px 0 4px 0; display: block; color: #0f172a;">${inner}</div>`;
+          case 'quote': 
+            return `<blockquote style="border-left: 3px solid #e2e8f0; padding: 4px 12px; margin: 10px 0; color: #64748b; font-style: italic; display: block; background: #f8fafc;">${inner}</blockquote>`;
+          case 'paragraph':
+            // Use div with safe block display and controlled margin to restore structure
+            return `<div style="display: block; margin-bottom: 8px; min-height: 1.2em;">${inner}</div>`;
+          default:
+            // Default to span for anything else to avoid line breaks inside blocks
+            return `<span style="display: inline;">${inner}</span>`;
+        }
+      }
+
+      if (node.root) return parseNode(node.root);
+      if (node.type === 'linebreak') return "<br/>";
+      return "";
+    };
+
+    try {
+      return parseNode(obj);
+    } catch(e) {
+      return "(Lỗi hiển thị nội dung)";
+    }
+  }
+
+  function extractTextFromContent(content) {
+    if (!content) return "";
+    let obj = content;
+    if (typeof content === 'string' && (content.startsWith('{') || content.startsWith('['))) {
+      try { obj = JSON.parse(content); } catch (e) { obj = content; }
     }
 
-    // Helper to strip HTML tags effectively
     const stripHtml = (html) => {
       if (!html) return "";
       const doc = new DOMParser().parseFromString(html, 'text/html');
-      const text = doc.body.textContent || "";
-      // Don't trim() here because this is often used for individual nodes in a sequence.
-      // Trimming here causes words to stick together (e.g. "word " + "word" becomes "wordword").
-      return text || html.replace(/<[^>]*>/g, '');
+      return doc.body.textContent || html.replace(/<[^>]*>/g, '');
     };
 
-    // 1. If it's still a string, it might be HTML or plain text
-    if (typeof obj === 'string') {
-      return stripHtml(obj);
-    }
+    if (typeof obj === 'string') return stripHtml(obj);
     
-    // 2. If it's an object or array (Lexical or Slate JSON)
     try {
       const extract = (node) => {
         if (!node) return "";
+        if (typeof node.text === 'string') return node.text; // Return as-is, no stripHtml yet to avoid losing spaces
         
-        // Plain text node (both Slate and Lexical)
-        if (typeof node.text === 'string') return stripHtml(node.text);
-        
-        // Array of nodes (Slate root or child list)
         if (Array.isArray(node)) {
+          // Join with no space, but the nodes themselves SHOULD contain the spaces
           return node.map(extract).join("");
         }
         
-        // Parent node with children (Lexical or Slate element)
         if (node.children && Array.isArray(node.children)) {
           const childrenText = node.children.map(extract).join("");
-          
-          // Add newlines for block elements to avoid "dính chữ"
           const blockTypes = ['paragraph', 'list-item', 'listitem', 'h1', 'h2', 'h3', 'quote', 'heading'];
           if (blockTypes.includes(node.type)) return childrenText + "\n";
-          
           return childrenText;
         }
 
-        // Special structures
-        if (node.root) return extract(node.root); // Lexical root wrapper
+        if (node.root) return extract(node.root);
         if (node.type === 'linebreak' || node.type === 'tab') return "\n";
-        if (node.type === 'horizontalrule') return "---\n";
-        
         return "";
       };
       
-      const result = extract(obj).trim();
-      return result || "(Không có nội dung)";
+      return extract(obj).trim() || "(Không có nội dung)";
     } catch (e) {
-      console.error("[Gemini] Macro extraction error:", e);
-      const fallback = String(obj);
-      return fallback === "[object Object]" ? "(Không có nội dung)" : stripHtml(fallback);
+      return "(Không có nội dung)";
     }
   }
 

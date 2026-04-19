@@ -1,7 +1,10 @@
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800;900&display=swap');
 
-#gemini-suggestion-panel * {
-  font-family: 'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
+#gemini-suggestion-panel *, 
+#gemini-macro-overlay *, 
+#gemini-macro-full-preview *,
+#gemini-mood-alert * {
+  font-family: 'Be Vietnam Pro', 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   box-sizing: border-box;
@@ -370,7 +373,6 @@
   border-radius: 12px;
   box-shadow: 0 10px 30px rgba(0,0,0,0.15);
   padding: 10px;
-  font-family: 'Plus Jakarta Sans', sans-serif !important;
 }
 
 .macro-search-container {
@@ -433,6 +435,73 @@
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
+}
+
+/* Rich Content in Preview - Strict Reset */
+.m-content {
+  font-size: 13px !important;
+  line-height: 1.5 !important;
+  color: #334155 !important;
+  margin-top: 6px !important;
+  word-break: break-word !important;
+  text-align: left !important;
+}
+
+.m-content * {
+  margin: 0 !important;
+  padding: 0 !important;
+  border: none !important;
+  box-shadow: none !important;
+  background-image: none !important;
+  list-style-position: inside !important;
+}
+
+/* Block markers acting as blocks with reset */
+.m-content div, .m-content p, .m-content h1, .m-content h2, .m-content h3, 
+.m-content ul, .m-content ol, .m-content blockquote {
+  display: block !important;
+}
+
+.m-content span, .m-content strong, .m-content em, .m-content u {
+  display: inline !important;
+}
+
+.m-content li {
+  display: list-item !important;
+}
+
+.m-content ul, .m-content ol {
+  padding-left: 20px !important;
+}
+
+.m-content strong {
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.m-content em {
+  font-style: italic;
+}
+
+.m-content u {
+  text-decoration: underline;
+}
+
+.m-content ul, .m-content ol {
+  margin: 8px 0;
+  padding-left: 20px;
+}
+
+.m-content li {
+  margin-bottom: 4px;
+}
+
+.m-content blockquote {
+  margin: 8px 0;
+  padding: 4px 12px;
+  border-left: 4px solid #e2e8f0;
+  color: #64748b;
+  background: #f8fafc;
 }
 
 /* Full Preview */
