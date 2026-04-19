@@ -329,7 +329,7 @@ function setChatText(el, text) {
       let match;
       while ((match = compiledData.forbidden.exec(text)) !== null) {
         const word = match[1];
-        results.forbidden.push({ word, msg: `Từ cấm: ${word}` });
+        results.forbidden.push({ word, msg: `TỪ CẤM: ${word}` });
         if (match.index === compiledData.forbidden.lastIndex) compiledData.forbidden.lastIndex++;
       }
     }
@@ -345,7 +345,7 @@ function setChatText(el, text) {
           const cw = superClean(word);
           if (cw !== context.currentMarketplace && !foundBrands.has(cw)) {
             foundBrands.add(cw);
-            results.brands.push({ word, msg: `Sai Brand (Đang chat: ${context.currentBrand})` });
+            results.brands.push({ word, msg: `SAI BRAND (ĐANG CHAT: ${context.currentBrand.toUpperCase()})` });
           }
         }
         if (match.index === compiledData.brands.lastIndex) compiledData.brands.lastIndex++;
@@ -363,7 +363,7 @@ function setChatText(el, text) {
         const currentLabel = context.currentMarketplace.charAt(0).toUpperCase() + context.currentMarketplace.slice(1);
         results.platforms.push({
           word: match[1],
-          msg: `Sai Sàn: ${match[1]} (Đang chat: ${currentLabel})`
+          msg: `SAI SÀN: ${match[1].toUpperCase()} (ĐANG CHAT: ${currentLabel.toUpperCase()})`
         });
         if (match.index === compiledData.marketplaces.lastIndex) compiledData.marketplaces.lastIndex++;
       }
@@ -548,7 +548,7 @@ function setChatText(el, text) {
     }
 
     if (spaceErrors.length > 0) {
-      msgs.add(`Đã sửa lỗi định dạng khoảng cách tại: ${spaceErrors.join(", ")}`);
+      msgs.add(`Lỗi định dạng khoảng cách tại: ${spaceErrors.join(", ")}`);
     }
 
     // 4. Telex/Typing errors (trailing markers)
@@ -590,7 +590,7 @@ function setChatText(el, text) {
         if (lw.startsWith(pref) && lw.length > pref.length + 1) {
           const rest = lw.slice(pref.length);
           if (/^\p{L}+$/u.test(rest)) {
-            msgs.add(`Đã sửa lỗi thiếu khoảng cách tại: "${w}"`);
+            msgs.add(`Lỗi thiếu khoảng cách (dính chữ) tại: "${w}"`);
             break;
           }
         }
@@ -602,13 +602,13 @@ function setChatText(el, text) {
       return str.split(/[.!?\n]\s+/).filter(s => s.trim().length > 0 && /^\p{Ll}/u.test(s.trim())).length;
     };
     if (getLowerStartCount(original) > getLowerStartCount(suggested)) {
-      msgs.add("Đã sửa lỗi không viết hoa chữ cái đầu câu");
+      msgs.add("Lỗi không viết hoa chữ cái đầu câu");
     }
 
     const countOriginalUpperAfterComma = (original.match(/, ?\p{Lu}/gu) || []).length;
     const countSuggestedUpperAfterComma = (suggested.match(/, ?\p{Lu}/gu) || []).length;
     if (countOriginalUpperAfterComma > countSuggestedUpperAfterComma) {
-      msgs.add("Đã sửa lỗi sau dấu phẩy phải viết thường");
+      msgs.add("Lỗi sau dấu phẩy phải viết thường");
     }
 
     // Removed generic "Chuẩn hoá..." if we already have specific messages
@@ -942,15 +942,13 @@ function setChatText(el, text) {
     const pronounConflict = (analysis.grammar || []).find(g => g && g.word === "conflict_pronoun");
 
     // grammar (pronoun/mechanics/repetition)
-    (analysis.grammar || []).filter(g => g && g.msg).forEach(g => {
-      const isCrit = critKeywords.some(k => g.msg.includes(k));
-      const isProcessed = g.msg.startsWith("Đã sửa") || g.msg.startsWith("Đã thêm");
-      const isWarn = g.msg.includes("bất thường") || g.msg.includes("Telex") || g.msg.includes("VNI") ||
-        g.msg.includes("lặp cụm từ") || g.msg.includes("dấu chấm hỏi") ||
-        g.msg.includes("Cấu trúc") || g.msg.includes("Nên thêm") ||
-        g.msg.includes("chuẩn tiếng Việt") || g.msg.includes("Lỗi xưng hô");
-      lines.push({ text: g.msg, crit: isCrit, processed: isProcessed, warn: isWarn && !isProcessed });
-    });
+     (analysis.grammar || []).filter(g => g && g.msg).forEach(g => {
+       const isCrit = critKeywords.some(k => g.msg.toLowerCase().includes(k.toLowerCase()));
+       const isProcessed = g.msg.startsWith("Đã sửa") || g.msg.startsWith("Đã thêm");
+       // TREAT ALL grammar/mechanics items as warnings by default to ensure an icon shows up
+       const isWarn = true; 
+       lines.push({ text: g.msg, crit: isCrit, processed: isProcessed, warn: isWarn && !isProcessed });
+     });
 
     // forbidden/brand/platform each as its own line
     (analysis.forbidden || []).forEach(v => lines.push({ text: v.msg, crit: true }));
@@ -1047,8 +1045,9 @@ function setChatText(el, text) {
     </div>
   `;
 
+    // UI now only shows warnings, no editor or footer buttons
     suggestionPanel.innerHTML = `
-    <div class="gemini-panel ${isMinimized ? 'gemini-minimized-state' : ''}" style="max-height: 85vh !important; display: flex !important; flex-direction: column !important; overflow: hidden !important;">
+    <div class="gemini-panel ${isMinimized ? 'gemini-minimized-state' : ''}" style="max-height: 85vh !important; display: flex !important; flex-direction: column !important; overflow: hidden !important; min-width: 320px;">
       <div class="gemini-panel-header" id="gemini-drag-handle" style="cursor: move;">
         <div class="gemini-title" style="font-size: 12px;">✨ Kiểm tra nội dung</div>
         <div class="header-tools" style="display: flex; align-items: center; gap: 4px;">
@@ -1064,14 +1063,10 @@ function setChatText(el, text) {
         </div>
       </div>
 
-      <div class="gemini-panel-body" style="flex: 1; overflow-y: auto; padding-right: 4px; ${isMinimized ? 'display: none;' : ''}">
+      <div class="gemini-panel-body" style="flex: 1; overflow-y: auto; padding: 12px; ${isMinimized ? 'display: none;' : ''}">
         ${errorsHtml}
-        ${suggestHtml}
       </div>
 
-      <div class="gemini-panel-footer" style="padding: 10px; background: white; border-top: 1px solid rgba(17,24,39,0.08); z-index: 10; ${isMinimized ? 'display: none;' : ''}">
-        ${actionsHtml}
-      </div>
       <div class="gemini-resize-handle" style="${isMinimized ? 'display: none;' : ''}"></div>
     </div>
   `;
@@ -1121,109 +1116,10 @@ function setChatText(el, text) {
     });
 
     const close = () => hideUI();
-    document.getElementById("gemini-close-panel")?.addEventListener("click", close);
     document.getElementById("gemini-x-btn")?.addEventListener("click", close);
-
-    document.getElementById("gemini-apply-suggest")?.addEventListener("click", () => {
-      if (!currentActiveTextarea) return;
-      
-      const editDiv = document.getElementById("gemini-suggest-content");
-      let finalValue = "";
-      
-      if (suggestionPanel.__isFragmented) {
-        // In focused mode, we use the pre-calculated full suggestion
-        finalValue = suggestionPanel.__fullSuggestedText;
-      } else {
-        // In standard mode, we use the text from the editable box (allowing user edits)
-        finalValue = editDiv ? editDiv.innerText : suggestionPanel.__fullSuggestedText;
-      }
-
-      // LOG: Correction action
-      reportQualityAction("apply_fix", {
-        original: getChatText(currentActiveTextarea),
-        suggested: finalValue
-      });
-
-      if (currentActiveTextarea.tagName === "TEXTAREA") {
-        currentActiveTextarea.value = finalValue;
-        currentActiveTextarea.dispatchEvent(new Event("input", { bubbles: true }));
-      } else {
-        currentActiveTextarea.innerText = finalValue;
-        // Dispatch input for contenteditable as well
-        currentActiveTextarea.dispatchEvent(new Event("input", { bubbles: true }));
-      }
-      hideUI();
-    });
-
-    // --- Live Error Detection & Update Logic ---
-    const editor = document.getElementById("gemini-suggest-content");
-    if (editor) {
-      editor.addEventListener("input", () => {
-        const currentText = editor.innerText;
-        // Re-run full analysis on typed text
-        const liveAn = getAnalysis(currentText);
-
-        const liveLines = [];
-        (liveAn.grammar || []).filter(g => g && g.msg).forEach(g => {
-          const isCrit = critKeywords.some(k => g.msg.includes(k));
-          const isProc = g.msg.startsWith("Đã sửa") || g.msg.startsWith("Đã thêm");
-          const isWarn = g.msg.includes("bất thường") || g.msg.includes("Telex") || g.msg.includes("VNI");
-          liveLines.push({ text: g.msg, crit: isCrit, processed: isProc, warn: isWarn && !isProc });
-        });
-        (liveAn.forbidden || []).forEach(v => liveLines.push({ text: v.msg, crit: true }));
-        (liveAn.brands || []).forEach(v => liveLines.push({ text: v.msg, crit: true }));
-        (liveAn.platforms || []).forEach(v => liveLines.push({ text: v.msg, crit: true }));
-
-        // Unique deduplication
-        const liveSeen = new Set();
-        const finalLive = [];
-        for (const l of liveLines) {
-          const key = (l.text || "").trim();
-          if (!key || liveSeen.has(key)) continue;
-          liveSeen.add(key);
-          finalLive.push(l);
-        }
-
-        // Priority sort
-        finalLive.sort((a, b) => {
-          const getP = (item) => (item.crit ? 1 : (item.processed ? 2 : 3));
-          return getP(a) - getP(b);
-        });
-
-        // Update the title and list
-        const section = suggestionPanel.querySelector(".gemini-panel-body");
-        if (section) {
-          let newListHtml = "";
-          if (finalLive.length === 0) {
-            newListHtml = `<div class="gemini-empty">✅ Tất cả lỗi đã được xử lý.</div>`;
-          } else {
-            newListHtml = `<ul class="gemini-list">
-            ${finalLive.map(l => {
-              let cls = "";
-              if (l.crit) cls = "gemini-crit-error";
-              else if (l.processed) cls = "gemini-processed-msg";
-              else if (l.warn) cls = "gemini-warn-msg";
-              return `<li class="${cls}">${escapeHtml(l.text)}</li>`;
-            }).join("")}
-          </ul>`;
-          }
-
-          // Find the existing list or empty div and replace it
-          const listEl = section.querySelector(".gemini-list, .gemini-empty");
-          if (listEl) {
-            listEl.outerHTML = newListHtml;
-          }
-        }
-      });
-    }
 
     // Reposition panel
     repositionPanel();
-
-    // Re-position when expanded/collapsed to avoid overlapping
-    suggestionPanel.querySelector('details')?.addEventListener('toggle', () => {
-      repositionPanel();
-    });
   }
 
   function repositionPanel() {

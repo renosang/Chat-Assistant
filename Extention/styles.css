@@ -164,6 +164,8 @@
   margin-top: 2px;
   background-size: contain;
   background-repeat: no-repeat;
+  /* Default bullet for warnings that don't have a specific status class */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%239ca3af'%3E%3Ccircle cx='12' cy='12' r='4'/%3E%3C/svg%3E");
 }
 
 .gemini-crit-error {
