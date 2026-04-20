@@ -119,7 +119,10 @@ function setChatText(el, text) {
   let compiledData = {
     brands: null,
     marketplaces: null,
-    typoLookup: {}
+    typoLookup: {},
+    macroExclusions: {}, // [Removed or Decoupled]
+    allBrandsSet: new Set(), // Set of superCleaned brand names
+    categoryMap: {}      // Mapping: categoryId -> { name, parentId }
   };
 
   const MACRO_API_BASE_URL = "https://macro-react-xi.vercel.app/api";
@@ -1339,6 +1342,15 @@ function setChatText(el, text) {
 
     console.log("[Gemini Content] Updated Static Config.");
 
+    // Process Automatic Brand Exclusion
+    compiledData.allBrandsSet = new Set((config.allBrands || []).map(b => superClean(b)));
+    console.log("[Gemini Content] Automated Brand Exclusion set initialized with", compiledData.allBrandsSet.size, "brands.");
+
+    // Trigger category hierarchy fetch if not yet loaded
+    if (Object.keys(compiledData.categoryMap).length === 0) {
+      fetchCategoryHierarchy();
+    }
+
     // Merge & Compile Mood Indicators (Empathy Analysis)
     const remoteMood = config.moodIndicators || {};
     const mergeAndCompile = (key, defaultList) => {
@@ -1623,6 +1635,72 @@ function setChatText(el, text) {
     }
 
     return { currentBrand, currentMarketplace, customerId, isExternal };
+  }
+
+  // ---------- CATEGORY HIERARCHY ----------
+
+  async function fetchCategoryHierarchy() {
+    chrome.storage.sync.get(['macroAuthToken'], async (data) => {
+      const token = data.macroAuthToken;
+      if (!token) return;
+
+      try {
+        const response = await fetch(`${MACRO_API_BASE_URL}/categories`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (!response.ok) return;
+        const categories = await response.json();
+        
+        // Build map: ID -> { name, parentId }
+        const newMap = {};
+        categories.forEach(cat => {
+          newMap[cat._id] = {
+            name: cat.name,
+            parentId: cat.parent // parent ID
+          };
+        });
+        compiledData.categoryMap = newMap;
+        console.log("[Gemini Content] Category hierarchy loaded:", Object.keys(newMap).length, "items");
+      } catch (err) {
+        console.error("[Gemini Content] Error fetching categories:", err);
+      }
+    });
+  }
+
+  /**
+   * Recursively checks if a category belongs to a DIFFERENT brand than the current one.
+   * If any category name in the lineage is a known Brand (in allBrandsSet) 
+   * AND it doesn't match the current Brand, return true (Exclude).
+   */
+  /**
+   * Recursively checks if a category is allowed in the current context.
+   * Allowed if:
+   * 1. It is a "General" category (Macro Chung, General, etc.)
+   * 2. It is related to the current brand context.
+   */
+  function isCategoryAllowedForBrand(categoryId, currentBrandClean, categoryName = null) {
+    const targetName = categoryName || (compiledData.categoryMap[categoryId] ? compiledData.categoryMap[categoryId].name : null);
+    
+    if (targetName) {
+      const cn = superClean(targetName);
+      // Check if General
+      if (cn.includes("chung") || cn.includes("general") || cn === "tatca") return true;
+      
+      // Check if related to current brand
+      if (currentBrandClean !== "general" && areBrandsRelated(cn, currentBrandClean, cachedConfig?.brandGroups)) {
+        return true;
+      }
+    }
+
+    // Recurse to parent
+    if (categoryId && compiledData.categoryMap[categoryId]) {
+      const parentId = compiledData.categoryMap[categoryId].parentId;
+      if (parentId) {
+        return isCategoryAllowedForBrand(parentId, currentBrandClean);
+      }
+    }
+
+    return false;
   }
 
   // ---------- MOOD ANALYSIS ----------
@@ -2516,6 +2594,30 @@ function setChatText(el, text) {
            return false;
         }
         if (match.index === compiledData.brands.lastIndex) compiledData.brands.lastIndex++;
+      }
+    }
+
+    // 3. Exclusive Brand filtering (Whitelist Mode)
+    const contextBrand = context.currentBrand || "general";
+    let curBrandClean = superClean(contextBrand);
+
+    // Resolve contextBrand to canonical brand if possible for better matching
+    if (curBrandClean !== "general") {
+      for (const b of compiledData.allBrandsSet) {
+        if (areBrandsRelated(b, contextBrand, cachedConfig?.brandGroups)) {
+          curBrandClean = b;
+          break;
+        }
+      }
+    }
+    
+    if (curBrandClean !== "general" && macro.category) {
+      const catId = typeof macro.category === 'object' ? macro.category._id : macro.category;
+      const catName = typeof macro.category === 'object' ? macro.category.name : null;
+      
+      if (!isCategoryAllowedForBrand(catId, curBrandClean, catName)) {
+        console.log(`[Gemini Content] Hiding Macro "${macro.title}" (Cat: "${catName || 'Unknown'}") - Not allowed in "${contextBrand}" context.`);
+        return false;
       }
     }
 
