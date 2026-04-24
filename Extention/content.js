@@ -17,6 +17,9 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
   let macroSearchOverlay = null;
   let macroFullPreview = null;
   let macroHideTimer = null;
+  let suggestionHideTimer = null;
+  let isPanelHovered = false;
+  let currentAnalysis = null; // Track current analysis for hover re-triggering
 
   /**
    * Helper to replace pronouns while preserving case
@@ -737,8 +740,12 @@ function setChatText(el, text) {
       // Crucial: Stop immediately to prevent page script from running
       if (reasonEvent) {
         reasonEvent.preventDefault?.();
-        reasonEvent.stopPropagation?.();
-        reasonEvent.stopImmediatePropagation?.();
+        
+        // Only stop propagation if we are blocking a terminal action (Enter/Click)
+        // to prevent page scripts from sending but allow other extensions
+        // to still potentially see the event if registered earlier.
+        // reasonEvent.stopPropagation?.(); // Removed to be more polite to other extensions
+        reasonEvent.stopImmediatePropagation?.(); 
       }
 
       showBlockingAlert(analysis);
@@ -912,7 +919,7 @@ function setChatText(el, text) {
 
   // ---------- UI ----------
 
-  function showSuggestionPanel(analysis) {
+  function showSuggestionPanel(analysis, isHoverMode = false) {
     const latestVal = getChatText(currentActiveTextarea);
     updateToolbarStatus(analysis, latestVal);
     if (!suggestionPanel) createUIElements();
@@ -968,9 +975,11 @@ function setChatText(el, text) {
      });
 
     // forbidden/brand/platform each as its own line
-    (analysis.forbidden || []).forEach(v => lines.push({ text: v.msg, crit: true }));
-    (analysis.brands || []).forEach(v => lines.push({ text: v.msg, crit: true }));
-    (analysis.platforms || []).forEach(v => lines.push({ text: v.msg, crit: true }));
+    (analysis.forbidden || []).forEach(v => lines.push({ text: v.msg || v.word || v, crit: true }));
+    (analysis.brands || []).forEach(v => lines.push({ text: v.msg || v.word || v, crit: true }));
+    (analysis.platforms || []).forEach(v => lines.push({ text: v.msg || v.word || v, crit: true }));
+    (analysis.typos || []).forEach(v => lines.push({ text: v.msg || v.word || v, warn: true }));
+    (analysis.formatting || []).forEach(v => lines.push({ text: v.msg || v.word || v, warn: true }));
 
     // unique keep order
     const seen = new Set();
@@ -1062,34 +1071,67 @@ function setChatText(el, text) {
     </div>
   `;
 
-    // UI now only shows warnings, no editor or footer buttons
-    suggestionPanel.innerHTML = `
-    <div class="gemini-panel ${isMinimized ? 'gemini-minimized-state' : ''}" style="max-height: 85vh !important; display: flex !important; flex-direction: column !important; overflow: hidden !important; min-width: 320px;">
-      <div class="gemini-panel-header" id="gemini-drag-handle" style="cursor: move;">
-        <div class="gemini-title" style="font-size: 12px;">✨ Kiểm tra nội dung</div>
-        <div class="header-tools" style="display: flex; align-items: center; gap: 4px;">
-          <div class="gemini-opacity-wrapper" style="display: none; align-items: center; gap: 6px; background: rgba(255,255,255,0.9); padding: 2px 8px; border-radius: 10px; border: 1px solid #ddd; margin-right: 2px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
-             <span style="font-size: 9px; font-weight: 800; color: #6366f1;">${Math.round(userSavedOpacity * 100)}%</span>
-             <input type="range" id="gemini-opacity-slider" min="0.2" max="1" step="0.05" value="${userSavedOpacity}" style="width: 50px; height: 3px; cursor: pointer;">
+    // Simplified UI for Hover Mode (Tooltip style)
+    suggestionPanel.className = `gemini-suggestion-panel ${isHoverMode ? 'gemini-mini-mode' : ''}`;
+    
+    if (isHoverMode) {
+      suggestionPanel.innerHTML = `
+        <div class="gemini-panel gemini-tooltip-panel" style="padding: 12px; min-width: 280px; border-radius: 12px;">
+          <div class="gemini-panel-body" style="padding: 0;">
+            ${errorsHtml}
           </div>
-          <button class="gemini-min-btn" id="gemini-opacity-toggle" title="Độ trong suốt" type="button" style="padding: 4px;">🌓</button>
-          <button class="gemini-min-btn" id="gemini-minimize-toggle" title="${isMinimized ? 'Mở rộng' : 'Thu nhỏ'}" type="button" style="padding: 4px;">
-            ${isMinimized ? '🔳' : '➖'}
-          </button>
-          <button class="gemini-x" id="gemini-x-btn" type="button" aria-label="Close" style="padding: 4px 6px;">✕</button>
         </div>
-      </div>
+      `;
+    } else {
+      suggestionPanel.innerHTML = `
+      <div class="gemini-panel ${isMinimized ? 'gemini-minimized-state' : ''} ${isHoverMode ? 'gemini-mini-mode-inner' : ''}" style="max-height: 85vh !important; display: flex !important; flex-direction: column !important; overflow: hidden !important; min-width: 320px;">
+        <div class="gemini-panel-header" id="gemini-drag-handle" style="cursor: move;">
+          <div class="gemini-title" style="font-size: 11px;">✨ ${isHoverMode ? 'Gợi ý chỉnh sửa' : 'Kiểm tra nội dung'}</div>
+          <div class="header-tools" style="display: flex; align-items: center; gap: 4px;">
+            ${!isHoverMode ? `
+            <div class="gemini-opacity-wrapper" style="display: none; align-items: center; gap: 6px; background: rgba(255,255,255,0.9); padding: 2px 8px; border-radius: 10px; border: 1px solid #ddd; margin-right: 2px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+               <span style="font-size: 9px; font-weight: 800; color: #6366f1;">${Math.round(userSavedOpacity * 100)}%</span>
+               <input type="range" id="gemini-opacity-slider" min="0.2" max="1" step="0.05" value="${userSavedOpacity}" style="width: 50px; height: 3px; cursor: pointer;">
+            </div>
+            <button class="gemini-min-btn" id="gemini-opacity-toggle" title="Độ trong suốt" type="button" style="padding: 4px;">🌓</button>
+            <button class="gemini-min-btn" id="gemini-minimize-toggle" title="${isMinimized ? 'Mở rộng' : 'Thu nhỏ'}" type="button" style="padding: 4px;">
+              ${isMinimized ? '🔳' : '➖'}
+            </button>
+            ` : ''}
+            <button class="gemini-x" id="gemini-x-btn" type="button" aria-label="Close" style="padding: 4px 6px;">✕</button>
+          </div>
+        </div>
 
-      <div class="gemini-panel-body" style="flex: 1; overflow-y: auto; padding: 12px; ${isMinimized ? 'display: none;' : ''}">
-        ${errorsHtml}
-      </div>
+        <div class="gemini-panel-body" style="flex: 1; overflow-y: auto; padding: 12px; ${isMinimized ? 'display: none;' : ''}">
+          ${errorsHtml}
+          ${suggestHtml}
+        </div>
 
-      <div class="gemini-resize-handle" style="${isMinimized ? 'display: none;' : ''}"></div>
-    </div>
-  `;
+        <div class="gemini-panel-footer" style="${isMinimized ? 'display: none;' : ''}">
+          ${actionsHtml}
+        </div>
+
+        <div class="gemini-resize-handle" style="${isMinimized ? 'display: none;' : ''}"></div>
+      </div>
+    `;
+    }
+
+    // Hover state management for the panel itself
+    suggestionPanel.onmouseenter = () => {
+      isPanelHovered = true;
+      if (suggestionHideTimer) clearTimeout(suggestionHideTimer);
+    };
+    suggestionPanel.onmouseleave = () => {
+      isPanelHovered = false;
+      if (isHoverMode) {
+        suggestionHideTimer = setTimeout(() => hideUI(), 400);
+      }
+    };
 
     suggestionPanel.style.display = "block";
-    makeDraggable(suggestionPanel, "#gemini-drag-handle");
+    if (!isHoverMode) {
+      makeDraggable(suggestionPanel, "#gemini-drag-handle");
+    }
 
     // Persist size changes
     if (!isMinimized) {
@@ -1136,7 +1178,53 @@ function setChatText(el, text) {
     document.getElementById("gemini-x-btn")?.addEventListener("click", close);
 
     // Reposition panel
-    repositionPanel();
+    if (isHoverMode) {
+      positionNearToolbar();
+    } else {
+      repositionPanel();
+    }
+    
+    // Wire up Apply button
+    document.getElementById("gemini-apply-suggest")?.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const text = suggestionPanel.__fullSuggestedText;
+      if (text && currentActiveTextarea) {
+        setChatText(currentActiveTextarea, text);
+        reportQualityAction("APPLY_SUGGESTION", { original: suggestionPanel.__analysis_source });
+        hideUI();
+      }
+    });
+
+    document.getElementById("gemini-close-panel")?.addEventListener("click", (e) => {
+      e.stopPropagation();
+      hideUI();
+    });
+  }
+
+  function positionNearToolbar() {
+    const pill = document.getElementById("gemini-toolbar-status");
+    if (!pill || !suggestionPanel) return;
+    
+    // Ensure panel is in mini mode for sizing
+    suggestionPanel.style.width = "auto";
+    suggestionPanel.classList.add("gemini-mini-mode");
+    
+    const rect = pill.getBoundingClientRect();
+    const panelHeight = suggestionPanel.offsetHeight || 100;
+    
+    // Target center of the pill
+    let left = rect.left + (rect.width / 2);
+    let top = rect.top - panelHeight - 12;
+    
+    // If no room above, show below
+    if (top < window.scrollY + 10) {
+      top = rect.bottom + 12;
+    }
+    
+    suggestionPanel.style.position = "fixed";
+    suggestionPanel.style.left = `${left}px`;
+    suggestionPanel.style.top = `${top}px`;
+    suggestionPanel.style.transform = "translateX(-50%)";
   }
 
   function repositionPanel() {
@@ -1212,17 +1300,23 @@ function setChatText(el, text) {
       updateToolbarStatus(analysis, latestVal);
 
       const isDifferent = analysis.suggestedText !== latestVal;
-      const hasError =
+      const isCritical =
         (analysis.forbidden?.length || 0) > 0 ||
         (analysis.brands?.length || 0) > 0 ||
-        (analysis.platforms?.length || 0) > 0 ||
+        (analysis.platforms?.length || 0) > 0;
+      
+      const hasError = isCritical ||
         (analysis.typos?.length || 0) > 0 ||
         (analysis.grammar?.length || 0) > 0 ||
         (analysis.formatting?.length || 0) > 0 ||
         isDifferent;
 
-      if (hasError) showSuggestionPanel(analysis);
-      else hideUI();
+      currentAnalysis = hasError ? analysis : null;
+
+      // COMPLETELY REMOVED AUTOMATIC POPUPS
+      // We only update the toolbar status (done above) and keep currentAnalysis 
+      // ready for the hover listener in updateToolbarStatus/injectMacroToolbarButton.
+      if (!isPanelHovered) hideUI();
     }, doneTypingInterval);
   }
 
@@ -1938,14 +2032,7 @@ function setChatText(el, text) {
       combinedMood.reasons.forEach(r => { if (!finalMood.reasons.includes(r)) finalMood.reasons.push(r); });
     }
 
-    // Check for Repetition (Manual check on combinedText)
-    // If multiple distinct complaints exist
-    if (finalMood.reasons.length >= 2) {
-      finalMood.category = "angry"; // Escalated
-      finalMood.reasons.push("REPETITIVE_CONCERN");
-    }
-
-    updateMoodAlert(finalMood);
+    // updateMoodAlert(finalMood); // Temporarily disabled by user request
   }
 
   function escapeRegExp(s) {
@@ -2111,8 +2198,8 @@ function setChatText(el, text) {
     element.dataset.geminiAttached = "true";
 
     element.addEventListener("input", handleInput);
-    // Use capture: true to intercept Enter before page scripts
-    element.addEventListener("keydown", onTextareaKeyDown, { capture: true });
+    // Use bubble phase (default) to allow other extensions (like ProKey) to process keys first or concurrently.
+    element.addEventListener("keydown", onTextareaKeyDown);
   }
 
   // ---------- INIT ----------
@@ -2133,16 +2220,17 @@ function setChatText(el, text) {
   // Theo dõi phần tử chat đang active một cách chủ động
   document.addEventListener("focusin", (e) => {
     const el = e.target;
-    if (el && (el.tagName === "TEXTAREA" || el.isContentEditable)) {
+    if (el && el.id === "chat-input") {
       currentActiveTextarea = el;
     }
   }, true);
 
   function scan() {
-    const chatInputs = document.querySelectorAll("textarea, [contenteditable='true'], .shopee-text-area__content, .chat-input-container [contenteditable]");
-    chatInputs.forEach(attachListeners);
+    const chatInput = document.getElementById("chat-input");
+    if (chatInput) attachListeners(chatInput);
     scanCustomerMessages();
     injectMacroToolbarButton(); // Tích hợp vào thanh công cụ chat
+    injectGlobalMotivationMascot(); // Tích hợp vào Navbar Mobile (nếu có)
   }
   setInterval(scan, 2000);
 
@@ -2284,8 +2372,99 @@ function setChatText(el, text) {
     statusPill.id = "gemini-toolbar-status";
     statusPill.className = "gemini-toolbar-status";
     statusPill.style.display = "none"; 
+
+    statusPill.addEventListener("mouseenter", () => {
+      if (currentAnalysis) {
+        if (suggestionHideTimer) clearTimeout(suggestionHideTimer);
+        showSuggestionPanel(currentAnalysis, true); // True for isHoverMode
+      }
+    });
+
+    statusPill.addEventListener("mouseleave", () => {
+      if (currentAnalysis) {
+        suggestionHideTimer = setTimeout(() => {
+          if (!isPanelHovered) hideUI();
+        }, 400);
+      }
+    });
+
+
     toolbar.appendChild(statusPill);
   }
+
+  function injectGlobalMotivationMascot() {
+    const navbar = document.getElementById("navbar-mobile");
+    if (!navbar || navbar.querySelector(".gemini-motivation-container")) return;
+
+    const container = document.createElement("div");
+    container.className = "gemini-motivation-container gemini-navbar-motivation";
+    container.id = "gemini-motivation-section";
+    container.style.opacity = "0";
+    container.style.transition = "opacity 0.8s ease";
+    container.style.flex = "1"; // Để nó chiếm khoảng trống giữa và tự căn giữa nội dung
+    container.style.justifyContent = "center";
+    container.style.margin = "0 20px";
+
+    container.innerHTML = `
+      <div class="gemini-motivation-bubble nav-mode" id="gemini-motivation-text" style="opacity: 0; transition: opacity 0.5s ease;">
+        ${MOTIVATION_MESSAGES[0]}
+      </div>
+      <span class="cursor-pointer gemini-mascot-wrapper">
+        <svg class="gemini-mascot" viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="2">
+          <rect x="4" y="8" width="16" height="12" rx="4" fill="#eef2ff"></rect>
+          <circle class="gemini-mascot-eye" cx="9" cy="13" r="1.5" fill="#6366f1"></circle>
+          <circle class="gemini-mascot-eye" cx="15" cy="13" r="1.5" fill="#6366f1"></circle>
+          <path d="M10 17C10 17 11 18 12 18C13 18 14 17 14 17" stroke="#6366f1" stroke-linecap="round"></path>
+          <path d="M12 8V4M12 4L9 2M12 4L15 2" stroke="#6366f1" stroke-width="2"></path>
+        </svg>
+      </span>
+    `;
+
+    // Chèn vào giữa bookmark-wrapper và các icon bên phải
+    const bookmarkWrapper = navbar.querySelector(".bookmark-wrapper");
+    if (bookmarkWrapper && bookmarkWrapper.nextSibling) {
+        navbar.insertBefore(container, bookmarkWrapper.nextSibling);
+    } else {
+        navbar.appendChild(container);
+    }
+
+    const rotate = () => {
+      const textEl = container.querySelector("#gemini-motivation-text");
+      if (!textEl) return;
+      textEl.style.opacity = "0";
+      setTimeout(() => {
+        currentMotivationIdx = (currentMotivationIdx + 1) % MOTIVATION_MESSAGES.length;
+        textEl.textContent = MOTIVATION_MESSAGES[currentMotivationIdx];
+        textEl.style.opacity = "1";
+      }, 500);
+    };
+
+    setTimeout(() => {
+      container.style.opacity = "1";
+      const firstText = container.querySelector("#gemini-motivation-text");
+      if (firstText) firstText.style.opacity = "1";
+      
+      if (motivationInterval) clearInterval(motivationInterval);
+      motivationInterval = setInterval(rotate, 12000);
+    }, 2000);
+  }
+
+  // --- MOTIVATION CONFIG ---
+  const MOTIVATION_MESSAGES = [
+    "Chào khách hàng đầu ngày thật tươi tắn nhé! ☀️",
+    "Sử dụng đúng danh xưng giúp khách hàng cảm thấy được tôn trọng! ✨",
+    "Hãy luôn đồng cảm, khách hàng sẽ rất trân trọng đó! ❤️",
+    "Nhớ kiểm tra lịch sử chat và đơn hàng trước khi tư vấn nhé! 🔍",
+    "Hãy soát lại ticket thật kỹ trước khi gửi SWAT bạn nhé! ✅",
+    "Điền đầy đủ thông tin khi tạo ticket khiếu nại nhé! 📝",
+    "Cố gắng lên nào, bạn đang làm rất tốt công việc của mình đó! 💪",
+    "Một nụ cười của khách hàng là niềm vui của chúng ta! 😊"
+  ];
+  let currentMotivationIdx = 0;
+  let motivationInterval = null;
+
+  // Xóa hàm inject cũ trong toolbar
+  // ...
 
   function isCritical(analysis) {
     return (analysis.forbidden?.length > 0 || analysis.brands?.length > 0 || analysis.platforms?.length > 0);
@@ -2478,21 +2657,23 @@ function setChatText(el, text) {
               const overlayRect = macroSearchOverlay.getBoundingClientRect();
               
               let left = overlayRect.right + 12;
-              let top = itemRect.top;
               
               // If no space on right, show on left
               if (left + 420 > window.innerWidth) {
                 left = overlayRect.left - 422;
               }
               
-              // Vertical adjustment
-              const previewHeight = macroFullPreview.offsetHeight || 300;
-              if (top + previewHeight > window.innerHeight) {
-                top = window.innerHeight - previewHeight - 20;
-              }
+              // Vertical adjustment: Center relative to hovered item, then bound by viewport
+              const previewHeight = macroFullPreview.offsetHeight || 380;
+              let top = itemRect.top + (itemRect.height / 2) - (previewHeight / 2);
+              
+              // Clamp top position (leave at least 20px margin from top and bottom)
+              const minTop = 20;
+              const maxTop = window.innerHeight - previewHeight - 20;
+              top = Math.max(minTop, Math.min(top, maxTop));
 
-              macroFullPreview.style.left = `${left}px`;
-              macroFullPreview.style.top = `${Math.max(10, top)}px`;
+              macroFullPreview.style.left = `${Math.max(10, left)}px`;
+              macroFullPreview.style.top = `${top}px`;
             }
           });
 
@@ -2627,10 +2808,38 @@ function setChatText(el, text) {
   function stripHtml(html) {
     if (!html) return "";
     try {
+      // Create a temporary element to parse HTML
       const doc = new DOMParser().parseFromString(html, 'text/html');
-      return doc.body.textContent || html.replace(/<[^>]*>/g, '');
+      
+      // Preserve newlines for block elements
+      const blocks = ['P', 'DIV', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'LI', 'BR', 'TR', 'BLOCKQUOTE'];
+      const walker = document.createTreeWalker(doc.body, NodeFilter.SHOW_ELEMENT);
+      let node;
+      const toReplace = [];
+      while(node = walker.nextNode()) {
+        if (blocks.includes(node.tagName)) {
+           toReplace.push(node);
+        }
+      }
+      
+      // Add newline after each block tag
+      toReplace.forEach(el => {
+        if (el.tagName === 'BR') {
+          el.replaceWith('\n');
+        } else {
+          el.after('\n');
+        }
+      });
+
+      return doc.body.textContent.trim();
     } catch (e) {
-      return html.replace(/<[^>]*>/g, '');
+      // Fallback clean-up
+      return html
+        .replace(/<br\s*\/?>/gi, '\n')
+        .replace(/<\/p>|<\/div>|<\/li>/gi, '\n')
+        .replace(/<[^>]*>/g, '')
+        .replace(/&nbsp;/g, ' ')
+        .trim();
     }
   }
 
@@ -2640,7 +2849,11 @@ function setChatText(el, text) {
     if (typeof content === 'string' && (content.startsWith('{') || content.startsWith('['))) {
       try { obj = JSON.parse(content); } catch(e) { obj = content; }
     }
-    if (typeof obj === 'string') return stripHtml(obj);
+    if (typeof obj === 'string') {
+      // For legacy HTML macros, we want to see the formatting in preview
+      // but ensure plain newlines (\n) also show up as breaks
+      return obj.replace(/\n/g, '<br/>');
+    }
 
     const parseNode = (node) => {
       if (!node) return "";
@@ -2731,7 +2944,13 @@ function setChatText(el, text) {
         if (node.children && Array.isArray(node.children)) {
           const childrenText = node.children.map(extract).join("");
           const blockTypes = ['paragraph', 'list-item', 'listitem', 'h1', 'h2', 'h3', 'quote', 'heading'];
+          
+          // Use double newline for paragraphs and single for list items
+          if (node.type === 'paragraph' || node.type === 'heading' || node.type === 'h1' || node.type === 'h2' || node.type === 'h3') {
+             return childrenText.trim() + "\n\n";
+          }
           if (blockTypes.includes(node.type)) return childrenText + "\n";
+          
           return childrenText;
         }
 
@@ -2740,7 +2959,7 @@ function setChatText(el, text) {
         return "";
       };
       
-      return extract(obj).trim() || "(Không có nội dung)";
+      return extract(obj).replace(/\n{3,}/g, '\n\n').trim() || "(Không có nội dung)";
     } catch (e) {
       return "(Không có nội dung)";
     }

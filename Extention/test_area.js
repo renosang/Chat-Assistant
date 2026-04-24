@@ -2,7 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
     console.log("[TestArea] Loaded Version: PronounFix-V2");
     // Chat UI Elements
     const chatBody = document.getElementById('chat-body');
-    const textarea = document.getElementById('test-textarea');
+    const textarea = document.getElementById('chat-input');
     const sendBtn = document.getElementById('send-btn');
     const customerNameDisplay = document.getElementById('customer-name-display');
 
@@ -72,7 +72,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (type === 'received') {
             div.className = 'msg received-customer chat-item chat-item--customer';
             div.innerHTML = `
-                <div class="chat-avatar"><div class="avatar m-0"><img src="/images/portrait/default.png" alt="" height="25" width="25"></div></div>
+                <div class="chat-avatar"><div class="avatar m-0" style="background: #f1f5f9; border: 1px solid #e2e8f0;">👤</div></div>
                 <div class="chat-item__body">
                     <div title="" class="chat-item__content">
                         <div><div>${text}</div></div>
@@ -203,4 +203,43 @@ document.addEventListener('DOMContentLoaded', () => {
     // Initialize
     chatBody.innerHTML = '';
     addMessage('Chào bạn, shop còn hàng Brother không?', 'received');
+
+    // ---------- MOTIVATION ENGINE ----------
+    const motivationContainer = document.getElementById('gemini-motivation-section');
+    const motivationText = document.getElementById('gemini-motivation-text');
+    
+    const messages = [
+        "Chào khách hàng đầu ngày thật tươi tắn nhé! ☀️",
+        "Sử dụng đúng danh xưng giúp khách hàng cảm thấy được tôn trọng! ✨",
+        "Hãy luôn đồng cảm, khách hàng sẽ rất trân trọng đó! ❤️",
+        "Nhớ kiểm tra lịch sử chat và đơn hàng trước khi tư vấn nhé! 🔍",
+        "Hãy soát lại ticket thật kỹ trước khi gửi SWAT bạn nhé! ✅",
+        "Điền đầy đủ thông tin khi tạo ticket khiếu nại nhé! 📝",
+        "Cố gắng lên nào, bạn đang làm rất tốt công việc của mình đó! 💪",
+        "Một nụ cười của khách hàng là niềm vui của chúng ta! 😊"
+    ];
+
+    let currentMsgIdx = 0;
+
+    function rotateMotivation() {
+        if (!motivationText) return;
+        
+        // Fade out
+        motivationText.style.transition = 'opacity 0.5s ease';
+        motivationText.style.opacity = '0';
+        
+        setTimeout(() => {
+            currentMsgIdx = (currentMsgIdx + 1) % messages.length;
+            motivationText.textContent = messages[currentMsgIdx];
+            // Fade in
+            motivationText.style.opacity = '1';
+        }, 500);
+    }
+
+    if (motivationContainer) {
+        setTimeout(() => {
+            motivationContainer.style.opacity = '1';
+            setInterval(rotateMotivation, 10000); // Rotate every 10 seconds
+        }, 1000);
+    }
 });

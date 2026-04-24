@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 
 const connectToDatabase = require('../lib/db');
 const Settings = require('../models/Settings');
@@ -52,3 +53,54 @@ module.exports = async (req, res) => {
     return res.status(500).json({ error: 'Server Error' });
   }
 };
+=======
+// Import các module cần thiết
+const fs = require('fs');
+const path = require('path');
+
+// (*** HÀM MỚI: ĐỂ SET HEADER CORS ***)
+// Hàm này "mở cửa" cho extension
+function setCorsHeaders(response) {
+  response.setHeader('Access-Control-Allow-Origin', '*'); // Cho phép mọi nguồn
+  response.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
+  response.setHeader('Access-Control-Allow-Headers', 'X-API-Key, Content-Type');
+  return response;
+}
+
+// Hàm handler chính của Vercel
+export default function handler(request, response) {
+  
+  // (*** THAY ĐỔI ***)
+  // 1. Mở cửa (Set CORS) cho TẤT CẢ các yêu cầu
+  response = setCorsHeaders(response);
+
+  // 2. Xử lý yêu cầu OPTIONS (trình duyệt tự động gửi)
+  if (request.method === 'OPTIONS') {
+    return response.status(200).end();
+  }
+
+  // 3. Lấy "Backend Key" mà extension gửi lên (từ header 'x-api-key')
+  const incomingKey = request.headers['x-api-key'];
+
+  // 4. Lấy "Backend Key" bí mật bạn đã lưu trên Vercel
+  const secretKey = process.env.YOUR_BACKEND_API_KEY;
+
+  // 5. KIỂM TRA BẢO MẬT
+  if (!incomingKey || incomingKey !== secretKey) {
+    return response.status(401).json({ error: 'Unauthorized' });
+  }
+
+  // 6. BẢO MẬT HỢP LỆ: Đọc và trả về file config.json
+  try {
+    const filePath = path.resolve(process.cwd(), 'config.json');
+    const fileData = fs.readFileSync(filePath, 'utf8');
+    const config = JSON.parse(fileData);
+    
+    // Trả về config
+    return response.status(200).json(config);
+
+  } catch (error) {
+    return response.status(500).json({ error: 'Could not read config file.', details: error.message });
+  }
+}
+>>>>>>> fdb76b0aa26f9a2252a13a997a735afd7f98102b

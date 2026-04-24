@@ -1,5 +1,6 @@
 {
   "name": "gemini-config-api",
+<<<<<<< HEAD
   "version": "2.0.0",
   "description": "Backend config cho Gemini Extension với MongoDB",
   "dependencies": {
@@ -8,4 +9,8 @@
     "mongoose": "^8.0.0",
     "dotenv": "^16.3.1"
   }
+=======
+  "version": "1.0.0",
+  "description": "Backend config cho Gemini Extension"
+>>>>>>> fdb76b0aa26f9a2252a13a997a735afd7f98102b
 }

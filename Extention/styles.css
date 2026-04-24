@@ -31,13 +31,31 @@
   transition: opacity 0.2s ease, transform 0.2s ease, width 0.3s ease, top 0.3s ease, left 0.3s ease;
 }
 
+#gemini-suggestion-panel.gemini-mini-mode {
+  width: auto !important;
+  min-width: 280px;
+  max-width: 400px;
+  border-radius: 12px;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  animation: gemini-tooltip-reveal 0.3s ease-out;
+  transform-origin: bottom center;
+  resize: none !important;
+  transition: opacity 0.2s ease, width 0.3s ease !important; /* Remove left/transform transitions */
+}
+
+@keyframes gemini-tooltip-reveal {
+  0% { opacity: 0; transform: translateX(-50%) translateY(10px) scale(0.98); }
+  100% { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
+}
+
+#gemini-suggestion-panel:not(.gemini-mini-mode).gemini-wide {
+  width: 580px;
+}
+
 #gemini-suggestion-panel.gemini-is-minimized {
   width: 200px !important;
   height: auto !important;
-}
-
-#gemini-suggestion-panel.gemini-wide {
-  width: 580px;
 }
 
 .gemini-panel {
@@ -469,19 +487,11 @@
   text-align: left !important;
 }
 
-.m-content * {
-  margin: 0 !important;
-  padding: 0 !important;
-  border: none !important;
-  box-shadow: none !important;
-  background-image: none !important;
-  list-style-position: inside !important;
-}
-
 /* Block markers acting as blocks with reset */
 .m-content div, .m-content p, .m-content h1, .m-content h2, .m-content h3, 
 .m-content ul, .m-content ol, .m-content blockquote {
   display: block !important;
+  margin-bottom: 8px !important; /* Restore some spacing */
 }
 
 .m-content span, .m-content strong, .m-content em, .m-content u {
@@ -533,7 +543,7 @@
   z-index: 2147483647;
   width: 420px;
   max-width: 45vw;
-  max-height: 480px;
+  max-height: 450px;
   background: rgba(255, 255, 255, 0.98);
   backdrop-filter: blur(15px);
   -webkit-backdrop-filter: blur(15px);
@@ -543,6 +553,7 @@
   padding: 0;
   overflow: hidden;
   animation: macroPreviewFadeIn 0.2s ease-out;
+  pointer-events: auto; /* Ensure we can scroll it */
 }
 
 @keyframes macroPreviewFadeIn {
@@ -843,5 +854,77 @@
   -webkit-backdrop-filter: blur(5px) !important;
   background: rgba(0, 0, 0, 0.3) !important;
 }
+
+/* --- Gemini Mascot & Motivation Styles --- */
+.gemini-motivation-container {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-right: 20px;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+}
+
+.gemini-motivation-bubble {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(99, 102, 241, 0.1);
+    padding: 6px 12px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+    color: #4b5563;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    position: relative;
+    max-width: 300px;
+    animation: gemini-bounce-subtle 3s infinite ease-in-out;
+    line-height: 1.4;
+    text-align: center;
+}
+
+.gemini-motivation-bubble.nav-mode::after {
+    content: '';
+    position: absolute;
+    right: -6px;
+    top: 50%;
+    transform: translateY(-50%);
+    border-width: 6px 0 6px 6px;
+    border-style: solid;
+    border-color: transparent transparent transparent rgba(255, 255, 255, 0.7);
+}
+
+.gemini-navbar-motivation {
+    max-height: 40px;
+    margin: 0 !important;
+}
+
+.gemini-mascot {
+    width: 28px;
+    height: 28px;
+    animation: gemini-float 4s infinite ease-in-out;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+@keyframes gemini-float {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(-6px) rotate(2deg); }
+}
+
+@keyframes gemini-bounce-subtle {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.02); }
+}
+
+@keyframes gemini-blink {
+    0%, 45%, 55%, 100% { transform: scaleY(1); }
+    50% { transform: scaleY(0.1); }
+}
+
+.gemini-mascot-eye {
+    animation: gemini-blink 4s infinite;
+    transform-origin: center;
+}
+
 
 

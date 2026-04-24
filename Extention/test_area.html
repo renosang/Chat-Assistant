@@ -500,13 +500,26 @@
                 <span class="current-session-label">Đang chat:</span>
                 <span class="h6 mb-0 mr-1" id="customer-name-display">Brother - Tiktok</span>
             </h3>
+            <div class="gemini-motivation-container" id="gemini-motivation-section">
+                <div class="gemini-motivation-bubble" id="gemini-motivation-text">
+                    Chào khách hàng đầu ngày thật tươi tắn nhé! ☀️
+                </div>
+                <svg class="gemini-mascot" viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="2">
+                    <rect x="4" y="8" width="16" height="12" rx="4" fill="#eef2ff"></rect>
+                    <circle class="gemini-mascot-eye" cx="9" cy="13" r="1.5" fill="#6366f1"></circle>
+                    <circle class="gemini-mascot-eye" cx="15" cy="13" r="1.5" fill="#6366f1"></circle>
+                    <path d="M10 17C10 17 11 18 12 18C13 18 14 17 14 17" stroke="#6366f1" stroke-linecap="round"></path>
+                    <path d="M12 8V4M12 4L9 2M12 4L15 2" stroke="#6366f1" stroke-width="2"></path>
+                </svg>
+            </div>
             <div style="font-size: 12px; color: var(--success); font-weight: 600;">● Trực tuyến</div>
         </div>
 
         <div class="chat-body" id="chat-body">
             <div class="msg received-customer">
                 <div class="chat-item chat-item--customer">
-                    <div class="chat-item__body">
+            <div class="chat-avatar"><div class="avatar m-0" style="background: #f1f5f9; border: 1px solid #e2e8f0;">👤</div></div>
+            <div class="chat-item__body">
                         <div class="chat-item__content">
                             <div>
                                 <div>Chào bạn, shop còn hàng Brother không?</div>
@@ -529,7 +542,7 @@
                 </div>
 
                 <div class="textarea-wrapper">
-                    <textarea id="test-textarea" placeholder="Nhập tin nhắn để kiểm duyệt..."></textarea>
+                    <textarea id="chat-input" placeholder="Nhập tin nhắn để kiểm duyệt..."></textarea>
                 </div>
 
                 <div class="action-toolbar">
