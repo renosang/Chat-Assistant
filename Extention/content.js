@@ -758,10 +758,30 @@ function setChatText(el, text) {
     const errors = [];
 
     // 1. Check Concern Issue (Starts with "Khiếu nại")
-    const concernEl = document.querySelector('div.css-1uccc91-singleValue');
-    const concernText = (concernEl?.textContent || "").trim();
+    // Find the concern_id input first, then look for the text in the same container
+    const concernInput = document.querySelector('input[name="concern_id"]');
+    let concernText = "";
 
-    if (!concernText.toLowerCase().startsWith("khiếu nại")) {
+    if (concernInput) {
+      // Look for the React-Select value display in the same group/form-group
+      const container = concernInput.closest('.form-group, .position-relative, .css-2b097c-container');
+      if (container) {
+        // Find any element with a class ending in -singleValue (React-Select standard)
+        const displayEl = container.querySelector('[class$="-singleValue"], [class*="-singleValue"]');
+        concernText = (displayEl?.textContent || "").trim();
+      }
+    }
+
+    // Fallback search if above logic fails
+    if (!concernText) {
+      const fallbackEl = document.querySelector('[class*="-singleValue"]');
+      concernText = (fallbackEl?.textContent || "").trim();
+    }
+
+    // Detect "Khiếu nại" (case insensitive, handle accents)
+    const isComplaint = concernText.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").startsWith("khieu nai");
+
+    if (!isComplaint) {
       return []; // Not a complaint, skip extra validation
     }
 
@@ -781,7 +801,7 @@ function setChatText(el, text) {
 
     // 3. Check Root Cause
     const rootCauseInput = document.querySelector('input[name="root_cause_id"]');
-    if (!rootCauseInput || !rootCauseInput.value.trim()) {
+    if (!rootCauseInput || !rootCauseInput.value.trim() || rootCauseInput.value === "0") {
       errors.push("Root Cause");
     }
 
@@ -1742,6 +1762,10 @@ function setChatText(el, text) {
         const response = await fetch(`${MACRO_API_BASE_URL}/categories`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
+        if (response.status === 401) {
+          chrome.storage.sync.remove(['macroAuthToken']);
+          return;
+        }
         if (!response.ok) return;
         const categories = await response.json();
         
@@ -2614,6 +2638,13 @@ function setChatText(el, text) {
         const response = await fetch(`${MACRO_API_BASE_URL}/macros/search?q=${encodeURIComponent(q)}`, {
           headers: { 'Authorization': `Bearer ${data.macroAuthToken}` }
         });
+
+        if (response.status === 401) {
+          chrome.storage.sync.remove(['macroAuthToken']);
+          resultsDiv.innerHTML = '<div class="macro-error" style="background: #fff1f2; color: #be123c; padding: 12px; border-radius: 8px; border: 1px solid #fecaca;">Phiên đăng nhập Macro hết hạn. Vui lòng mở Popup extension và đăng nhập lại để tiếp tục.</div>';
+          return;
+        }
+
         const macros = await response.json();
 
         resultsDiv.innerHTML = "";
@@ -2691,6 +2722,8 @@ function setChatText(el, text) {
             fetch(`${MACRO_API_BASE_URL}/macros/${m._id}/increment-usage`, {
               method: 'PUT',
               headers: { 'Authorization': `Bearer ${data.macroAuthToken}` }
+            }).then(res => {
+              if (res.status === 401) chrome.storage.sync.remove(['macroAuthToken']);
             }).catch(() => {});
           });
           resultsDiv.appendChild(div);
@@ -2807,40 +2840,19 @@ function setChatText(el, text) {
 
   function stripHtml(html) {
     if (!html) return "";
-    try {
-      // Create a temporary element to parse HTML
-      const doc = new DOMParser().parseFromString(html, 'text/html');
-      
-      // Preserve newlines for block elements
-      const blocks = ['P', 'DIV', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'LI', 'BR', 'TR', 'BLOCKQUOTE'];
-      const walker = document.createTreeWalker(doc.body, NodeFilter.SHOW_ELEMENT);
-      let node;
-      const toReplace = [];
-      while(node = walker.nextNode()) {
-        if (blocks.includes(node.tagName)) {
-           toReplace.push(node);
-        }
-      }
-      
-      // Add newline after each block tag
-      toReplace.forEach(el => {
-        if (el.tagName === 'BR') {
-          el.replaceWith('\n');
-        } else {
-          el.after('\n');
-        }
-      });
+    // 1. Chuyển đổi các thẻ block thành dấu xuống dòng
+    // 2. Chuyển đổi tất cả các thẻ còn lại thành khoảng trắng (để tránh dính chữ)
+    const text = html
+      .replace(/<br\s*\/?>/gi, '\n')
+      .replace(/<\/p>|<\/div>|<\/h[1-6]>|<\/li>|<\/tr>|<\/blockquote>/gi, '\n')
+      .replace(/<[^>]*>?/gm, ' ')
+      .replace(/&nbsp;/g, ' ');
 
-      return doc.body.textContent.trim();
-    } catch (e) {
-      // Fallback clean-up
-      return html
-        .replace(/<br\s*\/?>/gi, '\n')
-        .replace(/<\/p>|<\/div>|<\/li>/gi, '\n')
-        .replace(/<[^>]*>/g, '')
-        .replace(/&nbsp;/g, ' ')
-        .trim();
-    }
+    // 3. Làm sạch và nối lại bằng dấu xuống dòng cho đoạn văn
+    return text
+      .split('\n')
+      .map(line => line.trim().replace(/ {2,}/g, ' '))
+      .join('\n');
   }
 
   function renderMacroAsHtml(content) {
@@ -2947,7 +2959,7 @@ function setChatText(el, text) {
           
           // Use double newline for paragraphs and single for list items
           if (node.type === 'paragraph' || node.type === 'heading' || node.type === 'h1' || node.type === 'h2' || node.type === 'h3') {
-             return childrenText.trim() + "\n\n";
+             return childrenText.trim() + "\n";
           }
           if (blockTypes.includes(node.type)) return childrenText + "\n";
           
@@ -2959,7 +2971,7 @@ function setChatText(el, text) {
         return "";
       };
       
-      return extract(obj).replace(/\n{3,}/g, '\n\n').trim() || "(Không có nội dung)";
+      return extract(obj).replace(/\n{2,}/g, '\n').trim() || "(Không có nội dung)";
     } catch (e) {
       return "(Không có nội dung)";
     }
@@ -2977,40 +2989,39 @@ function setChatText(el, text) {
       }
     }
   }, true);
-}
 
+  // Auto-hide when clicking outside
+  document.addEventListener("mousedown", (e) => {
+    if (suggestionPanel && suggestionPanel.style.display !== "none") {
+        if (geminiOverlay && geminiOverlay.style.display !== "none") return;
+        const isInsidePanel = suggestionPanel.contains(e.target);
+        const isInsideTextarea = currentActiveTextarea && (currentActiveTextarea.contains(e.target) || e.target === currentActiveTextarea);
 
-// Auto-hide when clicking outside
-document.addEventListener("mousedown", (e) => {
-  if (suggestionPanel && suggestionPanel.style.display !== "none") {
-      if (geminiOverlay && geminiOverlay.style.display !== "none") return;
-      const isInsidePanel = suggestionPanel.contains(e.target);
-      const isInsideTextarea = currentActiveTextarea && (currentActiveTextarea.contains(e.target) || e.target === currentActiveTextarea);
+        if (!isInsidePanel && !isInsideTextarea) {
+          hideUI();
+        }
+    }
 
-      if (!isInsidePanel && !isInsideTextarea) {
+    // Auto-hide Macro Overlay
+    const macroOverlay = document.getElementById("gemini-macro-overlay");
+    if (macroOverlay && macroOverlay.style.display !== "none") {
+      if (!macroOverlay.contains(e.target)) {
+        macroOverlay.style.display = "none";
+      }
+    }
+  }, true);
+
+  // Detect session/context change to auto-hide
+  let lastContextKey = "";
+  function checkContextChange() {
+    const ctx = getCurrentContext();
+    const key = `${ctx.currentBrand}-${ctx.currentMarketplace}`;
+    if (lastContextKey && key !== lastContextKey) {
+      if (suggestionPanel && suggestionPanel.style.display !== "none") {
         hideUI();
       }
-  }
-
-  // Auto-hide Macro Overlay
-  const macroOverlay = document.getElementById("gemini-macro-overlay");
-  if (macroOverlay && macroOverlay.style.display !== "none") {
-    if (!macroOverlay.contains(e.target)) {
-      macroOverlay.style.display = "none";
     }
+    lastContextKey = key;
   }
-}, true);
-
-// Detect session/context change to auto-hide
-let lastContextKey = "";
-function checkContextChange() {
-  const ctx = getCurrentContext();
-  const key = `${ctx.currentBrand}-${ctx.currentMarketplace}`;
-  if (lastContextKey && key !== lastContextKey) {
-    if (suggestionPanel && suggestionPanel.style.display !== "none") {
-      hideUI();
-    }
-  }
-  lastContextKey = key;
+  setInterval(checkContextChange, 1000);
 }
-setInterval(checkContextChange, 1000);
