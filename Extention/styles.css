@@ -928,3 +928,22 @@
 
 
 
+.macro-drag-handle {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 12px;
+  width: 100%;
+  cursor: move;
+  color: #cbd5e1;
+  font-size: 14px;
+  line-height: 1;
+  user-select: none;
+  margin-bottom: 2px;
+  letter-spacing: 2px;
+  transition: color 0.2s;
+}
+
+.macro-drag-handle:hover {
+  color: #94a3b8;
+}

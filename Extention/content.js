@@ -10,6 +10,7 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
   let cachedConfig = null;
   let forceAllowSend = false;
   let userSavedPosition = null;
+  let userSavedMacroPosition = null;
   let userSavedSize = null;
   let userSavedOpacity = 1.0;
   let isMinimized = false;
@@ -74,14 +75,15 @@ function setChatText(el, text) {
 
 
   // Load saved position and state
-  chrome.storage.sync.get(['geminiPanelPos', 'geminiPanelMinimized', 'geminiPanelSize', 'geminiPanelOpacity'], (data) => {
+  chrome.storage.sync.get(['geminiPanelPos', 'macroPanelPos', 'geminiPanelMinimized', 'geminiPanelSize', 'geminiPanelOpacity'], (data) => {
     if (data.geminiPanelPos) userSavedPosition = data.geminiPanelPos;
+    if (data.macroPanelPos) userSavedMacroPosition = data.macroPanelPos;
     if (data.geminiPanelMinimized) isMinimized = data.geminiPanelMinimized;
     if (data.geminiPanelSize) userSavedSize = data.geminiPanelSize;
     if (data.geminiPanelOpacity !== undefined) userSavedOpacity = data.geminiPanelOpacity;
   });
 
-  function makeDraggable(el, handleSelector) {
+  function makeDraggable(el, handleSelector, storageKey = 'geminiPanelPos') {
     const handle = el.querySelector(handleSelector);
     if (!handle) return;
 
@@ -101,8 +103,11 @@ function setChatText(el, text) {
         document.onmousemove = null;
         el.classList.remove("gemini-dragging");
         // Save position
-        userSavedPosition = { top: el.style.top, left: el.style.left };
-        chrome.storage.sync.set({ geminiPanelPos: userSavedPosition });
+        const newPos = { top: el.style.top, left: el.style.left };
+        if (storageKey === 'geminiPanelPos') userSavedPosition = newPos;
+        else userSavedMacroPosition = newPos;
+        
+        chrome.storage.sync.set({ [storageKey]: newPos });
       };
       document.onmousemove = (e) => {
         e = e || window.event;
@@ -2556,11 +2561,13 @@ function setChatText(el, text) {
       macroSearchOverlay.id = "gemini-macro-overlay";
       macroSearchOverlay.innerHTML = `
         <div class="macro-search-container">
+          <div class="macro-drag-handle">⋮⋮</div>
           <input type="text" id="macro-search-input" placeholder="Tìm macro nhanh..." />
           <div id="macro-search-results"></div>
         </div>
       `;
       document.body.appendChild(macroSearchOverlay);
+      makeDraggable(macroSearchOverlay, ".macro-drag-handle", 'macroPanelPos');
 
       const input = macroSearchOverlay.querySelector("#macro-search-input");
       let searchTimer;
@@ -2602,20 +2609,24 @@ function setChatText(el, text) {
     const rect = triggerEl.getBoundingClientRect();
     macroSearchOverlay.style.display = "block";
     
-    // Smart Left positioning
-    let left = rect.left;
-    if (left + 480 > window.innerWidth) {
-      left = window.innerWidth - 500;
-    }
-    macroSearchOverlay.style.left = `${Math.max(10, left)}px`;
-
-    // Smart Top positioning (Above or Below)
-    // We use a safe estimate or wait for first render, but better to prefer UP if room.
-    const estimatedHeight = 420; // Max height with scroll + input
-    if (rect.top > estimatedHeight) {
-      macroSearchOverlay.style.top = `${rect.top - estimatedHeight - 10}px`;
+    if (userSavedMacroPosition) {
+      macroSearchOverlay.style.top = userSavedMacroPosition.top;
+      macroSearchOverlay.style.left = userSavedMacroPosition.left;
     } else {
-      macroSearchOverlay.style.top = `${rect.bottom + 10}px`;
+      // Smart Left positioning
+      let left = rect.left;
+      if (left + 480 > window.innerWidth) {
+        left = window.innerWidth - 500;
+      }
+      macroSearchOverlay.style.left = `${Math.max(10, left)}px`;
+
+      // Smart Top positioning (Above or Below)
+      const estimatedHeight = 420; 
+      if (rect.top > estimatedHeight) {
+        macroSearchOverlay.style.top = `${rect.top - estimatedHeight - 10}px`;
+      } else {
+        macroSearchOverlay.style.top = `${rect.bottom + 10}px`;
+      }
     }
 
     const input = macroSearchOverlay.querySelector("#macro-search-input");
