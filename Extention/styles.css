@@ -980,3 +980,165 @@
 .macro-drag-handle:hover {
   color: #94a3b8;
 }
+
+/* --- UPDATE BANNER (MINIMALIST WHITE ROCKET) --- */
+.gemini-navbar-motivation.gemini-update-active {
+  display: flex !important;
+  background: rgba(255, 255, 255, 0.98) !important;
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 100px !important;
+  padding: 5px 18px 5px 18px !important; /* Tăng padding đều hai bên */
+  position: relative !important;
+  max-width: 620px !important; /* Thu gọn chiều rộng */
+  margin: 0 auto !important;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08) !important;
+  align-items: center !important;
+  z-index: 1000 !important;
+  gap: 20px; /* Tạo gap thay vì space-between để bỏ khoảng trống thừa */
+  justify-content: center !important;
+}
+
+.gemini-update-banner.rocket-mode {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: auto; /* Không để width 100% để tránh bị giãn */
+}
+
+.gemini-rocket-icon {
+  color: #4f46e5;
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+  animation: gemini-rocket-vibrate 3s infinite ease-in-out;
+}
+
+@keyframes gemini-rocket-vibrate {
+  0%, 100% { transform: translate(0, 0) rotate(0deg); }
+  10%, 30%, 50%, 70%, 90% { transform: translate(-0.5px, 0.5px) rotate(-1deg); }
+  20%, 40%, 60%, 80% { transform: translate(0.5px, -0.5px) rotate(1deg); }
+}
+
+.gemini-update-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.gemini-update-text {
+  font-size: 13px;
+  font-weight: 600;
+  color: #1e293b;
+  white-space: nowrap;
+}
+
+.gemini-update-text b {
+  color: #4f46e5;
+  font-weight: 800;
+}
+
+.gemini-update-btns {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.gemini-update-nav-btn {
+  padding: 5px 16px;
+  font-size: 12px;
+  font-weight: 700;
+  border-radius: 20px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.gemini-update-nav-btn.primary {
+  background: #007aff;
+  color: #ffffff !important;
+  box-shadow: 0 2px 6px rgba(0, 122, 255, 0.2);
+  white-space: nowrap; /* Ép không ngắt dòng */
+  min-width: 120px; /* Đảm bảo đủ độ rộng */
+}
+
+.gemini-update-nav-btn.primary:hover {
+  background: #0063cc;
+  transform: scale(1.02);
+  box-shadow: 0 4px 10px rgba(0, 122, 255, 0.3);
+}
+
+.gemini-update-nav-btn.secondary {
+  background: #334155; /* Xám than đậm */
+  color: #ffffff !important;
+  font-weight: 800;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.gemini-update-nav-btn.secondary:hover {
+  background: #1e293b;
+  transform: scale(1.02);
+}
+
+.gemini-update-help-trigger {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #f1f5f9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 900;
+  color: #4f46e5;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.gemini-update-help-trigger:hover, .gemini-update-help-trigger.active {
+  background: #007aff;
+  color: white;
+}
+
+/* --- NAV GUIDE DROPDOWN --- */
+.gemini-nav-update-guide {
+  display: none;
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0; /* Căn phải để không bị tràn */
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+  padding: 16px;
+  flex-direction: column;
+  gap: 12px;
+  z-index: 1000;
+  width: 260px;
+}
+
+.gemini-guide-step {
+  font-size: 12.5px;
+  color: #334155;
+  display: flex;
+  gap: 10px;
+  line-height: 1.4;
+  text-align: left;
+}
+
+.gemini-guide-step a:hover {
+  text-decoration: none !important;
+  opacity: 0.8;
+}
+
+.gemini-guide-step b {
+  color: #007aff;
+  font-weight: 800;
+}
+
+
+  font-weight: 800;
+}
+
+

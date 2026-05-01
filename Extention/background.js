@@ -41,6 +41,9 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     fetchRemoteConfig();
     sendResponse({ status: "fetching" });
   }
+  if (request.action === "openExtensions") {
+    chrome.tabs.create({ url: 'chrome://extensions/' });
+  }
   if (request.action === "validateText") {
     handleValidation(request, sendResponse);
     return true; // Keep channel open
@@ -71,18 +74,22 @@ async function fetchRemoteConfig() {
       headers: { 'Authorization': `Bearer ${settings.authToken}` }
     });
 
-    if (response.ok) {
-      const config = await response.json();
+      if (response.ok) {
+        const config = await response.json();
+        
+        // Đảm bảo có thông tin phiên bản (Dùng 4.2.2 làm mặc định để test)
+        config.latestVersion = config.latestVersion || "4.2.2";
+        config.downloadUrl = config.downloadUrl || "https://macro.beegadget.net/";
 
-      // Kiểm tra sơ bộ dữ liệu
-      const typoCount = config.typoDictionary ? config.typoDictionary.length : 0;
-      console.log(`[Gemini BG] ✅ Config loaded and synced. Typos: ${typoCount}, Brands: ${config.allBrands?.length || 0}`);
+        // Kiểm tra sơ bộ dữ liệu
+        const typoCount = config.typoDictionary ? config.typoDictionary.length : 0;
+        console.log(`[Gemini BG] ✅ Config loaded. Typos: ${typoCount}, Latest: ${config.latestVersion}`);
 
-      await chrome.storage.local.set({
-        remoteConfig: config,
-        minVersion: config.minVersion || '4.1',
-        downloadUrl: config.downloadUrl || ''
-      });
+        await chrome.storage.local.set({
+          remoteConfig: config,
+          latestVersion: config.latestVersion,
+          downloadUrl: config.downloadUrl
+        });
 
       // Notify all tabs including the active one
       chrome.tabs.query({}, (tabs) => {

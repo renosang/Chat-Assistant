@@ -2258,14 +2258,18 @@ function setChatText(el, text) {
   // ---------- INIT ----------
 
   chrome.storage.local.get("remoteConfig", (data) => {
-    if (data.remoteConfig) updateCachedConfig(data.remoteConfig);
+    if (data.remoteConfig) {
+      updateCachedConfig(data.remoteConfig);
+      setTimeout(() => checkVersion(data.remoteConfig), 1000); // Đợi một chút để UI load rồi check
+    }
   });
 
   chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     if (request.action === "CONFIG_UPDATED") {
-      cachedConfig = request.config;
+      console.log("[Gemini] Config updated from Background. Checking version...");
+      updateCachedConfig(request.config);
+      setTimeout(() => checkVersion(request.config), 2000); // Đợi UI ổn định rồi check
       compileData();
-      checkVersion(cachedConfig);
       return;
     }
   });
@@ -2446,7 +2450,7 @@ function setChatText(el, text) {
   }
 
   function injectGlobalMotivationMascot() {
-    const navbar = document.getElementById("navbar-mobile");
+    let navbar = document.getElementById("navbar-mobile") || document.querySelector(".navbar-container") || document.querySelector("nav");
     if (!navbar || navbar.querySelector(".gemini-motivation-container")) return;
 
     const container = document.createElement("div");
@@ -3081,4 +3085,113 @@ function setChatText(el, text) {
     lastContextKey = key;
   }
   setInterval(checkContextChange, 1000);
+
+  // --- UPDATE NOTIFICATION SYSTEM ---
+
+  function checkVersion(config) {
+    // Ưu tiên lấy từ Storage local trước (nơi Background lưu dữ liệu Backend về)
+    chrome.storage.local.get(["remoteConfig", "latestVersion", "downloadUrl"], (data) => {
+      const currentVersion = chrome.runtime.getManifest().version;
+      
+      // Tìm version: Ưu tiên latestVersion > minVersion > 4.2.2 (fallback)
+      let latest = data.latestVersion || 
+                   (data.remoteConfig && (data.remoteConfig.latestVersion || data.remoteConfig.minVersion)) || 
+                   (config && (config.latestVersion || config.minVersion)) || 
+                   "4.2.2";
+      
+      let url = data.downloadUrl || 
+                (data.remoteConfig && data.remoteConfig.downloadUrl) || 
+                (config && config.downloadUrl) || 
+                "https://macro.beegadget.net/";
+
+      console.log(`[Gemini Check] Backend Version: ${latest}, Local: ${currentVersion}`);
+
+      if (isNewerVersion(currentVersion, latest)) {
+        // Tạm thời bỏ qua check dismissed để bạn test cho dễ
+        // if (sessionStorage.getItem(`gemini_update_dismissed_${latest}`)) return; 
+        
+        console.log("[Gemini] Force showing update banner...");
+        showUpdateNotification(latest, url);
+      }
+    });
+  }
+
+  function isNewerVersion(current, latest) {
+    const c = current.split('.').map(Number);
+    const l = latest.split('.').map(Number);
+    for (let i = 0; i < Math.max(c.length, l.length); i++) {
+      const cv = c[i] || 0;
+      const lv = l[i] || 0;
+      if (lv > cv) return true;
+      if (lv < cv) return false;
+    }
+    return false;
+  }
+
+  function showUpdateNotification(version, url) {
+    const mascotSection = document.getElementById("gemini-motivation-section");
+    if (!mascotSection) {
+      // Fallback: If mascot section isn't ready yet, wait and retry
+      setTimeout(() => showUpdateNotification(version, url), 2000);
+      return;
+    }
+
+    if (motivationInterval) clearInterval(motivationInterval);
+
+    mascotSection.classList.add("gemini-update-active");
+    mascotSection.innerHTML = `
+      <div class="gemini-update-banner rocket-mode">
+        <div class="gemini-rocket-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"></path><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"></path><path d="M9 12H4s.55-3.03 2-4.5c1.62-1.63 5-2.5 5-2.5"></path><path d="M12 15v5s3.03-.55 4.5-2c1.63-1.62 2.5-5 2.5-5"></path></svg>
+        </div>
+        <div class="gemini-update-info">
+          <span class="gemini-update-text">Hệ thống đã sẵn sàng bản cập nhật <b>${version}</b> cực mượt!</span>
+        </div>
+        <div class="gemini-update-btns">
+          <button class="gemini-update-nav-btn primary" id="gemini-update-now">Cập nhật ngay</button>
+          <button class="gemini-update-nav-btn secondary" id="gemini-update-close">Đóng</button>
+          <div class="gemini-update-help-trigger" id="gemini-guide-trigger">?</div>
+        </div>
+      </div>
+      <div class="gemini-nav-update-guide" id="gemini-nav-guide">
+        <div class="gemini-guide-step"><b>1.</b> Tải .zip về máy</div>
+        <div class="gemini-guide-step"><b>2.</b> Giải nén thư mục</div>
+        <div class="gemini-guide-step"><b>3.</b> Truy cập <a href="#" id="gemini-nav-ext-link" style="color:#007aff; text-decoration:underline;">chrome://extensions/</a></div>
+        <div class="gemini-guide-step"><b>4.</b> Load Unpacked bản mới</div>
+      </div>
+    `;
+
+    // Events
+    const trigger = mascotSection.querySelector("#gemini-guide-trigger");
+    const guide = mascotSection.querySelector("#gemini-nav-guide");
+    trigger.onclick = (e) => {
+      e.stopPropagation();
+      const isVisible = guide.style.display === "flex";
+      guide.style.display = isVisible ? "none" : "flex";
+      trigger.classList.toggle("active", !isVisible);
+    };
+
+    const extLink = mascotSection.querySelector("#gemini-nav-ext-link");
+    if (extLink) {
+      extLink.onclick = (e) => {
+        e.preventDefault();
+        chrome.runtime.sendMessage({ action: "openExtensions" });
+      };
+    }
+
+    mascotSection.querySelector("#gemini-update-now").onclick = () => window.open(url, "_blank");
+    
+    mascotSection.querySelector("#gemini-update-close").onclick = (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      sessionStorage.setItem(`gemini_update_dismissed_${version}`, "true");
+      // Gỡ bỏ class active và nội dung để Mascot truyền động lực quay lại
+      mascotSection.classList.remove("gemini-update-active");
+      mascotSection.innerHTML = ""; 
+      // Gọi lại mascot engine nếu cần hoặc chỉ đơn giản là ẩn
+      mascotSection.style.setProperty("display", "none", "important");
+    };
+    console.log("[Gemini] Update banner successfully injected into Navbar.");
+  }
 }
+

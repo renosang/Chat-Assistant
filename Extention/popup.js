@@ -172,14 +172,16 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   function checkVersionAndAuth() {
-    chrome.storage.local.get(['minVersion', 'downloadUrl'], (local) => {
+    chrome.storage.local.get(['latestVersion', 'minVersion', 'downloadUrl'], (local) => {
       const currentVersion = chrome.runtime.getManifest().version;
       const minRequired = local.minVersion || '4.1';
 
+      // Chúng ta không chặn người dùng nữa để họ có thể nhấn Sync
+      checkAuthStatus();
+      
+      // Nếu muốn hiện thông báo nhỏ trong popup thì làm ở đây
       if (isOutdated(currentVersion, minRequired)) {
-        showUpdateView(local.downloadUrl);
-      } else {
-        checkAuthStatus();
+        console.log("[Popup] Version is outdated, but allowing access to sync.");
       }
     });
   }
