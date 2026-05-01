@@ -379,37 +379,53 @@
   background: #f9fafb;
 }
 
-/* --- QUICK MACRO STYLES --- */
+/* --- QUICK MACRO STYLES (APPLE STYLE) --- */
 #gemini-macro-overlay {
   display: none;
   position: fixed;
   z-index: 2147483647;
   width: 440px;
   max-width: 95vw;
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  border-radius: 12px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-  padding: 10px;
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(25px) saturate(180%);
+  -webkit-backdrop-filter: blur(25px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 24px;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.12), 0 0 1px rgba(0,0,0,0.1);
+  padding: 12px;
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s ease;
 }
 
 .macro-search-container {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  max-height: 400px;
+  max-height: 480px;
+}
+
+.macro-drag-handle {
+  display: block !important;
+  width: 40px !important;
+  height: 4px !important;
+  background: rgba(0, 0, 0, 0.12) !important;
+  border-radius: 10px !important;
+  margin: 0 auto 4px auto !important;
+  cursor: grab !important;
+  transition: background 0.2s;
+}
+
+.macro-drag-handle:hover {
+  background: rgba(0, 0, 0, 0.2);
 }
 
 #macro-search-results {
   flex: 1;
   overflow-y: auto;
   padding-right: 4px;
-  max-height: 340px;
+  max-height: 380px;
 }
 
-/* Custom scrollbar for macro results */
+/* Custom scrollbar */
 #macro-search-results::-webkit-scrollbar {
   width: 5px;
 }
@@ -417,32 +433,47 @@
   background: transparent;
 }
 #macro-search-results::-webkit-scrollbar-thumb {
-  background: #e2e8f0;
+  background: rgba(0,0,0,0.1);
   border-radius: 10px;
 }
 
 #macro-search-input {
   width: 100% !important;
-  padding: 8px 12px !important;
-  border-radius: 8px !important;
-  border: 1px solid rgba(0, 0, 0, 0.08) !important;
-  background: #f8fafc !important;
-  font-size: 12px !important;
+  padding: 10px 16px !important;
+  border-radius: 14px !important;
+  border: 1px solid rgba(0, 0, 0, 0.05) !important;
+  background: rgba(0, 0, 0, 0.04) !important;
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  outline: none !important;
+  transition: all 0.2s;
+}
+
+#macro-search-input:focus {
+  background: rgba(255, 255, 255, 0.9) !important;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15) !important;
+  border-color: rgba(99, 102, 241, 0.3) !important;
 }
 
 .macro-search-item {
-  padding: 12px;
-  border-radius: 10px;
+  padding: 14px;
+  border-radius: 16px;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   border-bottom: 1px solid rgba(0,0,0,0.03);
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 6px;
+  margin-bottom: 4px;
 }
 
 .macro-search-item:hover {
-  background: rgba(99, 102, 241, 0.05);
+  background: rgba(0, 0, 0, 0.035);
+  transform: scale(0.99);
+}
+
+.macro-search-item:active {
+  transform: scale(0.97);
 }
 
 .m-category-tag {
@@ -536,52 +567,54 @@
   background: #f8fafc;
 }
 
-/* Full Preview */
+/* Full Preview (Apple Style) */
 #gemini-macro-full-preview {
   display: none;
   position: fixed;
   z-index: 2147483647;
   width: 420px;
   max-width: 45vw;
-  max-height: 450px;
-  background: rgba(255, 255, 255, 0.98);
-  backdrop-filter: blur(15px);
-  -webkit-backdrop-filter: blur(15px);
-  border: 1px solid rgba(99, 102, 241, 0.2);
-  border-radius: 12px;
-  box-shadow: 0 15px 45px rgba(0,0,0,0.25);
+  max-height: 520px;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(30px) saturate(180%);
+  -webkit-backdrop-filter: blur(30px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 24px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.18), 0 0 1px rgba(0,0,0,0.1);
   padding: 0;
   overflow: hidden;
-  animation: macroPreviewFadeIn 0.2s ease-out;
-  pointer-events: auto; /* Ensure we can scroll it */
+  animation: macroPreviewFadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  pointer-events: auto;
 }
 
 @keyframes macroPreviewFadeIn {
-  from { opacity: 0; transform: translateX(5px); }
-  to { opacity: 1; transform: translateX(0); }
+  from { opacity: 0; transform: scale(0.95) translateX(10px); }
+  to { opacity: 1; transform: scale(1) translateX(0); }
 }
 
 .preview-inner {
-  padding: 18px;
-  max-height: 480px;
+  padding: 24px;
+  max-height: 520px;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
 }
 
 .preview-inner strong {
-  font-size: 15px;
-  color: #4338ca;
-  margin-bottom: 14px;
-  border-bottom: 2px solid #f1f5f9;
-  padding-bottom: 10px;
+  font-size: 17px;
+  font-weight: 800;
+  color: #111827;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(0,0,0,0.06);
   display: block;
   line-height: 1.4;
+  letter-spacing: -0.3px;
 }
 
 .preview-inner .m-content {
-  font-size: 13.5px;
-  color: #1e293b;
+  font-size: 14.5px;
+  color: #374151;
   line-height: 1.6;
   white-space: pre-wrap;
   word-break: break-word;

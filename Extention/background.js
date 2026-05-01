@@ -1,6 +1,6 @@
 
 // --- CONFIGURATION ---
-const API_BASE_URL = "https://gemini-config-api.vercel.app/api";
+const API_BASE_URL = "https://api.beegadget.net/api";
 const API_URL = `${API_BASE_URL}/config`;
 const HEARTBEAT_URL = `${API_BASE_URL}/user/heartbeat`;
 const CONFIG_ALARM = "GEMINI_AUTO_FETCH";

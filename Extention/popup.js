@@ -1,6 +1,6 @@
 
-const API_BASE_URL = "https://gemini-config-api.vercel.app/api";
-const MACRO_API_BASE_URL = "https://macro-react-xi.vercel.app/api";
+const API_BASE_URL = "https://api.beegadget.net/api";
+const MACRO_API_BASE_URL = "https://macro.beegadget.net/api";
 
 document.addEventListener('DOMContentLoaded', () => {
   const loginView = document.getElementById('loginView');

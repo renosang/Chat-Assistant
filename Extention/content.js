@@ -133,7 +133,7 @@ function setChatText(el, text) {
     categoryMap: {}      // Mapping: categoryId -> { name, parentId }
   };
 
-  const MACRO_API_BASE_URL = "https://macro-react-xi.vercel.app/api";
+  const MACRO_API_BASE_URL = "https://macro.beegadget.net/api";
 
   const doneTypingInterval = 400;
 
@@ -344,15 +344,39 @@ function setChatText(el, text) {
       if (spaceMatch.index === spaceRegex.lastIndex) spaceRegex.lastIndex++;
     }
 
-    // 1) Forbidden
-    if (compiledData.forbidden) {
-      compiledData.forbidden.lastIndex = 0;
-      let match;
-      while ((match = compiledData.forbidden.exec(text)) !== null) {
-        const word = match[1];
-        results.forbidden.push({ word, msg: `TỪ CẤM: ${word}` });
-        if (match.index === compiledData.forbidden.lastIndex) compiledData.forbidden.lastIndex++;
-      }
+    // 1) Forbidden (Normalized & Exception-Aware)
+    if (cachedConfig.forbiddenWords) {
+      const normText = text.normalize('NFC');
+      
+      cachedConfig.forbiddenWords.forEach(rule => {
+        if (!rule) return;
+        const [forbidden, ...exceptions] = rule.split('|').map(s => s.trim().normalize('NFC'));
+        if (!forbidden) return;
+
+        const regex = new RegExp(`(^|[^\\p{L}])${escapeRegExp(forbidden)}(?=[^\\p{L}]|$)`, 'iu');
+        let match;
+        while ((match = regex.exec(normText)) !== null) {
+          const matchedPos = match.index + (match[1] ? match[1].length : 0);
+          const matchedEnd = matchedPos + forbidden.length;
+          
+          // Check if this forbidden word is part of an exception phrase
+          const isException = exceptions.some(ex => {
+            const exRegex = new RegExp(`(^|[^\\p{L}])${escapeRegExp(ex)}(?=[^\\p{L}]|$)`, 'iu');
+            let exMatch;
+            while ((exMatch = exRegex.exec(normText)) !== null) {
+              const exPos = exMatch.index + (exMatch[1] ? exMatch[1].length : 0);
+              const exEnd = exPos + ex.length;
+              if (matchedPos >= exPos && matchedEnd <= exEnd) return true;
+            }
+            return false;
+          });
+
+          if (!isException) {
+            results.forbidden.push({ word: forbidden, msg: `TỪ CẤM: ${forbidden}` });
+          }
+          if (match.index === regex.lastIndex) regex.lastIndex++;
+        }
+      });
     }
 
     // 2) Brand mismatch
@@ -2561,7 +2585,7 @@ function setChatText(el, text) {
       macroSearchOverlay.id = "gemini-macro-overlay";
       macroSearchOverlay.innerHTML = `
         <div class="macro-search-container">
-          <div class="macro-drag-handle">⋮⋮</div>
+          <div class="macro-drag-handle"></div>
           <input type="text" id="macro-search-input" placeholder="Tìm macro nhanh..." />
           <div id="macro-search-results"></div>
         </div>
@@ -2657,6 +2681,32 @@ function setChatText(el, text) {
         }
 
         const macros = await response.json();
+        const qLower = q.toLowerCase();
+
+        // SORT PRIORITY: Title Exact > Title Starts > Title Contains > Content Contains
+        macros.sort((a, b) => {
+          const aTitle = (a.title || "").toLowerCase();
+          const bTitle = (b.title || "").toLowerCase();
+          const aContent = extractTextFromContent(a.content).toLowerCase();
+          const bContent = extractTextFromContent(b.content).toLowerCase();
+          
+          if (aTitle === qLower && bTitle !== qLower) return -1;
+          if (bTitle === qLower && aTitle !== qLower) return 1;
+          if (aTitle.startsWith(qLower) && !bTitle.startsWith(qLower)) return -1;
+          if (bTitle.startsWith(qLower) && !aTitle.startsWith(qLower)) return 1;
+          
+          const aInTitle = aTitle.includes(qLower);
+          const bInTitle = bTitle.includes(qLower);
+          if (aInTitle && !bInTitle) return -1;
+          if (!aInTitle && bInTitle) return 1;
+
+          const aInContent = aContent.includes(qLower);
+          const bInContent = bContent.includes(qLower);
+          if (aInContent && !bInContent) return -1;
+          if (!aInContent && bInContent) return 1;
+          
+          return 0;
+        });
 
         resultsDiv.innerHTML = "";
         const context = getCurrentContext();
@@ -2677,9 +2727,12 @@ function setChatText(el, text) {
           const categoryName = (m.category && m.category.name) ? m.category.name : (m.category || "Chưa phân loại");
           
           div.innerHTML = `
-            <div class="m-category-tag">${escapeHtml(categoryName)}</div>
+            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+              <div class="m-category-tag">${escapeHtml(categoryName)}</div>
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="opacity: 0.2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+            </div>
             <strong>${escapeHtml(m.title)}</strong>
-            <p>${escapeHtml(plainText.substring(0, 80))}...</p>
+            <p>${escapeHtml(plainText.substring(0, 70))}...</p>
           `;
           
           div.addEventListener("mouseenter", () => {
@@ -2790,62 +2843,55 @@ function setChatText(el, text) {
     const title = (macro.title || "").toLowerCase();
     const plainText = extractTextFromContent(macro.content).toLowerCase();
     const curMarket = (context.currentMarketplace || "general").toLowerCase();
+    const curBrand = (context.currentBrand || "general").toLowerCase();
 
-    // 1. Platform Filtering Logic
+    // 1. Platform Filtering Logic (Strict)
     const platforms = ['shopee', 'lazada', 'tiktok', 'tiki'];
     const otherPlatforms = platforms.filter(p => p !== curMarket);
     
-    // Rule: Exclude if tagged for other platforms but NOT for current
-    if (macro.platformTags) {
-      const taggedForOthers = otherPlatforms.some(p => macro.platformTags[p] === true);
-      const taggedForCurrent = macro.platformTags[curMarket] === true;
-      if (taggedForOthers && !taggedForCurrent) return false;
-    }
-
-    // Rule: Exclude if Title or Content mentions other platforms explicitly
     for (const p of otherPlatforms) {
-      const regex = new RegExp(`\\b${p}\\b`, 'i');
-      if (regex.test(title) || regex.test(plainText)) return false;
-    }
-
-    // 2. Brand Filtering Logic
-    const curBrand = (context.currentBrand || "general").toLowerCase();
-    if (!context.isExternal && curBrand !== "general" && compiledData.brands) {
-      compiledData.brands.lastIndex = 0;
-      let match;
-      while ((match = compiledData.brands.exec(title + " " + plainText)) !== null) {
-        const foundBrand = match[1];
-        if (!areBrandsRelated(foundBrand, context.currentBrand, cachedConfig?.brandGroups)) {
-           return false;
-        }
-        if (match.index === compiledData.brands.lastIndex) compiledData.brands.lastIndex++;
+      const regex = new RegExp(`(^|[^\\p{L}])${p}(?=[^\\p{L}]|$)`, 'iu');
+      if (regex.test(title) || regex.test(plainText)) {
+        // Only allow if it ALSO explicitly mentions current marketplace
+        const curMarketRegex = new RegExp(`(^|[^\\p{L}])${curMarket}(?=[^\\p{L}]|$)`, 'iu');
+        if (!curMarketRegex.test(title) && !curMarketRegex.test(plainText)) return false;
       }
     }
 
-    // 3. Exclusive Brand filtering (Whitelist Mode)
-    const contextBrand = context.currentBrand || "general";
-    let curBrandClean = superClean(contextBrand);
-
-    // Resolve contextBrand to canonical brand if possible for better matching
+    // 2. Brand & Category Hierarchy Filtering (The Rule)
+    let curBrandClean = superClean(curBrand);
     if (curBrandClean !== "general") {
       for (const b of compiledData.allBrandsSet) {
-        if (areBrandsRelated(b, contextBrand, cachedConfig?.brandGroups)) {
+        if (areBrandsRelated(b, curBrand, cachedConfig?.brandGroups)) {
           curBrandClean = b;
           break;
         }
       }
     }
+
+    const categoryObj = macro.category || {};
+    const catId = categoryObj._id || macro.category;
+    const catName = categoryObj.name || (typeof macro.category === 'string' ? macro.category : "");
+
+    // Allowed if:
+    // a. Category lineage is General (Chung)
+    // b. Category lineage matches Current Brand
+    // c. It doesn't belong to ANY other brand (Global categories like Empathy)
     
-    if (curBrandClean !== "general" && macro.category) {
-      const catId = typeof macro.category === 'object' ? macro.category._id : macro.category;
-      const catName = typeof macro.category === 'object' ? macro.category.name : null;
-      
-      if (!isCategoryAllowedForBrand(catId, curBrandClean, catName)) {
-        console.log(`[Gemini Content] Hiding Macro "${macro.title}" (Cat: "${catName || 'Unknown'}") - Not allowed in "${contextBrand}" context.`);
-        return false;
+    const isGeneral = isCategoryAllowedForBrand(catId, "general", catName);
+    const isTargetBrand = isCategoryAllowedForBrand(catId, curBrandClean, catName);
+
+    if (isGeneral || isTargetBrand) return true;
+
+    // Strict Exclusion: If it belongs to ANY other brand, hide it
+    if (compiledData.allBrandsSet) {
+      const otherBrands = Array.from(compiledData.allBrandsSet).filter(b => b !== curBrandClean);
+      for (const otherB of otherBrands) {
+        if (isCategoryAllowedForBrand(catId, otherB, catName)) return false;
       }
     }
 
+    // Default to allow if it's a generic category that didn't match any brand
     return true;
   }
 
