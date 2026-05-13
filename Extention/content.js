@@ -353,7 +353,7 @@ function setChatText(el, text) {
         const [forbidden, ...exceptions] = rule.split('|').map(s => s.trim().normalize('NFC'));
         if (!forbidden) return;
 
-        const regex = new RegExp(`(^|[^\\p{L}])${escapeRegExp(forbidden)}(?=[^\\p{L}]|$)`, 'iu');
+        const regex = new RegExp(`(^|[^\\p{L}])${escapeRegExp(forbidden)}(?=[^\\p{L}]|$)`, 'giu');
         let match;
         while ((match = regex.exec(normText)) !== null) {
           const matchedPos = match.index + (match[1] ? match[1].length : 0);
@@ -1475,6 +1475,11 @@ function setChatText(el, text) {
     // Also compile forbidden words from rules
     const forbiddenList = (config.forbiddenRules?.VI || []).map(r => r.word);
     compiledData.forbidden = createRegex(forbiddenList);
+
+    // Map to forbiddenWords for getAnalysis compatibility (supports word|exception format)
+    config.forbiddenWords = (config.forbiddenRules?.VI || []).map(r => 
+      r.word + (r.exception ? `|${r.exception}` : '')
+    );
 
     compiledData.typoLookup = {};
     if (config.typoDictionary && Array.isArray(config.typoDictionary)) {
