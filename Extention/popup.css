@@ -287,6 +287,15 @@ body {
 .btn-logout:hover { background: #f1f5f9; color: var(--text); }
 .btn-uninstall-safe:hover { background: #fee2e2; transform: translateY(-1px); }
 
+.btn-sync svg,
+.btn-logout svg,
+.btn-uninstall-safe svg {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+
 /* LOGIN VIEW */
 .welcome-section {
   margin-bottom: 32px;
