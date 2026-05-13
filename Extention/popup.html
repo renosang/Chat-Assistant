@@ -62,27 +62,7 @@
       </div>
 
       <!-- UPDATE VIEW (Force Update Blocking) -->
-      <div id="updateView" class="view">
-        <div class="status-monitor update-shield">
-          <div class="update-icon">🚀</div>
-          <div class="monitor-info">
-            <h3 style="color: #6366f1;">Cần cập nhật</h3>
-            <p>Phiên bản của bạn đã quá cũ</p>
-          </div>
-        </div>
 
-        <div class="update-actions">
-          <a id="linkDownload" href="#" target="_blank" class="btn-primary update-btn">
-            <span>Tải bản mới nhất (.zip)</span>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3" />
-            </svg>
-          </a>
-          <button id="btnGuide" class="btn-secondary-outline">
-            <span>Hướng dẫn cài đặt</span>
-          </button>
-        </div>
-      </div>
 
       <!-- ACTIVE VIEW -->
       <div id="settingsView" class="view">
@@ -214,33 +194,7 @@
     </footer>
 
     <!-- Update Guide Modal -->
-    <div id="guideModal" class="modal-overlay">
-      <div class="modal-content update-guide">
-        <h3>Hướng dẫn cài bản mới</h3>
-        <div class="guide-steps">
-          <div class="step">
-            <span>1</span>
-            <div>Tải file .zip về và giải nén ra một thư mục.</div>
-          </div>
-          <div class="step">
-            <span>2</span>
-            <div>Mở tab Extensions (<a href="#" id="linkExtensions"
-                style="color: #6366f1; text-decoration: none; font-weight: 700;">chrome://extensions</a>).</div>
-          </div>
-          <div class="step">
-            <span>3</span>
-            <div>Bật chế độ <b>Developer mode</b> ở góc trên bên phải.</div>
-          </div>
-          <div class="step">
-            <span>4</span>
-            <div>Click <b>Load unpacked</b> và chọn thư mục vừa giải nén.</div>
-          </div>
-        </div>
-        <div class="modal-actions" style="margin-top: 25px;">
-          <button id="closeGuide" class="btn-primary">Đã hiểu</button>
-        </div>
-      </div>
-    </div>
+
 
     <!-- Redesigned Modal Inside Dashboard -->
     <div id="confirmModal" class="modal-overlay">

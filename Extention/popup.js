@@ -18,11 +18,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnSync = document.getElementById('btnSync');
   const syncMessage = document.getElementById('syncMessage');
 
-  const updateView = document.getElementById('updateView');
-  const btnGuide = document.getElementById('btnGuide');
-  const guideModal = document.getElementById('guideModal');
-  const closeGuide = document.getElementById('closeGuide');
-  const linkDownload = document.getElementById('linkDownload');
   const extensionVersion = document.getElementById('extensionVersion');
 
   // macro system elements
@@ -57,7 +52,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  checkVersionAndAuth();
+  checkAuthStatus();
   // We remove the auto-reload on open to avoid redundancy, user can force if needed
   // chrome.runtime.sendMessage({ action: "reloadConfig" });
 
@@ -79,7 +74,7 @@ document.addEventListener('DOMContentLoaded', () => {
         showMessage(syncMessage, 'Đã đồng bộ thành công!', 'green');
 
         // RE-CHECK VERSION AFTER SYNC
-        checkVersionAndAuth();
+        checkAuthStatus();
 
         // Auto hide message after 3s
         setTimeout(() => showMessage(syncMessage, '', ''), 3000);
@@ -171,55 +166,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  function checkVersionAndAuth() {
-    chrome.storage.local.get(['latestVersion', 'minVersion', 'downloadUrl'], (local) => {
-      const currentVersion = chrome.runtime.getManifest().version;
-      const minRequired = local.minVersion || '4.1';
 
-      // Chúng ta không chặn người dùng nữa để họ có thể nhấn Sync
-      checkAuthStatus();
-      
-      // Nếu muốn hiện thông báo nhỏ trong popup thì làm ở đây
-      if (isOutdated(currentVersion, minRequired)) {
-        console.log("[Popup] Version is outdated, but allowing access to sync.");
-      }
-    });
-  }
-
-  function isOutdated(current, min) {
-    const c = current.split('.').map(Number);
-    const m = min.split('.').map(Number);
-    for (let i = 0; i < Math.max(c.length, m.length); i++) {
-      if ((c[i] || 0) < (m[i] || 0)) return true;
-      if ((c[i] || 0) > (m[i] || 0)) return false;
-    }
-    return false;
-  }
-
-  function showUpdateView(url) {
-    loginView.classList.remove('active');
-    settingsView.classList.remove('active');
-    updateView.classList.add('active');
-    userBadge.style.display = 'none';
-    if (url) linkDownload.href = url;
-  }
-
-  btnGuide.addEventListener('click', (e) => {
-    e.preventDefault();
-    guideModal.classList.add('active');
-  });
-
-  closeGuide.addEventListener('click', () => {
-    guideModal.classList.remove('active');
-  });
-
-  const linkExtensions = document.getElementById('linkExtensions');
-  if (linkExtensions) {
-    linkExtensions.addEventListener('click', (e) => {
-      e.preventDefault();
-      chrome.tabs.create({ url: 'chrome://extensions' });
-    });
-  }
 
   function checkAuthStatus() {
     chrome.storage.sync.get(['authToken', 'username'], (data) => {

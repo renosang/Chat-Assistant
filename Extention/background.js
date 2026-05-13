@@ -77,18 +77,11 @@ async function fetchRemoteConfig() {
       if (response.ok) {
         const config = await response.json();
         
-        // Đảm bảo có thông tin phiên bản (Dùng 4.2.2 làm mặc định để test)
-        config.latestVersion = config.latestVersion || "4.2.2";
-        config.downloadUrl = config.downloadUrl || "https://macro.beegadget.net/";
-
-        // Kiểm tra sơ bộ dữ liệu
         const typoCount = config.typoDictionary ? config.typoDictionary.length : 0;
-        console.log(`[Gemini BG] ✅ Config loaded. Typos: ${typoCount}, Latest: ${config.latestVersion}`);
+        console.log(`[Gemini BG] ✅ Config loaded. Typos: ${typoCount}`);
 
         await chrome.storage.local.set({
-          remoteConfig: config,
-          latestVersion: config.latestVersion,
-          downloadUrl: config.downloadUrl
+          remoteConfig: config
         });
 
       // Notify all tabs including the active one
