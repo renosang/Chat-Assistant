@@ -118,7 +118,16 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  btnMacroLogin.addEventListener('click', async () => {
+  btnMacroLogin.addEventListener('click', handleMacroLogin);
+
+  // Enter key support for macro login
+  [macroUsernameInput, macroPasswordInput].forEach(input => {
+    input.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') handleMacroLogin();
+    });
+  });
+
+  async function handleMacroLogin() {
     const username = macroUsernameInput.value.trim();
     const password = macroPasswordInput.value.trim();
 
@@ -146,13 +155,7 @@ document.addEventListener('DOMContentLoaded', () => {
     } finally {
       setLoading(btnMacroLogin, false, 'Đăng nhập Macro');
     }
-  });
-
-  btnMacroLogout.addEventListener('click', () => {
-    chrome.storage.sync.remove(['macroAuthToken'], () => {
-      checkMacroAuthStatus();
-    });
-  });
+  }
 
   btnMacroLogout.addEventListener('click', () => {
     chrome.storage.sync.remove(['macroAuthToken'], () => {
@@ -195,7 +198,16 @@ document.addEventListener('DOMContentLoaded', () => {
     if (data.username) currentUserLabel.textContent = data.username.toUpperCase();
   }
 
-  btnLogin.addEventListener('click', async () => {
+  btnLogin.addEventListener('click', handleLogin);
+
+  // Enter key support for main login
+  [usernameInput, passwordInput].forEach(input => {
+    input.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') handleLogin();
+    });
+  });
+
+  async function handleLogin() {
     const username = usernameInput.value.trim();
     const password = passwordInput.value.trim();
 
@@ -224,7 +236,7 @@ document.addEventListener('DOMContentLoaded', () => {
     } finally {
       setLoading(btnLogin, false, 'Đăng nhập');
     }
-  });
+  }
 
   btnLogout.addEventListener('click', () => {
     chrome.storage.sync.remove(['authToken', 'username'], () => {

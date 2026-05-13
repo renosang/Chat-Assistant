@@ -398,6 +398,44 @@ body {
   to { opacity: 1; transform: translateY(0); }
 }
 
+.view-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+  padding: 0 4px;
+}
+
+.btn-back {
+  background: var(--sub);
+  border: 1px solid #edf2f7;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  width: 36px;
+  height: 36px;
+  color: var(--muted);
+  transition: 0.2s;
+}
+
+.btn-back:hover {
+  background: white;
+  color: var(--p);
+  border-color: var(--p);
+  transform: translateX(-2px);
+}
+
+.view-header h2 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--text);
+}
+
+
 /* MODAL & MISC */
 .modal-overlay {
   position: absolute;
