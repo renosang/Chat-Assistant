@@ -171,6 +171,7 @@
             white-space: pre-wrap;
             word-wrap: break-word;
             margin-bottom: 4px;
+            box-sizing: border-box;
         }
 
         @keyframes fadeIn {
@@ -185,28 +186,29 @@
             }
         }
 
-        .msg.received-customer {
-            background: white;
-            color: var(--text-main);
-            align-self: flex-start;
-            border-radius: 4px 20px 20px 20px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
-            border: 1px solid var(--border);
-        }
-
         .msg.sent {
             background: var(--primary);
             color: white;
             align-self: flex-end;
-            border-radius: 20px 20px 4px 20px;
+            border-radius: 18px 18px 4px 18px;
             box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
+            padding: 10px 16px;
+        }
+
+        .msg.received-customer {
+            background: white;
+            color: var(--text-main);
+            align-self: flex-start;
+            border-radius: 4px 18px 18px 18px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+            border: 1px solid var(--border);
+            padding: 10px 16px;
         }
 
         /* Chat Item Structure (provided by user style) */
         .chat-item {
             display: flex;
             gap: 12px;
-            width: 100%;
         }
 
         .chat-item--customer {
@@ -238,6 +240,13 @@
 
         .chat-item__content {
             word-break: break-word;
+            line-height: 1.5;
+            font-size: 14px;
+        }
+
+        .chat-item__content div {
+            margin: 0;
+            padding: 0;
         }
 
         .sent-time {
@@ -712,7 +721,7 @@
     </div>
 
     <script src="content.js"></script>
-    <script src="test_area.js"></script>
+    <script src="demo.js"></script>
 </body>
 
 </html>

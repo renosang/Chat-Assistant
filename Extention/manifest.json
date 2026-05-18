@@ -1,13 +1,12 @@
 {
   "manifest_version": 3,
   "name": "Trợ Lý Chat",
-  "version": "4.2.3",
+  "version": "4.2.4",
   "description": "Hệ thống kiểm duyệt Onpoint - Tích hợp nhận diện Brand & Sàn đa nền tảng.",
   "permissions": [
     "storage",
     "alarms",
-    "notifications",
-    "management"
+    "notifications"
   ],
   "host_permissions": [
     "https://api.beegadget.net/*",
@@ -26,8 +25,7 @@
         "https://admin.opollo.vn/*",
         "https://sellercenter.lazada.vn/*",
         "https://banhang.shopee.vn/*",
-        "https://seller-vn.tiktok.com/*",
-        "file://*/*"
+        "https://seller-vn.tiktok.com/*"
       ],
       "js": [
         "content.js"

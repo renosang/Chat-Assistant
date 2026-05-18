@@ -1713,7 +1713,9 @@ function setChatText(el, text) {
 
     const isManagement = CONFIG.MANAGEMENT_DOMAINS.some((d) => host.includes(d)) ||
       window.location.href.includes("test_area.html") ||
-      window.location.protocol === "file:";
+      window.location.href.includes("demo.html") ||
+      window.location.protocol === "file:" ||
+      window.location.protocol === "chrome-extension:";
 
     if (isManagement) {
       isExternal = false;

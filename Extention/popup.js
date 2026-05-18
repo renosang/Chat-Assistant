@@ -41,7 +41,7 @@ document.addEventListener('DOMContentLoaded', () => {
     extensionVersion.addEventListener('click', () => {
       clickCount++;
       if (clickCount === 7) {
-        chrome.tabs.create({ url: chrome.runtime.getURL('test_area.html') });
+        chrome.tabs.create({ url: chrome.runtime.getURL('demo.html') });
         clickCount = 0;
       }
       // Reset counter after 2 seconds of inactivity
@@ -265,18 +265,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Send deactivation message (Background tries to lock account)
     chrome.runtime.sendMessage({ action: "deactivateAccount" }, (res) => {
-      // REGARDLESS of server result, we proceed to uninstall as requested by user
-      if (chrome.management && chrome.management.uninstallSelf) {
-        chrome.management.uninstallSelf({ showConfirmDialog: false }, () => {
-          if (chrome.runtime.lastError) {
-            // If uninstall fails (unlikely), we at least close the popup
-            window.close();
-          }
-        });
-      } else {
-        // Fallback for unexpected environments
-        window.close();
-      }
+      // Web Store suggests avoiding management.uninstallSelf if possible.
+      // We will just close the popup and let the user uninstall via chrome://extensions if they wish.
+      window.close();
     });
 
     // Optional: timeout as ultimate fallback if message response hangs
