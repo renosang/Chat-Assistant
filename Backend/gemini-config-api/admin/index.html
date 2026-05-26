@@ -345,6 +345,11 @@
                 fetchUsers(true);
             };
 
+            const toggleBlockTicket = async (id, currentStatus) => {
+                await fetch(`${API_BASE}/users`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id, blockComplaintTicket: !currentStatus }) });
+                fetchUsers(true);
+            };
+
             const deleteUser = async (id) => {
                 if (!confirm("Xóa nhân viên này?")) return;
                 await fetch(`${API_BASE}/users?id=${id}`, { method: 'DELETE' });
@@ -447,6 +452,7 @@
                                     <th className="px-6 py-5 text-xs font-bold text-slate-400 uppercase">Kết nối</th>
                                     <th className="px-6 py-5 text-xs font-bold text-slate-400 uppercase text-center">Extension</th>
                                     <th className="px-6 py-5 text-xs font-bold text-slate-400 uppercase text-center">Trạng thái</th>
+                                    <th className="px-6 py-5 text-xs font-bold text-slate-400 uppercase text-center">Chặn Ticket</th>
                                     <th className="px-6 py-5 text-xs font-bold text-slate-400 uppercase text-right">Thao tác</th>
                                 </tr>
                             </thead>
@@ -490,6 +496,17 @@
                                         </td>
                                         <td className="px-6 py-5 text-center">
                                             <span className={`status-pill ${user.isActive ? 'status-active' : 'status-inactive'}`}>{user.isActive ? 'BẬT' : 'KHÓA'}</span>
+                                        </td>
+                                        <td className="px-6 py-5 text-center">
+                                            <label className="flex items-center justify-center cursor-pointer">
+                                                <input 
+                                                    type="checkbox" 
+                                                    className="sr-only peer" 
+                                                    checked={user.blockComplaintTicket || false} 
+                                                    onChange={() => toggleBlockTicket(user._id, user.blockComplaintTicket || false)} 
+                                                />
+                                                <div className="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-indigo-600 relative"></div>
+                                            </label>
                                         </td>
                                         <td className="px-6 py-5 text-right space-x-2">
                                             <button onClick={() => toggleStatus(user._id, user.isActive)} className="p-2.5 rounded-xl hover:bg-white border border-transparent hover:border-slate-200 transition-all shadow-sm" title={user.isActive ? 'Khóa tài khoản' : 'Mở tài khoản'}>

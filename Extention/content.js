@@ -739,7 +739,7 @@ function setChatText(el, text) {
     const btn = t?.closest?.(".btn-primary, button[type='submit'], .btn-save");
     const isTicketAlert = btn && document.querySelector('input[name="concern_id"]');
 
-    if (isTicketAlert) {
+    if (isTicketAlert && cachedConfig?.blockComplaintTicket) {
       const ticketErrors = getTicketValidationErrors();
       if (ticketErrors.length > 0) {
         if (reasonEvent) {
@@ -829,9 +829,13 @@ function setChatText(el, text) {
     });
 
     // 3. Check Root Cause
-    const rootCauseInput = document.querySelector('input[name="root_cause_id"]');
-    if (!rootCauseInput || !rootCauseInput.value.trim() || rootCauseInput.value === "0") {
-      errors.push("Root Cause");
+    // Bỏ qua bắt buộc điền Root Cause đối với CI đặc thù
+    const isExceptionRootCause = concernText.includes("Tình trạng xử lý khiếu nại");
+    if (!isExceptionRootCause) {
+      const rootCauseInput = document.querySelector('input[name="root_cause_id"]');
+      if (!rootCauseInput || !rootCauseInput.value.trim() || rootCauseInput.value === "0") {
+        errors.push("Root Cause");
+      }
     }
 
     // 4. Check Description (Quill Editor)
@@ -2889,18 +2893,8 @@ function setChatText(el, text) {
     const isGeneral = isCategoryAllowedForBrand(catId, "general", catName);
     const isTargetBrand = isCategoryAllowedForBrand(catId, curBrandClean, catName);
 
-    if (isGeneral || isTargetBrand) return true;
-
-    // Strict Exclusion: If it belongs to ANY other brand, hide it
-    if (compiledData.allBrandsSet) {
-      const otherBrands = Array.from(compiledData.allBrandsSet).filter(b => b !== curBrandClean);
-      for (const otherB of otherBrands) {
-        if (isCategoryAllowedForBrand(catId, otherB, catName)) return false;
-      }
-    }
-
-    // Default to allow if it's a generic category that didn't match any brand
-    return true;
+    // Chế độ WHIETLIST: CHỈ cho phép nếu là Macro Chung hoặc thuộc về đúng Brand hiện tại
+    return isGeneral || isTargetBrand;
   }
 
   function stripHtml(html) {

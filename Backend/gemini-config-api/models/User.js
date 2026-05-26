@@ -12,6 +12,7 @@ const UserSchema = new mongoose.Schema({
   lastActiveAt: { type: Date, default: Date.now },
   uninstalledAt: { type: Date },
   lastInstalledAt: { type: Date },
+  blockComplaintTicket: { type: Boolean, default: false }, // Tính năng chặn tạo ticket khiếu nại
   createdAt: { type: Date, default: Date.now }
 });
 

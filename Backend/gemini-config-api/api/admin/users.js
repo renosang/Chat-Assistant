@@ -31,9 +31,10 @@ module.exports = async (req, res) => {
 
   // PUT: Cập nhật trạng thái (Active/Inactive)
   if (req.method === 'PUT') {
-    const { id, isActive, password } = req.body;
+    const { id, isActive, password, blockComplaintTicket } = req.body;
     const updateData = {};
     if (typeof isActive !== 'undefined') updateData.isActive = isActive;
+    if (typeof blockComplaintTicket !== 'undefined') updateData.blockComplaintTicket = blockComplaintTicket;
     if (password) updateData.password = await bcrypt.hash(password, 10);
     
     const updatedUser = await User.findByIdAndUpdate(id, updateData, { new: true }).select('-password');
