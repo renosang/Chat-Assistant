@@ -1,0 +1,54 @@
+{
+  "manifest_version": 3,
+  "name": "Trợ Lý Chat",
+  "version": "4.2.6",
+  "description": "Hệ thống kiểm duyệt Onpoint - Tích hợp nhận diện Brand & Sàn đa nền tảng.",
+  "permissions": [
+    "storage",
+    "alarms"
+  ],
+  "host_permissions": [
+    "https://api.beegadget.net/*",
+    "https://macro.beegadget.net/*",
+    "*://admin.onpoint.vn/*",
+    "*://admin.opollo.vn/*"
+  ],
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://admin.onpoint.vn/*",
+        "https://admin.opollo.vn/*",
+        "https://sellercenter.lazada.vn/*",
+        "https://banhang.shopee.vn/*",
+        "https://seller-vn.tiktok.com/*"
+      ],
+      "js": [
+        "content.js"
+      ],
+      "css": [
+        "styles.css"
+      ],
+      "all_frames": true
+    }
+  ],
+  "action": {
+    "default_popup": "popup.html"
+  },
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "mascot_alert.png"
+      ],
+      "matches": [
+        "<all_urls>"
+      ]
+    }
+  ],
+  "icons": {
+    "128": "icon128.png"
+  }
+}
