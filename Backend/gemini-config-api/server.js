@@ -45,7 +45,7 @@ app.get('/', (req, res) => {
   res.redirect('/admin/index.html');
 });
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3010;
 app.listen(PORT, () => {
   console.log(`🚀 VPS Server is running at http://localhost:${PORT}`);
   console.log(`👉 Admin Panel: http://localhost:${PORT}/admin/index.html`);

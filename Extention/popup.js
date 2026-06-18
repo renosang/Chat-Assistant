@@ -213,7 +213,6 @@ document.addEventListener('DOMContentLoaded', () => {
   function showLoginView() {
     loginView.classList.add('active');
     settingsView.classList.remove('active');
-    updateView.classList.remove('active');
     userBadge.style.display = 'none';
     loginMessage.textContent = '';
     usernameInput.focus();
@@ -222,7 +221,6 @@ document.addEventListener('DOMContentLoaded', () => {
   function showSettingsView(data) {
     loginView.classList.remove('active');
     settingsView.classList.add('active');
-    updateView.classList.remove('active');
     userBadge.style.display = 'flex';
     if (data.username) currentUserLabel.textContent = data.username.toUpperCase();
   }
