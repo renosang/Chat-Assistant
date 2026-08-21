@@ -3153,6 +3153,8 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
       if (starBtn) {
         starBtn.addEventListener('click', async (e) => {
           e.stopPropagation(); // Stop macro selection
+          e.preventDefault();
+          starBtn.blur();
           const mIdStr = m._id ? m._id.toString() : '';
           m.isStarred = !m.isStarred;
           starBtn.innerHTML = m.isStarred ? '⭐' : '☆';

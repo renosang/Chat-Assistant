@@ -486,6 +486,15 @@
   opacity: 1 !important;
 }
 
+.macro-star-btn:focus,
+.macro-star-btn:focus-visible,
+.macro-star-btn:active {
+  outline: none !important;
+  box-shadow: none !important;
+  border: none !important;
+  background: transparent !important;
+}
+
 .macro-star-btn.starred {
   opacity: 1 !important;
   filter: drop-shadow(0 1px 3px rgba(234, 179, 8, 0.5)) !important;
