@@ -3165,49 +3165,80 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
                 },
                 body: JSON.stringify({ macroId: m._id })
               });
-              let top = itemRect.top + (itemRect.height / 2) - (previewHeight / 2);
-
-              // Clamp top position (leave at least 20px margin from top and bottom)
-              const minTop = 20;
-              const maxTop = window.innerHeight - previewHeight - 20;
-              top = Math.max(minTop, Math.min(top, maxTop));
-
-              macroFullPreview.style.left = `${Math.max(10, left)}px`;
-              macroFullPreview.style.top = `${top}px`;
+            } catch (err) {
+              console.error('Lỗi khi đồng bộ mẫu yêu thích lên server:', err);
             }
-          });
 
-          div.addEventListener("mouseleave", () => {
-            macroHideTimer = setTimeout(() => {
-              if (macroFullPreview) macroFullPreview.style.display = "none";
-            }, 300);
+            // Re-render live search instantly
+            const curInput = macroSearchOverlay.querySelector("#macro-search-input");
+            renderLiveSearchResults(curInput ? curInput.value : "");
           });
+        });
+      }
 
-          div.addEventListener("click", () => {
-            insertMacroToActiveElement(plainText);
-            macroSearchOverlay.style.display = "none";
-            if (macroFullPreview) macroFullPreview.style.display = "none";
-            // Increment usage
+      div.addEventListener("mouseenter", () => {
+        if (macroHideTimer) clearTimeout(macroHideTimer);
+        if (macroFullPreview) {
+          const inner = macroFullPreview.querySelector(".preview-inner");
+          if (inner) {
+            inner.innerHTML = `
+              <strong>${escapeHtml(m.title)}</strong>
+              <div class="m-content">${richHtml}</div>
+            `;
+          }
+          macroFullPreview.style.display = "block";
+
+          // Smart positioning
+          const itemRect = div.getBoundingClientRect();
+          const overlayRect = macroSearchOverlay.getBoundingClientRect();
+
+          let left = overlayRect.right + 12;
+          if (left + 420 > window.innerWidth) {
+            left = overlayRect.left - 422;
+          }
+
+          const previewHeight = macroFullPreview.offsetHeight || 380;
+          let top = itemRect.top + (itemRect.height / 2) - (previewHeight / 2);
+          const minTop = 20;
+          const maxTop = window.innerHeight - previewHeight - 20;
+          top = Math.max(minTop, Math.min(top, maxTop));
+
+          macroFullPreview.style.left = `${Math.max(10, left)}px`;
+          macroFullPreview.style.top = `${top}px`;
+        }
+      });
+
+      div.addEventListener("mouseleave", () => {
+        macroHideTimer = setTimeout(() => {
+          if (macroFullPreview) macroFullPreview.style.display = "none";
+        }, 300);
+      });
+
+      div.addEventListener("click", () => {
+        insertMacroToActiveElement(plainText);
+        macroSearchOverlay.style.display = "none";
+        if (macroFullPreview) macroFullPreview.style.display = "none";
+        
+        // Increment usage count
+        m.useCount = (m.useCount || 0) + 1;
+        chrome.storage.sync.get(['macroAuthToken'], (stData) => {
+          if (stData.macroAuthToken) {
             fetch(`${MACRO_API_BASE_URL}/macros/${m._id}/increment-usage`, {
               method: 'PUT',
-              headers: { 'Authorization': `Bearer ${data.macroAuthToken}` }
-            }).then(res => {
-              if (res.status === 401) chrome.storage.sync.remove(['macroAuthToken']);
-            }).catch(() => { });
-          });
-          resultsDiv.appendChild(div);
+              headers: { 'Authorization': `Bearer ${stData.macroAuthToken}` }
+            }).catch(() => {});
+          }
         });
-
-        if (filteredMacros.length > MAX_DISPLAY) {
-          const footerInfo = document.createElement("div");
-          footerInfo.style.cssText = "text-align: center; padding: 10px 6px; font-size: 11px; color: #94a3b8; font-weight: 600; border-top: 1px dashed rgba(0,0,0,0.06); margin-top: 6px; user-select: none;";
-          footerInfo.textContent = `Hiển thị Top 20 / ${filteredMacros.length} kết quả (nhập từ khóa để thu hẹp tìm kiếm)`;
-          resultsDiv.appendChild(footerInfo);
-        }
-      } catch (err) {
-        resultsDiv.innerHTML = '<div class="macro-error">Lỗi kết nối hệ thống Macro.</div>';
-      }
+      });
+      resultsDiv.appendChild(div);
     });
+
+    if (filteredMacros.length > MAX_DISPLAY) {
+      const footerInfo = document.createElement("div");
+      footerInfo.style.cssText = "text-align: center; padding: 10px 6px; font-size: 11px; color: #94a3b8; font-weight: 600; border-top: 1px dashed rgba(0,0,0,0.06); margin-top: 6px; user-select: none;";
+      footerInfo.textContent = `Hiển thị Top 20 / ${filteredMacros.length} kết quả (nhập từ khóa để thu hẹp tìm kiếm)`;
+      resultsDiv.appendChild(footerInfo);
+    }
   }
 
   function insertMacroToActiveElement(text) {
