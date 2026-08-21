@@ -2970,7 +2970,22 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
           return;
         }
 
-        const macros = await response.json();
+        let macros = await response.json();
+
+        // Fallback: If q is present but server returns empty array (e.g. server Vercel build pending), fetch brand macros fallback and filter client-side!
+        if (q && q.trim() && Array.isArray(macros) && macros.length === 0) {
+          try {
+            const fallbackRes = await fetch(`${MACRO_API_BASE_URL}/macros/search?brand=${encodeURIComponent(context.currentBrand || '')}`, {
+              headers: { 'Authorization': `Bearer ${data.macroAuthToken}` }
+            });
+            if (fallbackRes.ok) {
+              const fallbackMacros = await fallbackRes.json();
+              if (Array.isArray(fallbackMacros) && fallbackMacros.length > 0) {
+                macros = fallbackMacros;
+              }
+            }
+          } catch (err) {}
+        }
         const removeAccents = (str) => {
           if (!str) return "";
           return str
