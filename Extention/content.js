@@ -2876,10 +2876,8 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
       makeDraggable(macroSearchOverlay, ".macro-drag-handle", 'macroPanelPos');
 
       const input = macroSearchOverlay.querySelector("#macro-search-input");
-      let searchTimer;
       input.addEventListener("input", (e) => {
-        clearTimeout(searchTimer);
-        searchTimer = setTimeout(() => execMacroSearch(e.target.value), 300);
+        renderLiveSearchResults(e.target.value);
       });
 
       // Prevent closing when clicking inside
@@ -2938,268 +2936,235 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
     const input = macroSearchOverlay.querySelector("#macro-search-input");
     input.value = "";
     input.focus();
-    execMacroSearch(""); // Load ban đầu
+    fetchAndInitLiveSearch(""); // Initial load
   }
 
-  async function execMacroSearch(q) {
-    const resultsDiv = macroSearchOverlay.querySelector("#macro-search-results");
-    resultsDiv.innerHTML = '<div class="macro-loading">Đang tìm...</div>';
+  let cachedMacrosList = null;
+  let cachedBrandContext = null;
 
-    chrome.storage.sync.get(['macroAuthToken', 'starredMacroIds'], async (data) => {
-      if (!data.macroAuthToken) {
-        resultsDiv.innerHTML = '<div class="macro-error">Vui lòng đăng nhập hệ thống Macro qua Popup extension.</div>';
-        return;
+  async function fetchAndInitLiveSearch(initialQuery = "") {
+    const resultsDiv = macroSearchOverlay.querySelector("#macro-search-results");
+    const context = getCurrentContext();
+
+    if (!cachedMacrosList || cachedBrandContext !== context.currentBrand) {
+      resultsDiv.innerHTML = '<div class="macro-loading">Đang tải...</div>';
+      chrome.storage.sync.get(['macroAuthToken', 'starredMacroIds'], async (data) => {
+        if (!data.macroAuthToken) {
+          resultsDiv.innerHTML = '<div class="macro-error">Vui lòng đăng nhập hệ thống Macro qua Popup extension.</div>';
+          return;
+        }
+
+        const starredArray = Array.isArray(data.starredMacroIds) ? data.starredMacroIds : [];
+        const localStarredSet = new Set(starredArray);
+
+        try {
+          const brandParam = context.currentBrand && context.currentBrand !== 'general'
+            ? `&brand=${encodeURIComponent(context.currentBrand)}`
+            : '';
+          const response = await fetch(`${MACRO_API_BASE_URL}/macros/search?brand=${brandParam}`, {
+            headers: { 'Authorization': `Bearer ${data.macroAuthToken}` }
+          });
+
+          if (response.status === 401) {
+            chrome.storage.sync.remove(['macroAuthToken']);
+            resultsDiv.innerHTML = '<div class="macro-error" style="background: #fff1f2; color: #be123c; padding: 12px; border-radius: 8px; border: 1px solid #fecaca;">Phiên đăng nhập Macro hết hạn. Vui lòng mở Popup extension và đăng nhập lại để tiếp tục.</div>';
+            return;
+          }
+
+          const macros = await response.json();
+          macros.forEach(m => {
+            const mIdStr = m._id ? m._id.toString() : '';
+            if (m.isStarred) {
+              localStarredSet.add(mIdStr);
+            } else if (localStarredSet.has(mIdStr)) {
+              m.isStarred = true;
+            }
+          });
+          chrome.storage.sync.set({ starredMacroIds: Array.from(localStarredSet) });
+
+          cachedMacrosList = macros;
+          cachedBrandContext = context.currentBrand;
+          renderLiveSearchResults(initialQuery);
+        } catch (err) {
+          resultsDiv.innerHTML = '<div class="macro-error">Lỗi kết nối hệ thống Macro.</div>';
+        }
+      });
+    } else {
+      renderLiveSearchResults(initialQuery);
+    }
+  }
+
+  function renderLiveSearchResults(q) {
+    if (!macroSearchOverlay) return;
+    const resultsDiv = macroSearchOverlay.querySelector("#macro-search-results");
+    if (!resultsDiv || !cachedMacrosList) return;
+
+    const context = getCurrentContext();
+    const removeAccents = (str) => {
+      if (!str) return "";
+      return str
+        .toString()
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/đ/g, "d")
+        .replace(/Đ/g, "d");
+    };
+
+    const qLower = (q || "").toLowerCase().trim();
+    const qNorm = removeAccents(qLower);
+
+    // SORT: When searching (qNorm not empty), Starred macros FIRST -> Title match -> A-Z alphabetical
+    const sortedMacros = [...cachedMacrosList];
+    sortedMacros.sort((a, b) => {
+      const aTitle = (a.title || "").toLowerCase();
+      const bTitle = (b.title || "").toLowerCase();
+
+      if (qNorm) {
+        const aStarred = Boolean(a.isStarred);
+        const bStarred = Boolean(b.isStarred);
+        if (aStarred && !bStarred) return -1;
+        if (!aStarred && bStarred) return 1;
+
+        const aInTitle = removeAccents(aTitle).includes(qNorm);
+        const bInTitle = removeAccents(bTitle).includes(qNorm);
+        if (aInTitle && !bInTitle) return -1;
+        if (!aInTitle && bInTitle) return 1;
       }
 
-      const starredArray = Array.isArray(data.starredMacroIds) ? data.starredMacroIds : [];
-      const localStarredSet = new Set(starredArray);
+      return aTitle.localeCompare(bTitle, 'vi');
+    });
 
-      try {
-        // Pass brand context to API for server-side category filtering
-        const context = getCurrentContext();
-        const brandParam = context.currentBrand && context.currentBrand !== 'general'
-          ? `&brand=${encodeURIComponent(context.currentBrand)}`
-          : '';
-        const response = await fetch(`${MACRO_API_BASE_URL}/macros/search?q=${encodeURIComponent(q)}${brandParam}`, {
-          headers: { 'Authorization': `Bearer ${data.macroAuthToken}` }
-        });
+    // Client-side Live Filtering
+    const filteredMacros = sortedMacros.filter(m => {
+      if (!isPlatformValidForContext(m, context)) return false;
+      if (qNorm) {
+        const titleNorm = removeAccents(m.title);
+        const plainTextNorm = removeAccents(extractTextFromContent(m.content));
+        const matchesTitle = titleNorm.includes(qNorm);
+        const matchesContent = plainTextNorm.includes(qNorm);
+        if (!matchesTitle && !matchesContent) return false;
+      }
+      return true;
+    });
 
-        if (response.status === 401) {
-          chrome.storage.sync.remove(['macroAuthToken']);
-          resultsDiv.innerHTML = '<div class="macro-error" style="background: #fff1f2; color: #be123c; padding: 12px; border-radius: 8px; border: 1px solid #fecaca;">Phiên đăng nhập Macro hết hạn. Vui lòng mở Popup extension và đăng nhập lại để tiếp tục.</div>';
-          return;
-        }
+    resultsDiv.innerHTML = "";
 
-        let macros = await response.json();
+    if (filteredMacros.length === 0) {
+      const suffix = (cachedMacrosList.length > 0) ? " (Đã ẩn các mẫu không khớp từ khóa hoặc sai sàn)" : "";
+      resultsDiv.innerHTML = `<div class="macro-empty">Hông thấy macro nào...${suffix}</div>`;
+      return;
+    }
 
-        // Fallback: If q is present but server returns empty array (e.g. server Vercel build pending), fetch brand macros fallback and filter client-side!
-        if (q && q.trim() && Array.isArray(macros) && macros.length === 0) {
-          try {
-            const fallbackRes = await fetch(`${MACRO_API_BASE_URL}/macros/search?brand=${encodeURIComponent(context.currentBrand || '')}`, {
-              headers: { 'Authorization': `Bearer ${data.macroAuthToken}` }
-            });
-            if (fallbackRes.ok) {
-              const fallbackMacros = await fallbackRes.json();
-              if (Array.isArray(fallbackMacros) && fallbackMacros.length > 0) {
-                macros = fallbackMacros;
-              }
-            }
-          } catch (err) {}
-        }
-        const removeAccents = (str) => {
-          if (!str) return "";
-          return str
-            .toString()
-            .toLowerCase()
-            .normalize("NFD")
-            .replace(/[\u0300-\u036f]/g, "")
-            .replace(/đ/g, "d")
-            .replace(/Đ/g, "d");
-        };
+    const highlightSearchKeyword = (text, keyword) => {
+      if (!text) return "";
+      if (!keyword || !keyword.trim()) return escapeHtml(text);
 
-        const qLower = q.toLowerCase().trim();
-        const qNorm = removeAccents(qLower);
+      const textNorm = removeAccents(text);
+      const kwNorm = removeAccents(keyword);
+      const index = textNorm.indexOf(kwNorm);
 
-        // Merge backend and client-side starred state
-        macros.forEach(m => {
+      if (index === -1) return escapeHtml(text);
+
+      const matchLen = keyword.trim().length;
+      const before = escapeHtml(text.substring(0, index));
+      const match = escapeHtml(text.substring(index, index + matchLen));
+      const after = escapeHtml(text.substring(index + matchLen));
+
+      return `${before}<mark style="background: #fef08a; color: #854d0e; font-weight: 700; padding: 1px 3px; border-radius: 3px;">${match}</mark>${after}`;
+    };
+
+    const getSnippetWithContext = (fullText, keyword, maxLength = 80) => {
+      if (!fullText) return "";
+      if (!keyword || !keyword.trim()) return fullText.substring(0, maxLength) + (fullText.length > maxLength ? "..." : "");
+
+      const kwNorm = removeAccents(keyword);
+      const textNorm = removeAccents(fullText);
+      const index = textNorm.indexOf(kwNorm);
+
+      if (index === -1) {
+        return fullText.substring(0, maxLength) + (fullText.length > maxLength ? "..." : "");
+      }
+
+      const start = Math.max(0, index - 15);
+      const end = Math.min(fullText.length, start + maxLength);
+      let snippet = fullText.substring(start, end);
+
+      if (start > 0) snippet = "..." + snippet;
+      if (end < fullText.length) snippet = snippet + "...";
+
+      return snippet;
+    };
+
+    const MAX_DISPLAY = 20;
+    const displayMacros = filteredMacros.slice(0, MAX_DISPLAY);
+
+    displayMacros.forEach(m => {
+      const plainText = extractTextFromContent(m.content);
+      const richHtml = renderMacroAsHtml(m.content);
+      const div = document.createElement("div");
+      div.className = "macro-search-item";
+
+      const categoryName = (m.category && m.category.name) ? m.category.name : (m.category || "Chưa phân loại");
+
+      const titleHighlighted = highlightSearchKeyword(m.title, q);
+      const snippetText = getSnippetWithContext(plainText, q, 80);
+      const snippetHighlighted = highlightSearchKeyword(snippetText, q);
+
+      const useCount = Number(m.useCount || 0);
+      const formattedUseCount = useCount.toLocaleString('vi-VN');
+
+      div.innerHTML = `
+        <div style="display: flex; justify-content: space-between; align-items: center; gap: 6px;">
+          <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+            <div class="m-category-tag">${escapeHtml(categoryName)}</div>
+            <span class="m-use-count" title="Số lượt đã sử dụng mẫu này">🔥 ${formattedUseCount} lượt dùng</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 4px;">
+            <button class="macro-star-btn ${m.isStarred ? 'starred' : ''}" title="${m.isStarred ? 'Bỏ đánh sao' : 'Đánh sao yêu thích'}" type="button">
+              ${m.isStarred ? '⭐' : '☆'}
+            </button>
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="opacity: 0.2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+          </div>
+        </div>
+        <strong>${titleHighlighted}</strong>
+        <p>${snippetHighlighted}</p>
+      `;
+
+      const starBtn = div.querySelector('.macro-star-btn');
+      if (starBtn) {
+        starBtn.addEventListener('click', async (e) => {
+          e.stopPropagation(); // Stop macro selection
           const mIdStr = m._id ? m._id.toString() : '';
+          m.isStarred = !m.isStarred;
+          starBtn.innerHTML = m.isStarred ? '⭐' : '☆';
+          starBtn.title = m.isStarred ? 'Bỏ đánh sao' : 'Đánh sao yêu thích';
           if (m.isStarred) {
-            localStarredSet.add(mIdStr);
-          } else if (localStarredSet.has(mIdStr)) {
-            m.isStarred = true;
-          }
-        });
-        // Save synced starred set back to storage
-        chrome.storage.sync.set({ starredMacroIds: Array.from(localStarredSet) });
-
-        // SORT: When searching (qNorm not empty), Starred macros FIRST -> Title match -> A-Z alphabetical
-        macros.sort((a, b) => {
-          const aTitle = (a.title || "").toLowerCase();
-          const bTitle = (b.title || "").toLowerCase();
-
-          if (qNorm) {
-            // Priority 1 when searching: Starred macros float to top
-            const aStarred = Boolean(a.isStarred);
-            const bStarred = Boolean(b.isStarred);
-            if (aStarred && !bStarred) return -1;
-            if (!aStarred && bStarred) return 1;
-
-            // Priority 2: Title match first, then content match
-            const aInTitle = removeAccents(aTitle).includes(qNorm);
-            const bInTitle = removeAccents(bTitle).includes(qNorm);
-            if (aInTitle && !bInTitle) return -1;
-            if (!aInTitle && bInTitle) return 1;
+            starBtn.classList.add('starred');
+          } else {
+            starBtn.classList.remove('starred');
           }
 
-          // Default order when query is empty: A-Z alphabetical sort
-          return aTitle.localeCompare(bTitle, 'vi');
-        });
+          // Save to local chrome storage sync immediately
+          chrome.storage.sync.get(['macroAuthToken', 'starredMacroIds'], async (stData) => {
+            const set = new Set(Array.isArray(stData.starredMacroIds) ? stData.starredMacroIds : []);
+            if (m.isStarred) {
+              set.add(mIdStr);
+            } else {
+              set.delete(mIdStr);
+            }
+            chrome.storage.sync.set({ starredMacroIds: Array.from(set) });
 
-        resultsDiv.innerHTML = "";
-        
-        // Client-side: filter by platform AND require search keyword (accent-insensitive) to match title or content
-        const filteredMacros = macros.filter(m => {
-          if (!isPlatformValidForContext(m, context)) return false;
-          if (qNorm) {
-            const titleNorm = removeAccents(m.title);
-            const plainTextNorm = removeAccents(extractTextFromContent(m.content));
-            const matchesTitle = titleNorm.includes(qNorm);
-            const matchesContent = plainTextNorm.includes(qNorm);
-            if (!matchesTitle && !matchesContent) return false;
-          }
-          return true;
-        });
-
-        if (filteredMacros.length === 0) {
-          const suffix = (macros.length > 0) ? " (Đã ẩn các mẫu không khớp từ khóa hoặc sai sàn)" : "";
-          resultsDiv.innerHTML = `<div class="macro-empty">Hông thấy macro nào...${suffix}</div>`;
-          return;
-        }
-
-        const highlightSearchKeyword = (text, keyword) => {
-          if (!text) return "";
-          if (!keyword || !keyword.trim()) return escapeHtml(text);
-
-          const textNorm = removeAccents(text);
-          const kwNorm = removeAccents(keyword);
-          const index = textNorm.indexOf(kwNorm);
-
-          if (index === -1) return escapeHtml(text);
-
-          const matchLen = keyword.trim().length;
-          const before = escapeHtml(text.substring(0, index));
-          const match = escapeHtml(text.substring(index, index + matchLen));
-          const after = escapeHtml(text.substring(index + matchLen));
-
-          return `${before}<mark style="background: #fef08a; color: #854d0e; font-weight: 700; padding: 1px 3px; border-radius: 3px;">${match}</mark>${after}`;
-        };
-
-        const getSnippetWithContext = (fullText, keyword, maxLength = 80) => {
-          if (!fullText) return "";
-          if (!keyword || !keyword.trim()) return fullText.substring(0, maxLength) + (fullText.length > maxLength ? "..." : "");
-
-          const kwNorm = removeAccents(keyword);
-          const textNorm = removeAccents(fullText);
-          const index = textNorm.indexOf(kwNorm);
-
-          if (index === -1) {
-            return fullText.substring(0, maxLength) + (fullText.length > maxLength ? "..." : "");
-          }
-
-          const start = Math.max(0, index - 15);
-          const end = Math.min(fullText.length, start + maxLength);
-          let snippet = fullText.substring(start, end);
-
-          if (start > 0) snippet = "..." + snippet;
-          if (end < fullText.length) snippet = snippet + "...";
-
-          return snippet;
-        };
-
-        const MAX_DISPLAY = 20;
-        const displayMacros = filteredMacros.slice(0, MAX_DISPLAY);
-
-        displayMacros.forEach(m => {
-          const plainText = extractTextFromContent(m.content);
-          const richHtml = renderMacroAsHtml(m.content);
-          const div = document.createElement("div");
-          div.className = "macro-search-item";
-
-          const categoryName = (m.category && m.category.name) ? m.category.name : (m.category || "Chưa phân loại");
-
-          const titleHighlighted = highlightSearchKeyword(m.title, q);
-          const snippetText = getSnippetWithContext(plainText, q, 80);
-          const snippetHighlighted = highlightSearchKeyword(snippetText, q);
-
-          const useCount = Number(m.useCount || 0);
-          const formattedUseCount = useCount.toLocaleString('vi-VN');
-
-          div.innerHTML = `
-            <div style="display: flex; justify-content: space-between; align-items: center; gap: 6px;">
-              <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
-                <div class="m-category-tag">${escapeHtml(categoryName)}</div>
-                <span class="m-use-count" title="Số lượt đã sử dụng mẫu này">🔥 ${formattedUseCount} lượt dùng</span>
-              </div>
-              <div style="display: flex; align-items: center; gap: 4px;">
-                <button class="macro-star-btn ${m.isStarred ? 'starred' : ''}" title="${m.isStarred ? 'Bỏ đánh sao' : 'Đánh sao yêu thích'}" type="button">
-                  ${m.isStarred ? '⭐' : '☆'}
-                </button>
-                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="opacity: 0.2"><polyline points="9 18 15 12 9 6"></polyline></svg>
-              </div>
-            </div>
-            <strong>${titleHighlighted}</strong>
-            <p>${snippetHighlighted}</p>
-          `;
-
-          const starBtn = div.querySelector('.macro-star-btn');
-          if (starBtn) {
-            starBtn.addEventListener('click', async (e) => {
-              e.stopPropagation(); // Stop macro selection
-              const mIdStr = m._id ? m._id.toString() : '';
-              m.isStarred = !m.isStarred;
-              starBtn.innerHTML = m.isStarred ? '⭐' : '☆';
-              starBtn.title = m.isStarred ? 'Bỏ đánh sao' : 'Đánh sao yêu thích';
-              if (m.isStarred) {
-                starBtn.classList.add('starred');
-              } else {
-                starBtn.classList.remove('starred');
-              }
-
-              // Save to local chrome storage sync immediately
-              chrome.storage.sync.get(['starredMacroIds'], async (stData) => {
-                const set = new Set(Array.isArray(stData.starredMacroIds) ? stData.starredMacroIds : []);
-                if (m.isStarred) {
-                  set.add(mIdStr);
-                } else {
-                  set.delete(mIdStr);
-                }
-                chrome.storage.sync.set({ starredMacroIds: Array.from(set) });
-
-                // Sync API with backend server in background
-                try {
-                  await fetch(`${MACRO_API_BASE_URL}/users/favorites/toggle`, {
-                    method: 'POST',
-                    headers: {
-                      'Content-Type': 'application/json',
-                      'Authorization': `Bearer ${data.macroAuthToken}`
-                    },
-                    body: JSON.stringify({ macroId: m._id })
-                  });
-                } catch (err) {
-                  console.error('Lỗi khi đồng bộ mẫu yêu thích lên server:', err);
-                }
-
-                // Re-run search to update priority sorting
-                execMacroSearch(input.value);
+            // Sync API with backend server in background
+            try {
+              await fetch(`${MACRO_API_BASE_URL}/users/favorites/toggle`, {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'Authorization': `Bearer ${stData.macroAuthToken}`
+                },
+                body: JSON.stringify({ macroId: m._id })
               });
-            });
-          }
-
-          div.addEventListener("mouseenter", () => {
-            if (macroHideTimer) clearTimeout(macroHideTimer);
-            if (macroFullPreview) {
-              const inner = macroFullPreview.querySelector(".preview-inner");
-              if (inner) {
-                inner.innerHTML = `
-                  <strong>${escapeHtml(m.title)}</strong>
-                  <div class="m-content">${richHtml}</div>
-                `;
-              }
-              macroFullPreview.style.display = "block";
-
-              // Smart positioning
-              const itemRect = div.getBoundingClientRect();
-              const overlayRect = macroSearchOverlay.getBoundingClientRect();
-
-              let left = overlayRect.right + 12;
-
-              // If no space on right, show on left
-              if (left + 420 > window.innerWidth) {
-                left = overlayRect.left - 422;
-              }
-
-              // Vertical adjustment: Center relative to hovered item, then bound by viewport
-              const previewHeight = macroFullPreview.offsetHeight || 380;
               let top = itemRect.top + (itemRect.height / 2) - (previewHeight / 2);
 
               // Clamp top position (leave at least 20px margin from top and bottom)
