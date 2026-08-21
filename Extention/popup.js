@@ -248,7 +248,11 @@ document.addEventListener('DOMContentLoaded', () => {
       const response = await fetch(`${API_BASE_URL}/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password, version: chrome.runtime.getManifest().version })
+        body: JSON.stringify({ 
+          username, 
+          password, 
+          version: chrome.runtime.getManifest().version
+        })
       });
 
       const result = await response.json();

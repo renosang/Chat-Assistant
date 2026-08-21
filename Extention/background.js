@@ -71,7 +71,9 @@ async function fetchRemoteConfig() {
 
     console.log("[Gemini BG] Fetching from:", API_URL);
     const response = await fetch(`${API_URL}?t=${Date.now()}`, {
-      headers: { 'Authorization': `Bearer ${settings.authToken}` }
+      headers: { 
+        'Authorization': `Bearer ${settings.authToken}`
+      }
     });
 
       if (response.ok) {
@@ -149,7 +151,9 @@ async function sendHeartbeat() {
         'Authorization': `Bearer ${settings.authToken}`,
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({ version: chrome.runtime.getManifest().version })
+      body: JSON.stringify({ 
+        version: chrome.runtime.getManifest().version
+      })
     });
     console.log("[Gemini BG] Heartbeat sent.");
   } catch (error) {
