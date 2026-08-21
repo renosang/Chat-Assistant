@@ -3049,13 +3049,26 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
       return aTitle.localeCompare(bTitle, 'vi');
     });
 
-    // Client-side Live Filtering: Match Title, Content, or Category Name
+    // Client-side Live Filtering: Match Title, Content, or Category Name (including Parent Category!)
     const filteredMacros = sortedMacros.filter(m => {
       if (!isPlatformValidForContext(m, context)) return false;
       if (qNorm) {
         const titleNorm = removeAccents(m.title);
         const plainTextNorm = removeAccents(extractTextFromContent(m.content));
-        const categoryNorm = removeAccents((m.category && m.category.name) ? m.category.name : (m.category || ""));
+
+        let categoryStr = "";
+        if (m.category) {
+          if (typeof m.category === "object") {
+            categoryStr = m.category.name || "";
+            if (m.category.parent) {
+              const parentName = typeof m.category.parent === "object" ? m.category.parent.name : m.category.parent;
+              if (parentName) categoryStr += " " + parentName;
+            }
+          } else {
+            categoryStr = m.category;
+          }
+        }
+        const categoryNorm = removeAccents(categoryStr);
 
         const matchesTitle = titleNorm.includes(qNorm);
         const matchesContent = plainTextNorm.includes(qNorm);
