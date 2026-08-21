@@ -2939,8 +2939,22 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
     fetchAndInitLiveSearch(""); // Initial load
   }
 
-  let cachedMacrosList = null;
-  let cachedBrandContext = null;
+  function isPlatformValidForContext(macro, context) {
+    if (!macro) return false;
+    if (!macro.platformTags) return true;
+    const tags = macro.platformTags;
+    const hasRestriction = tags.shopee || tags.lazada || tags.tiktok;
+    if (!hasRestriction) return true;
+
+    const mkt = (context && context.currentMarketplace) ? context.currentMarketplace.toLowerCase() : '';
+    if (mkt.includes('shopee') && tags.shopee) return true;
+    if (mkt.includes('lazada') && tags.lazada) return true;
+    if (mkt.includes('tiktok') && tags.tiktok) return true;
+
+    if (!mkt || mkt === 'general') return true;
+
+    return false;
+  }
 
   async function fetchAndInitLiveSearch(initialQuery = "") {
     const resultsDiv = macroSearchOverlay.querySelector("#macro-search-results");
@@ -3035,15 +3049,19 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
       return aTitle.localeCompare(bTitle, 'vi');
     });
 
-    // Client-side Live Filtering
+    // Client-side Live Filtering: Match Title, Content, or Category Name
     const filteredMacros = sortedMacros.filter(m => {
       if (!isPlatformValidForContext(m, context)) return false;
       if (qNorm) {
         const titleNorm = removeAccents(m.title);
         const plainTextNorm = removeAccents(extractTextFromContent(m.content));
+        const categoryNorm = removeAccents((m.category && m.category.name) ? m.category.name : (m.category || ""));
+
         const matchesTitle = titleNorm.includes(qNorm);
         const matchesContent = plainTextNorm.includes(qNorm);
-        if (!matchesTitle && !matchesContent) return false;
+        const matchesCategory = categoryNorm.includes(qNorm);
+
+        if (!matchesTitle && !matchesContent && !matchesCategory) return false;
       }
       return true;
     });
