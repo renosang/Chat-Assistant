@@ -8,8 +8,9 @@
 
     <script src="https://unpkg.com/react@18.2.0/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18.2.0/umd/react-dom.production.min.js"></script>
-    <script src="https://unpkg.com/@babel/standalone@7.23.12/babel.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone@7.24.0/babel.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="icon" href="data:image/x-icon;base64,AA">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap"
         rel="stylesheet">
 
@@ -17,8 +18,9 @@
         :root {
             --primary: #6366f1;
             --secondary: #a855f7;
-            --accent: #accent;
             --bg: #f8fafc;
+            --sidebar-bg: #0b0f19;
+            --card-border: #f1f5f9;
         }
 
         body {
@@ -28,50 +30,84 @@
             letter-spacing: -0.01em;
         }
 
+        .dark-sidebar {
+            background: var(--sidebar-bg);
+            border-right: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 10px 0 30px rgba(0, 0, 0, 0.2);
+        }
+
         .glass {
-            background: rgba(255, 255, 255, 0.8);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
         }
 
         .sidebar-active {
             background: linear-gradient(135deg, var(--primary), var(--secondary));
             color: white !important;
-            box-shadow: 0 10px 20px -5px rgba(99, 102, 241, 0.4);
+            box-shadow: 0 10px 25px -5px rgba(99, 102, 241, 0.5);
+            position: relative;
+        }
+
+        .sidebar-active::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 25%;
+            height: 50%;
+            width: 4px;
+            background: #ffffff;
+            border-radius: 0 4px 4px 0;
         }
 
         .bento-card {
             background: white;
-            border-radius: 24px;
-            border: 1px solid #f1f5f9;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-            transition: all 0.3s ease;
+            border-radius: 28px;
+            border: 1px solid var(--card-border);
+            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.04), 0 1px 3px rgba(0, 0, 0, 0.02);
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
         .bento-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            transform: translateY(-4px);
+            box-shadow: 0 30px 40px -15px rgba(0, 0, 0, 0.08);
+            border-color: rgba(99, 102, 241, 0.15);
+        }
+
+        .metric-card {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .metric-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: var(--accent-gradient, linear-gradient(90deg, var(--primary), var(--secondary)));
         }
 
         .gradient-text {
-            background: linear-gradient(to right, var(--primary), #ec4899);
+            background: linear-gradient(135deg, #6366f1 0%, #ec4899 100%);
             -webkit-background-clip: text;
             background-clip: text;
-            /* Fix compatibility */
             -webkit-text-fill-color: transparent;
         }
 
         input,
         textarea {
             outline: none;
-            transition: all 0.2s;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
             border: 1px solid #e2e8f0;
         }
 
         input:focus,
         textarea:focus {
             border-color: var(--primary);
-            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.12);
+            background-color: white;
         }
 
         .status-pill {
@@ -80,16 +116,6 @@
             font-size: 11px;
             font-weight: 700;
             text-transform: uppercase;
-        }
-
-        .status-active {
-            background: #dcfce7;
-            color: #166534;
-        }
-
-        .status-inactive {
-            background: #fee2e2;
-            color: #991b1b;
         }
 
         /* SKELETON SCREEN */
@@ -101,13 +127,8 @@
         }
 
         @keyframes skeleton-loading {
-            0% {
-                background-position: 200% 0;
-            }
-
-            100% {
-                background-position: -200% 0;
-            }
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
         }
 
         .skeleton-row {
@@ -141,11 +162,64 @@
                 transform: scale(1);
                 opacity: 0.8;
             }
-
             100% {
                 transform: scale(3.5);
                 opacity: 0;
             }
+        }
+
+        /* PREMIUM ANIMATIONS */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(16px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-fade-in-up {
+            animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+        }
+
+        @keyframes avatarGlow {
+            0%, 100% {
+                box-shadow: 0 0 0 0px rgba(16, 185, 129, 0.3);
+            }
+            50% {
+                box-shadow: 0 0 0 6px rgba(16, 185, 129, 0.25), 0 0 20px rgba(16, 185, 129, 0.3);
+            }
+        }
+
+        .avatar-glow-online {
+            animation: avatarGlow 3s infinite ease-in-out;
+        }
+
+        .device-list-container {
+            transition: max-height 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease, transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        /* Shimmer reflection effect on buttons */
+        .btn-shimmer {
+            position: relative;
+            overflow: hidden;
+        }
+        .btn-shimmer::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -60%;
+            width: 30%;
+            height: 200%;
+            background: rgba(255, 255, 255, 0.2);
+            transform: rotate(30deg);
+            transition: transform 0.5s ease;
+            pointer-events: none;
+        }
+        .btn-shimmer:hover::after {
+            transform: translate(300%, -30%) rotate(30deg);
         }
     </style>
 </head>
@@ -153,14 +227,11 @@
 <body>
     <div id="root">
         <!-- IMMEDIATE RENDER SKELETON -->
-        <div class="flex h-screen bg-[#f1f5f9]">
-            <aside class="w-72 glass border-r p-8 space-y-8">
-                <div class="h-10 w-40 skeleton"></div>
-                <div class="space-y-4">
-                    <div class="h-14 w-full skeleton"></div>
-                    <div class="h-14 w-full skeleton"></div>
-                </div>
-            </aside>
+        <div class="flex flex-col h-screen bg-[#f1f5f9]">
+            <header class="w-full bg-white px-8 py-4 flex items-center justify-between border-b border-slate-200/50">
+                <div class="h-8 w-40 skeleton"></div>
+                <div class="h-8 w-32 skeleton"></div>
+            </header>
             <main class="flex-1 p-12 space-y-12">
                 <div class="flex justify-between items-end">
                     <div class="space-y-3">
@@ -170,11 +241,6 @@
                     <div class="h-12 w-40 skeleton"></div>
                 </div>
                 <div class="bento-card p-10 space-y-6">
-                    <div class="skeleton-row">
-                        <div class="flex-1 skeleton"></div>
-                        <div class="flex-1 skeleton"></div>
-                        <div class="w-20 skeleton"></div>
-                    </div>
                     <div class="skeleton-row">
                         <div class="flex-1 skeleton"></div>
                         <div class="flex-1 skeleton"></div>
@@ -205,39 +271,41 @@
             };
 
             return (
-                <div className="flex h-screen overflow-hidden bg-[#f1f5f9]">
-                    <aside className="w-72 glass border-r border-slate-200 flex flex-col z-20">
-                        <div className="p-8">
-                            <h1 className="text-2xl font-extrabold tracking-tight flex items-center gap-3">
-                                <div className="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center text-white text-xl shadow-lg">O</div>
-                                <span className="gradient-text">Onpoint Hub</span>
+                <div className="flex flex-col h-screen overflow-hidden bg-[#f1f5f9]">
+                    {/* Top Navigation Header */}
+                    <header className="w-full bg-white/70 backdrop-blur-md text-slate-800 px-8 py-4 flex items-center justify-between border-b border-slate-200/50 z-20 shadow-sm">
+                        <div className="flex items-center gap-8">
+                            <h1 className="text-xl font-extrabold tracking-tight flex items-center gap-3 select-none">
+                                <div className="w-8 h-8 bg-gradient-to-tr from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center text-white text-base shadow-lg shadow-indigo-500/30">O</div>
+                                <span className="text-slate-900 font-bold">Onpoint Hub</span>
                             </h1>
+                            <nav className="flex items-center gap-1.5 bg-slate-100/80 p-1 rounded-xl border border-slate-200/40">
+                                <button onClick={() => setView('users')} className={`px-4 py-2 rounded-lg text-xs font-extrabold transition-all duration-300 ${view === 'users' ? 'bg-white text-indigo-600 shadow-sm border border-slate-200/20' : 'text-slate-500 hover:text-slate-800'}`}>
+                                    Nhân viên
+                                </button>
+                                <button onClick={() => setView('settings')} className={`px-4 py-2 rounded-lg text-xs font-extrabold transition-all duration-300 ${view === 'settings' ? 'bg-white text-indigo-600 shadow-sm border border-slate-200/20' : 'text-slate-500 hover:text-slate-800'}`}>
+                                    Cấu hình
+                                </button>
+                                <button onClick={() => setView('audit')} className={`px-4 py-2 rounded-lg text-xs font-extrabold transition-all duration-300 ${view === 'audit' ? 'bg-white text-indigo-600 shadow-sm border border-slate-200/20' : 'text-slate-500 hover:text-slate-800'}`}>
+                                    Nhật ký hoạt động
+                                </button>
+                            </nav>
                         </div>
-                        <nav className="flex-1 px-4 space-y-2">
-                            <button onClick={() => setView('users')} className={`w-full flex items-center gap-4 px-6 py-4 rounded-2xl text-sm font-bold transition-all ${view === 'users' ? 'sidebar-active' : 'text-slate-500 hover:bg-white hover:text-slate-900'}`}>
-                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4z" /></svg>
-                                Nhân viên
-                            </button>
-                            <button onClick={() => setView('settings')} className={`w-full flex items-center gap-4 px-6 py-4 rounded-2xl text-sm font-bold transition-all ${view === 'settings' ? 'sidebar-active' : 'text-slate-500 hover:bg-white hover:text-slate-900'}`}>
-                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
-                                Cấu hình
-                            </button>
-                        </nav>
-                        <div className="p-4 space-y-2 border-t border-slate-100 mt-auto">
-                            <div className="px-4 py-3 text-xs font-bold text-slate-400 flex items-center gap-3">
+                        <div className="flex items-center gap-6">
+                            <div className="text-xs font-bold text-slate-550 flex items-center gap-2.5 bg-slate-50 px-3 py-1.5 rounded-full border border-slate-200/30">
                                 <div className="pulse-live"></div>
-                                <span className="text-slate-900">Live Realtime</span>
+                                <span className="text-slate-600">Live Realtime</span>
                             </div>
-                            <button onClick={logout} className="w-full flex items-center gap-4 px-6 py-3 rounded-xl text-xs font-bold text-red-400 hover:bg-red-50 transition-all">
+                            <button onClick={logout} className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-extrabold text-red-500 hover:bg-red-50 border border-transparent hover:border-red-100 transition-all duration-200">
                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
                                 Đăng xuất
                             </button>
                         </div>
-                    </aside>
+                    </header>
 
-                    <main className="flex-1 overflow-y-auto p-12">
-                        <div className="max-w-6xl mx-auto">
-                            {view === 'users' ? <UserManagement /> : <SettingsEditor />}
+                    <main className="flex-1 overflow-y-auto p-8 md:p-12">
+                        <div className="max-w-7xl mx-auto">
+                            {view === 'users' ? <UserManagement /> : view === 'settings' ? <SettingsEditor /> : <AuditLogsView />}
                         </div>
                     </main>
                 </div>
@@ -310,8 +378,11 @@
             const [users, setUsers] = React.useState([]);
             const [loading, setLoading] = React.useState(true);
             const [showAdd, setShowAdd] = React.useState(false);
-            const [newUser, setNewUser] = React.useState({ username: '', password: '' });
+            const [newUser, setNewUser] = React.useState({ username: '', password: '', fullName: '' });
             const [searchTerm, setSearchTerm] = React.useState('');
+            const [expandedUsers, setExpandedUsers] = React.useState({});
+            const [editingUserId, setEditingUserId] = React.useState(null);
+            const [editNameValue, setEditNameValue] = React.useState('');
 
             const fetchUsers = async (isBackground = false) => {
                 if (!isBackground) setLoading(true);
@@ -351,15 +422,49 @@
             };
 
             const deleteUser = async (id) => {
-                if (!confirm("Xóa nhân viên này?")) return;
+                if (!confirm("Xóa vĩnh viễn nhân viên này cùng toàn bộ thiết bị?")) return;
                 await fetch(`${API_BASE}/users?id=${id}`, { method: 'DELETE' });
                 fetchUsers(true);
+            };
+
+            const forceLogoutDevice = async (userId, deviceId) => {
+                if (!confirm("Đăng xuất và xóa thiết bị này khỏi tài khoản?")) return;
+                const res = await fetch(`${API_BASE}/users`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id: userId, removeDeviceId: deviceId })
+                });
+                if (res.ok) {
+                    fetchUsers(true);
+                }
+            };
+
+            const startEditing = (userId, currentName) => {
+                setEditingUserId(userId);
+                setEditNameValue(currentName || '');
+            };
+
+            const saveFullName = async (userId) => {
+                await fetch(`${API_BASE}/users`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id: userId, fullName: editNameValue })
+                });
+                setEditingUserId(null);
+                fetchUsers(true);
+            };
+
+            const toggleExpand = (userId) => {
+                setExpandedUsers(prev => ({
+                    ...prev,
+                    [userId]: !prev[userId]
+                }));
             };
 
             const addUser = async (e) => {
                 e.preventDefault();
                 const res = await fetch(`${API_BASE}/users`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(newUser) });
-                if (res.ok) { setShowAdd(false); setNewUser({ username: '', password: '' }); fetchUsers(true); }
+                if (res.ok) { setShowAdd(false); setNewUser({ username: '', password: '', fullName: '' }); fetchUsers(true); }
             };
 
             // SEARCH & ANALYTICS LOGIC
@@ -388,136 +493,298 @@
                 return formatDate(date);
             };
 
+            const getOSIcon = (deviceName) => {
+                if (!deviceName) return '⚙️';
+                const lower = deviceName.toLowerCase();
+                if (lower.includes('windows')) return '💻';
+                if (lower.includes('mac') || lower.includes('ios')) return '🍏';
+                if (lower.includes('android')) return '🤖';
+                if (lower.includes('linux')) return '🐧';
+                return '💻';
+            };
+
+            const getAvatarGradient = (username, fullName) => {
+                const name = fullName || username || '';
+                let hash = 0;
+                for (let i = 0; i < name.length; i++) {
+                    hash = name.charCodeAt(i) + ((hash << 5) - hash);
+                }
+                const gradients = [
+                    'bg-gradient-to-br from-blue-500 to-indigo-600',
+                    'bg-gradient-to-br from-purple-500 to-pink-600',
+                    'bg-gradient-to-br from-rose-500 to-orange-600',
+                    'bg-gradient-to-br from-emerald-500 to-teal-600',
+                    'bg-gradient-to-br from-cyan-500 to-blue-600',
+                    'bg-gradient-to-br from-amber-500 to-red-600',
+                    'bg-gradient-to-br from-fuchsia-500 to-pink-600',
+                    'bg-gradient-to-br from-violet-500 to-purple-600'
+                ];
+                const index = Math.abs(hash) % gradients.length;
+                return gradients[index];
+            };
+
             return (
                 <div className="space-y-8">
                     {/* STATS BENTO CARDS */}
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <div className="bento-card p-8 flex flex-col justify-between border-l-4 border-l-indigo-500">
-                            <span className="text-sm font-bold text-slate-400 uppercase tracking-wider">Tổng nhân viên</span>
-                            <div className="flex items-end gap-3 mt-4">
-                                <span className="text-5xl font-black text-slate-900">{stats.total}</span>
-                                <span className="text-slate-400 font-bold mb-1">tài khoản</span>
+                        <div className="bento-card metric-card p-8 flex justify-between items-center" style={{ '--accent-gradient': 'linear-gradient(90deg, #6366f1, #4f46e5)' }}>
+                            <div className="space-y-2">
+                                <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Tổng nhân viên</span>
+                                <div className="flex items-end gap-2 mt-1">
+                                    <span className="text-4xl font-extrabold text-slate-900 tracking-tight">{stats.total}</span>
+                                    <span className="text-slate-400 text-xs font-semibold mb-1">tài khoản</span>
+                                </div>
+                            </div>
+                            <div className="w-14 h-14 bg-indigo-50 rounded-2xl flex items-center justify-center text-indigo-600 shadow-sm border border-indigo-100/50 transition-all duration-300 hover:rotate-6">
+                                <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
                             </div>
                         </div>
-                        <div className="bento-card p-8 flex flex-col justify-between border-l-4 border-l-green-500">
-                            <span className="text-sm font-bold text-slate-400 uppercase tracking-wider">Đang Online</span>
-                            <div className="flex items-end gap-3 mt-4">
-                                <span className="text-5xl font-black text-green-600">{stats.online}</span>
-                                <span className="text-slate-400 font-bold mb-1">kết nối live</span>
+                        <div className="bento-card metric-card p-8 flex justify-between items-center" style={{ '--accent-gradient': 'linear-gradient(90deg, #10b981, #059669)' }}>
+                            <div className="space-y-2">
+                                <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Đang Online</span>
+                                <div className="flex items-end gap-2 mt-1">
+                                    <span className="text-4xl font-extrabold text-green-600 tracking-tight">{stats.online}</span>
+                                    <span className="text-slate-400 text-xs font-semibold mb-1">kết nối live</span>
+                                </div>
+                            </div>
+                            <div className="w-14 h-14 bg-green-50 rounded-2xl flex items-center justify-center text-green-600 shadow-sm border border-green-100/50 transition-all duration-300 hover:rotate-6">
+                                <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
                             </div>
                         </div>
-                        <div className="bento-card p-8 flex flex-col justify-between border-l-4 border-l-purple-500">
-                            <span className="text-sm font-bold text-slate-400 uppercase tracking-wider">Tỷ lệ cài đặt</span>
-                            <div className="flex items-end gap-3 mt-4">
-                                <span className="text-5xl font-black text-purple-600">{stats.setupRate}%</span>
-                                <span className="text-slate-400 font-bold mb-1">({stats.setup}/{stats.total})</span>
+                        <div className="bento-card metric-card p-8 flex justify-between items-center" style={{ '--accent-gradient': 'linear-gradient(90deg, #a855f7, #7c3aed)' }}>
+                            <div className="space-y-2">
+                                <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Tỷ lệ cài đặt</span>
+                                <div className="flex items-end gap-2 mt-1">
+                                    <span className="text-4xl font-extrabold text-purple-600 tracking-tight">{stats.setupRate}%</span>
+                                    <span className="text-slate-400 text-xs font-semibold mb-1">({stats.setup}/{stats.total})</span>
+                                </div>
+                            </div>
+                            <div className="w-14 h-14 bg-purple-50 rounded-2xl flex items-center justify-center text-purple-600 shadow-sm border border-purple-100/50 transition-all duration-300 hover:rotate-6">
+                                <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
                             </div>
                         </div>
                     </div>
 
-                    <header className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
-                        <div className="flex-1 w-full">
-                            <h2 className="text-4xl font-black text-slate-900">Nhân viên</h2>
-                            <div className="relative mt-4 w-full max-w-md">
+                    <header className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 pt-4">
+                        <div className="flex-1 w-full space-y-1">
+                            <h2 className="text-4xl font-extrabold text-slate-900 tracking-tight flex items-center gap-3">
+                                <span>Nhân viên</span>
+                                <span className="text-xs font-bold px-2.5 py-1 bg-indigo-50 text-indigo-600 rounded-full border border-indigo-100/50">
+                                    {stats.online} online
+                                </span>
+                            </h2>
+                            <div className="relative w-full max-w-md pt-2">
                                 <input
-                                    className="w-full pl-12 pr-6 py-4 rounded-2xl bg-white border-slate-200 shadow-sm"
+                                    className="w-full pl-12 pr-6 py-3.5 rounded-full bg-white border border-slate-200 shadow-sm focus:border-indigo-500 focus:shadow-indigo-500/10 text-sm font-medium transition-all duration-300"
                                     placeholder="Tìm kiếm nhân viên..."
                                     value={searchTerm}
                                     onChange={e => setSearchTerm(e.target.value)}
                                 />
-                                <svg className="w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+                                <svg className="w-5 h-5 absolute left-4 top-[58%] -translate-y-1/2 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
                             </div>
                         </div>
-                        <button onClick={() => setShowAdd(!showAdd)} className="px-8 py-4 bg-slate-900 text-white font-bold rounded-2xl hover:bg-indigo-600 transition-all shadow-lg whitespace-nowrap">
-                            {showAdd ? 'Hủy bỏ' : 'Thêm nhân viên mới'}
+                        <button 
+                            onClick={() => setShowAdd(!showAdd)} 
+                            className={`px-8 py-3.5 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-extrabold rounded-full transition-all duration-300 shadow-lg shadow-indigo-600/20 hover:shadow-indigo-600/35 hover:-translate-y-0.5 whitespace-nowrap flex items-center gap-2 btn-shimmer ${showAdd ? 'from-rose-500 to-red-600 hover:from-rose-400 hover:to-red-500 shadow-rose-600/20 hover:shadow-rose-600/35' : ''}`}
+                        >
+                            {showAdd ? (
+                                <React.Fragment>
+                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M6 18L18 6M6 6l12 12" /></svg>
+                                    Hủy bỏ
+                                </React.Fragment>
+                            ) : (
+                                <React.Fragment>
+                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 4v16m8-8H4" /></svg>
+                                    Thêm nhân viên mới
+                                </React.Fragment>
+                            )}
                         </button>
                     </header>
 
                     {showAdd && (
                         <div className="bento-card p-8 bg-indigo-50 border-indigo-100">
-                            <form onSubmit={addUser} className="flex gap-4">
-                                <input className="flex-1 px-6 py-3 rounded-xl" placeholder="Username" value={newUser.username} onChange={e => setNewUser({ ...newUser, username: e.target.value })} required />
-                                <input className="flex-1 px-6 py-3 rounded-xl" type="password" placeholder="Password" value={newUser.password} onChange={e => setNewUser({ ...newUser, password: e.target.value })} required />
-                                <button className="px-8 py-3 bg-indigo-600 text-white font-bold rounded-xl">Tạo ngay</button>
+                            <form onSubmit={addUser} className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                                <input className="px-6 py-3 rounded-xl bg-white border border-slate-200" placeholder="Họ và tên" value={newUser.fullName} onChange={e => setNewUser({ ...newUser, fullName: e.target.value })} required />
+                                <input className="px-6 py-3 rounded-xl bg-white border border-slate-200" placeholder="Username" value={newUser.username} onChange={e => setNewUser({ ...newUser, username: e.target.value })} required />
+                                <input className="px-6 py-3 rounded-xl bg-white border border-slate-200" type="password" placeholder="Password" value={newUser.password} onChange={e => setNewUser({ ...newUser, password: e.target.value })} required />
+                                <button className="px-8 py-3 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 transition-colors">Tạo ngay</button>
                             </form>
                         </div>
                     )}
 
-                    <div className="bento-card overflow-hidden">
-                        <table className="w-full text-left">
-                            <thead className="bg-slate-50 border-b">
-                                <tr>
-                                    <th className="px-6 py-5 text-xs font-bold text-slate-400 uppercase">Nhân viên</th>
-                                    <th className="px-6 py-5 text-xs font-bold text-slate-400 uppercase">Version</th>
-                                    <th className="px-6 py-5 text-xs font-bold text-slate-400 uppercase">Kết nối</th>
-                                    <th className="px-6 py-5 text-xs font-bold text-slate-400 uppercase text-center">Extension</th>
-                                    <th className="px-6 py-5 text-xs font-bold text-slate-400 uppercase text-center">Trạng thái</th>
-                                    <th className="px-6 py-5 text-xs font-bold text-slate-400 uppercase text-center">Chặn Ticket</th>
-                                    <th className="px-6 py-5 text-xs font-bold text-slate-400 uppercase text-right">Thao tác</th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y">
-                                {loading ? <tr><td colSpan="6" className="p-10 text-center text-slate-400 font-bold italic">BẢNG ĐANG CẬP NHẬT...</td></tr> : filteredUsers.map(user => (
-                                    <tr key={user._id} className="hover:bg-slate-50 transition-colors">
-                                        <td className="px-6 py-5">
-                                            <div className="font-bold text-slate-900">{user.username}</div>
-                                            <div className="text-[10px] text-slate-400 font-mono mt-1">ID: {user._id.slice(-6).toUpperCase()}</div>
-                                        </td>
-                                        <td className="px-6 py-5">
-                                            <span className="px-3 py-1 bg-indigo-50 text-indigo-600 rounded-lg text-xs font-bold font-mono border border-indigo-100">
-                                                v{user.extVersion || "N/A"}
-                                            </span>
-                                        </td>
-                                        <td className="px-6 py-5">
-                                            <div className="flex items-center gap-2">
-                                                <div className={`pulse-live ${isUserOnline(user.lastActiveAt) ? '' : 'opacity-20 grayscale border-slate-400'}`} style={{ '--color': isUserOnline(user.lastActiveAt) ? '#10b981' : '#94a3b8' }}></div>
-                                                <span className={`text-sm font-bold ${isUserOnline(user.lastActiveAt) ? 'text-green-600' : 'text-slate-400'}`}>
-                                                    {isUserOnline(user.lastActiveAt) ? 'Online' : 'Offline'}
-                                                </span>
-                                            </div>
-                                            <div className="mt-1.5 flex flex-col gap-0.5">
-                                                <div className="text-[11px] text-slate-500 flex items-center gap-1">
-                                                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" strokeWidth="2" /></svg>
-                                                    {user.lastIp || 'Chưa có IP'}
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {loading && users.length === 0 ? (
+                            <div className="col-span-full p-20 text-center text-slate-400 font-bold italic bento-card">ĐANG CẬP NHẬT DANH SÁCH...</div>
+                        ) : filteredUsers.map((user, index) => {
+                            const isExpanded = !!expandedUsers[user._id];
+                            const deviceCount = user.devices ? user.devices.length : 0;
+                            const onlineDevices = user.devices ? user.devices.filter(d => isUserOnline(d.lastActiveAt)).length : 0;
+                            const isOnline = isUserOnline(user.lastActiveAt) || onlineDevices > 0;
+                            return (
+                                <div 
+                                    key={user._id} 
+                                    className={`bento-card p-6 flex flex-col justify-between hover:shadow-xl hover:scale-[1.02] transition-all duration-300 relative bg-white/90 backdrop-blur-md border ${isOnline ? 'border-green-200 shadow-[0_4px_20px_-4px_rgba(16,185,129,0.15)] bg-gradient-to-br from-white to-green-50/10' : 'border-slate-100'} animate-fade-in-up`}
+                                    style={{ animationDelay: `${index * 60}ms` }}
+                                >
+                                    {/* Card Header */}
+                                    <div className="flex items-start justify-between">
+                                        <div className="flex items-center gap-3.5">
+                                            <div className="relative">
+                                                <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-white shadow-md transition-all duration-300 ${getAvatarGradient(user.username, user.fullName)} ${isOnline ? 'avatar-glow-online' : ''}`}>
+                                                    <svg className="w-6 h-6 opacity-90 transition-transform duration-300 hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
                                                 </div>
-                                                <div className="text-[11px] text-slate-400 italic">Ping: {timeAgo(user.lastActiveAt)}</div>
+                                                <div className={`absolute -bottom-1 -right-1 w-3.5 h-3.5 rounded-full border-2 border-white transition-all duration-300 ${isOnline ? 'bg-green-500 shadow-[0_0_8px_#10b981]' : 'bg-slate-300'}`}></div>
                                             </div>
-                                        </td>
-                                        <td className="px-6 py-5 text-center">
-                                            <span className={`status-pill ${user.isUninstalled ? 'status-inactive' : 'status-active'}`}>
-                                                {user.isUninstalled ? 'ĐÃ GỠ' : 'ĐANG CÀI'}
+                                            <div>
+                                                {editingUserId === user._id ? (
+                                                    <div className="flex items-center gap-1.5">
+                                                        <input 
+                                                            className="px-2 py-1 text-sm border rounded-lg bg-slate-50 focus:bg-white w-36 font-semibold"
+                                                            value={editNameValue}
+                                                            onChange={e => setEditNameValue(e.target.value)}
+                                                            autoFocus
+                                                            onBlur={() => saveFullName(user._id)}
+                                                            onKeyDown={e => {
+                                                                if (e.key === 'Enter') saveFullName(user._id);
+                                                                if (e.key === 'Escape') setEditingUserId(null);
+                                                            }}
+                                                        />
+                                                    </div>
+                                                ) : (
+                                                    <div className="font-extrabold text-slate-800 text-base leading-tight flex items-center gap-1.5 group/name">
+                                                        <span className="cursor-pointer hover:text-indigo-600 transition-colors" onClick={() => startEditing(user._id, user.fullName)} title="Nhấp để sửa tên">
+                                                            {user.fullName || 'Chưa cập nhật tên'}
+                                                        </span>
+                                                        <button 
+                                                            onClick={() => startEditing(user._id, user.fullName)}
+                                                            className="p-0.5 hover:bg-slate-100 rounded text-slate-400 hover:text-slate-600 transition-colors duration-200 group-hover/name:rotate-12"
+                                                            title="Sửa họ tên"
+                                                        >
+                                                            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
+                                                        </button>
+                                                    </div>
+                                                )}
+                                                <div className="text-xs text-slate-400 font-medium flex items-center gap-1.5 mt-0.5">
+                                                    <span>@{user.username}</span>
+                                                    <span className="text-slate-300">|</span>
+                                                    <span className="font-mono text-[9px]">ID: {user._id.slice(-5).toUpperCase()}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <span className={`px-2 py-0.5 rounded-full text-[9px] font-black uppercase transition-all duration-300 ${isOnline ? 'bg-green-100 text-green-700 shadow-[0_0_8px_rgba(34,197,94,0.2)]' : 'bg-slate-100 text-slate-500'}`}>
+                                            {isOnline ? 'Online' : 'Offline'}
+                                        </span>
+                                    </div>
+
+                                    {/* Stats Bento Grid inside Card */}
+                                    <div className="grid grid-cols-2 gap-3 mt-5">
+                                        <div className="bg-slate-50/80 border border-slate-100 rounded-xl p-3 flex flex-col justify-center transition-all duration-300 hover:bg-white hover:border-slate-200 hover:shadow-sm">
+                                            <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider">Tài khoản</span>
+                                            <span className={`text-xs font-black mt-1 ${user.isActive ? 'text-green-600' : 'text-rose-600'}`}>
+                                                {user.isActive ? '🟢 Active' : '🔴 Locked'}
                                             </span>
-                                            <div className="mt-2 text-[10px] text-slate-400 font-medium">
-                                                {user.isUninstalled
-                                                    ? `Gỡ: ${formatDate(user.uninstalledAt)}`
-                                                    : `Cài: ${formatDate(user.lastInstalledAt || user.createdAt)}`
-                                                }
-                                            </div>
-                                        </td>
-                                        <td className="px-6 py-5 text-center">
-                                            <span className={`status-pill ${user.isActive ? 'status-active' : 'status-inactive'}`}>{user.isActive ? 'BẬT' : 'KHÓA'}</span>
-                                        </td>
-                                        <td className="px-6 py-5 text-center">
-                                            <label className="flex items-center justify-center cursor-pointer">
+                                        </div>
+                                        <div className="bg-slate-50/80 border border-slate-100 rounded-xl p-3 flex flex-col justify-center transition-all duration-300 hover:bg-white hover:border-slate-200 hover:shadow-sm">
+                                            <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider">Extension</span>
+                                            <span className={`text-xs font-black mt-1 truncate ${user.isUninstalled ? 'text-rose-500' : 'text-indigo-600'}`}>
+                                                {user.isUninstalled ? '❌ Đã gỡ' : `✅ v${user.extVersion || 'N/A'}`}
+                                            </span>
+                                        </div>
+                                        <div className="bg-slate-50/80 border border-slate-100 rounded-xl p-3 flex justify-between items-center col-span-2 transition-all duration-300 hover:bg-white hover:border-slate-200 hover:shadow-sm">
+                                            <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider">Chặn Ticket khiếu nại</span>
+                                            <label className="inline-flex relative items-center cursor-pointer">
                                                 <input 
                                                     type="checkbox" 
                                                     className="sr-only peer" 
                                                     checked={user.blockComplaintTicket || false} 
                                                     onChange={() => toggleBlockTicket(user._id, user.blockComplaintTicket || false)} 
                                                 />
-                                                <div className="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-indigo-600 relative"></div>
+                                                <div className="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all duration-300 peer-checked:bg-indigo-600 relative"></div>
                                             </label>
-                                        </td>
-                                        <td className="px-6 py-5 text-right space-x-2">
-                                            <button onClick={() => toggleStatus(user._id, user.isActive)} className="p-2.5 rounded-xl hover:bg-white border border-transparent hover:border-slate-200 transition-all shadow-sm" title={user.isActive ? 'Khóa tài khoản' : 'Mở tài khoản'}>
-                                                {user.isActive ? '🔒' : '🔓'}
-                                            </button>
-                                            <button onClick={() => deleteUser(user._id)} className="p-2.5 rounded-xl hover:bg-red-50 text-red-400 transition-all" title="Xóa vĩnh viễn">🗑️</button>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                                        </div>
+                                    </div>
+
+                                    {/* Collapsible Devices List */}
+                                    <div className="mt-5 border-t border-slate-100 pt-4 flex-1">
+                                        <div className="flex justify-between items-center cursor-pointer select-none group/toggle" onClick={() => toggleExpand(user._id)}>
+                                            <span className="text-xs font-extrabold text-slate-500 uppercase tracking-wider flex items-center gap-1.5 transition-colors group-hover/toggle:text-slate-800">
+                                                <span className="transition-transform duration-300 group-hover/toggle:scale-125">📱</span> Thiết bị kết nối ({onlineDevices}/{deviceCount})
+                                            </span>
+                                            <svg className={`w-4 h-4 text-slate-400 transform transition-all duration-300 ${isExpanded ? 'rotate-180 text-indigo-500' : 'group-hover/toggle:text-slate-600'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                                            </svg>
+                                        </div>
+
+                                        <div className={`device-list-container overflow-hidden ${isExpanded ? 'max-h-[400px] opacity-100 mt-3 translate-y-0' : 'max-h-0 opacity-0 pointer-events-none -translate-y-2'}`}>
+                                            <div className="space-y-3 max-h-60 overflow-y-auto pr-1 pt-1">
+                                                {deviceCount === 0 ? (
+                                                    <div className="text-xs text-slate-400 font-bold italic py-3 text-center">Chưa có thiết bị nào kết nối</div>
+                                                ) : (
+                                                    user.devices.map(device => {
+                                                        const isDeviceActive = isUserOnline(device.lastActiveAt);
+                                                        return (
+                                                            <div key={device.deviceId} className="border border-slate-100 rounded-xl p-3 bg-slate-50 flex items-center justify-between gap-2 hover:bg-slate-100/50 hover:border-slate-200 transition-all duration-200">
+                                                                <div className="flex items-center gap-2 min-w-0">
+                                                                    <span className="text-xl flex-shrink-0 transition-transform duration-300 hover:rotate-12">{getOSIcon(device.deviceName)}</span>
+                                                                    <div className="min-w-0 space-y-0.5">
+                                                                        <div className="font-extrabold text-xs text-slate-700 truncate flex items-center gap-1.5">
+                                                                            {device.deviceName || 'Thiết bị'}
+                                                                            <span className="px-1.5 py-0.5 bg-indigo-50 border border-indigo-100 text-indigo-600 rounded text-[8px] font-mono flex-shrink-0">
+                                                                                v{device.extVersion}
+                                                                            </span>
+                                                                        </div>
+                                                                        <div className="text-[10px] text-indigo-500 font-bold truncate">📍 {device.location || 'Chưa rõ vị trí'}</div>
+                                                                        <div className="text-[9px] text-slate-400 font-mono truncate">{device.lastIp} | {timeAgo(device.lastActiveAt)}</div>
+                                                                    </div>
+                                                                </div>
+                                                                <div className="flex items-center gap-2 flex-shrink-0">
+                                                                    <div className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${isDeviceActive ? 'bg-green-500 animate-pulse shadow-[0_0_6px_#10b981]' : 'bg-slate-300'}`}></div>
+                                                                    <button 
+                                                                        onClick={() => forceLogoutDevice(user._id, device.deviceId)}
+                                                                        className="p-1.5 rounded-lg hover:bg-red-50 text-red-400 hover:text-red-600 border border-transparent hover:border-red-100 transition-all duration-200 hover:scale-110"
+                                                                        title="Đăng xuất thiết bị"
+                                                                    >
+                                                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
+                                                                    </button>
+                                                                </div>
+                                                            </div>
+                                                        );
+                                                    })
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Action Buttons Footer */}
+                                    <div className="mt-5 border-t border-slate-100 pt-4 flex gap-2 justify-end">
+                                        <button 
+                                            onClick={() => toggleStatus(user._id, user.isActive)} 
+                                            className={`px-4 py-2.5 rounded-xl border text-xs font-black transition-all duration-300 flex items-center gap-1.5 group ${user.isActive ? 'bg-amber-50 border-amber-200 text-amber-600 hover:bg-amber-100 hover:scale-105 hover:shadow-sm' : 'bg-green-50 border-green-200 text-green-600 hover:bg-green-100 hover:scale-105 hover:shadow-sm'}`} 
+                                            title={user.isActive ? 'Khóa tài khoản nhân viên' : 'Mở khóa tài khoản'}
+                                        >
+                                            {user.isActive ? (
+                                                <React.Fragment>
+                                                    <svg className="w-4 h-4 transition-transform duration-300 group-hover:rotate-12 group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
+                                                    Khóa
+                                                </React.Fragment>
+                                            ) : (
+                                                <React.Fragment>
+                                                    <svg className="w-4 h-4 transition-transform duration-300 group-hover:-rotate-12 group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z" /></svg>
+                                                    Mở Khóa
+                                                </React.Fragment>
+                                            )}
+                                        </button>
+                                        <button 
+                                            onClick={() => deleteUser(user._id)} 
+                                            className="p-2.5 rounded-xl border border-red-200 bg-red-50 text-red-500 hover:bg-red-100 hover:scale-105 hover:shadow-sm transition-all duration-300 flex items-center justify-center group" 
+                                            title="Xóa nhân viên vĩnh viễn"
+                                        >
+                                            <svg className="w-5 h-5 transition-transform duration-300 group-hover:rotate-6 group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                                        </button>
+                                    </div>
+                                </div>
+                            );
+                        })}
                     </div>
                 </div>
             );
@@ -526,8 +793,43 @@
         function SettingsEditor() {
             const [data, setData] = React.useState(null);
             const [saving, setSaving] = React.useState(false);
-            const [activeTab, setActiveTab] = React.useState('brands');
+            const [activeTab, setActiveTab] = React.useState('categories');
             const [buffers, setBuffers] = React.useState({ allBrands: '', allMarketplaces: '', brandGroups: '', forbiddenRules: '', typoDictionary: '' });
+            const [categories, setCategories] = React.useState([]);
+            const [catLoading, setCatLoading] = React.useState(false);
+            const [catMappings, setCatMappings] = React.useState({});
+            const [catSearchQuery, setCatSearchQuery] = React.useState('');
+
+            const fetchCategories = async () => {
+                setCatLoading(true);
+                try {
+                    let list = null;
+                    const urls = [
+                        '/api/categories',
+                        'http://localhost:5000/api/categories',
+                        'https://macro.beegadget.net/api/categories'
+                    ];
+                    for (const url of urls) {
+                        try {
+                            const res = await fetch(url);
+                            if (res && res.ok) {
+                                const data = await res.json();
+                                if (Array.isArray(data)) {
+                                    list = data;
+                                    break;
+                                }
+                            }
+                        } catch (err) {}
+                    }
+                    if (list) {
+                        setCategories(list);
+                    }
+                } catch (e) {
+                    console.error("Lỗi khi tải danh mục:", e);
+                } finally {
+                    setCatLoading(false);
+                }
+            };
 
             React.useEffect(() => {
                 fetch(`${API_BASE}/settings`).then(r => r.json()).then(d => {
@@ -539,7 +841,19 @@
                         forbiddenRules: (d.forbiddenRules?.VI || []).map(r => r.word + (r.exception ? ` | ${r.exception}` : '')).join('\n'),
                         typoDictionary: (d.typoDictionary || []).map(r => `${r.error} | ${r.fix}`).join('\n')
                     });
+
+                    // Build initial category mapping dictionary
+                    const mapDict = {};
+                    (d.categoryChannelMappings || []).forEach(m => {
+                        mapDict[m.categoryId] = {
+                            isAllChannels: m.isAllChannels ?? false,
+                            appliedChannels: m.appliedChannels || []
+                        };
+                    });
+                    setCatMappings(mapDict);
                 });
+
+                fetchCategories();
             }, []);
 
             const handleSave = async () => {
@@ -551,9 +865,71 @@
                 updatedData.forbiddenRules = { VI: buffers.forbiddenRules.split('\n').map(l => { const [w, ex] = l.split('|'); return { word: w?.trim(), exception: ex?.trim() }; }).filter(r => r.word) };
                 updatedData.typoDictionary = buffers.typoDictionary.split('\n').map(l => { const [err, fix] = l.split('|'); return { error: err?.trim(), fix: fix?.trim() }; }).filter(r => r.error && r.fix);
 
+                // Build category channel mappings array (only for parent categories)
+                const parentCats = categories.filter(c => !c.parent);
+                updatedData.categoryChannelMappings = parentCats.map(c => {
+                    const m = catMappings[c._id] || {};
+                    const isMacroChung = c.name.toLowerCase().includes('macro chung') || c.name.toLowerCase() === 'macrochung';
+                    return {
+                        categoryId: c._id,
+                        categoryName: c.name,
+                        appliedChannels: m.appliedChannels || [],
+                        isAllChannels: m.isAllChannels ?? isMacroChung
+                    };
+                });
+
                 const res = await fetch(`${API_BASE}/settings`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(updatedData) });
-                if (res.ok) alert("Đã lưu!");
+                if (res.ok) alert("Đã lưu cấu hình thành công!");
                 setSaving(false);
+            };
+
+            const toggleAllChannels = (catId, catName) => {
+                const isMacroChung = catName.toLowerCase().includes('macro chung') || catName.toLowerCase() === 'macrochung';
+                setCatMappings(prev => {
+                    const current = prev[catId] || { isAllChannels: isMacroChung, appliedChannels: [] };
+                    return {
+                        ...prev,
+                        [catId]: {
+                            ...current,
+                            isAllChannels: !current.isAllChannels
+                        }
+                    };
+                });
+            };
+
+            const updateAppliedChannels = (catId, channelsStr, catName) => {
+                const isMacroChung = catName.toLowerCase().includes('macro chung') || catName.toLowerCase() === 'macrochung';
+                const channelsList = channelsStr.split(/,|\n/).map(s => s.trim()).filter(Boolean);
+                setCatMappings(prev => {
+                    const current = prev[catId] || { isAllChannels: isMacroChung, appliedChannels: [] };
+                    return {
+                        ...prev,
+                        [catId]: {
+                            ...current,
+                            appliedChannels: channelsList
+                        }
+                    };
+                });
+            };
+
+            const toggleQuickChannel = (catId, channelTag, catName) => {
+                const isMacroChung = catName.toLowerCase().includes('macro chung') || catName.toLowerCase() === 'macrochung';
+                setCatMappings(prev => {
+                    const current = prev[catId] || { isAllChannels: isMacroChung, appliedChannels: [] };
+                    let list = [...(current.appliedChannels || [])];
+                    if (list.includes(channelTag)) {
+                        list = list.filter(c => c !== channelTag);
+                    } else {
+                        list.push(channelTag);
+                    }
+                    return {
+                        ...prev,
+                        [catId]: {
+                            ...current,
+                            appliedChannels: list
+                        }
+                    };
+                });
             };
 
             if (!data) return <div className="p-20 text-center font-bold">LOADING...</div>;
@@ -563,65 +939,226 @@
                     <header className="flex justify-between items-end">
                         <div>
                             <h2 className="text-4xl font-black text-slate-900">Cấu hình</h2>
-                            <p className="text-slate-500 font-medium">Thiết lập bộ lọc toàn hệ thống</p>
+                            <p className="text-slate-500 font-medium">Thiết lập bộ lọc và phân quyền danh mục theo Channel toàn hệ thống</p>
                         </div>
-                        <button onClick={handleSave} disabled={saving} className="px-10 py-4 bg-indigo-600 text-white font-black rounded-2xl shadow-xl hover:bg-indigo-700 transition-all disabled:bg-slate-300">
-                            {saving ? 'Đang lưu...' : 'Lưu tất cả'}
+                        <button onClick={handleSave} disabled={saving} className="px-8 py-3.5 bg-indigo-600 text-white font-bold rounded-2xl shadow-lg hover:bg-indigo-700 transition-all flex items-center gap-2.5 disabled:bg-slate-300">
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" />
+                            </svg>
+                            <span>{saving ? 'Đang lưu...' : 'Lưu tất cả'}</span>
                         </button>
                     </header>
-
-                    <div className="bg-white p-1.5 rounded-2xl flex gap-1 w-fit shadow-sm border">
-                        {['brands', 'groups', 'forbidden', 'typo', 'update'].map(t => (
-                            <button key={t} onClick={() => setActiveTab(t)} className={`px-8 py-3 rounded-xl text-xs font-bold transition-all ${activeTab === t ? 'bg-slate-900 text-white shadow-md' : 'text-slate-400 hover:text-slate-600'}`}>{t.toUpperCase()}</button>
+                    <div className="bg-white p-1.5 rounded-2xl flex gap-1 w-fit shadow-sm border border-slate-100">
+                        {['categories', 'brands', 'groups', 'forbidden', 'typo'].map(t => (
+                            <button key={t} onClick={() => setActiveTab(t)} className={`px-7 py-3 rounded-xl text-xs font-bold transition-all ${activeTab === t ? 'bg-slate-900 text-white shadow-md' : 'text-slate-400 hover:text-slate-600'}`}>
+                                {t === 'categories' ? 'DANH MỤC & CHANNEL' : t.toUpperCase()}
+                            </button>
                         ))}
                     </div>
 
-                    <div className="bento-card p-10 min-h-[500px]">
-                        {activeTab === 'update' && (
-                            <div className="space-y-10 max-w-2xl">
-                                <div className="space-y-4">
-                                    <h3 className="text-xl font-bold flex items-center gap-2">
-                                        <svg className="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
-                                        Bắt buộc Cập nhật (Force Update)
-                                    </h3>
-                                    <p className="text-sm text-slate-500">Giúp bạn ép toàn bộ nhân viên phải nâng cấp Extension lên bản mới nhất để tiếp tục làm việc.</p>
-                                </div>
-
-                                <div className="grid grid-cols-1 gap-8">
-                                    <div className="space-y-2">
-                                        <label className="text-xs font-black text-slate-400 uppercase tracking-widest">Phiên bản tối thiểu yêu cầu</label>
-                                        <input
-                                            type="text"
-                                            className="w-full px-6 py-4 rounded-2xl bg-slate-50 border font-mono"
-                                            value={data.minVersion || ''}
-                                            onChange={e => setData({ ...data, minVersion: e.target.value })}
-                                            placeholder="Ví dụ: 4.2"
-                                        />
-                                        <p className="text-[10px] text-slate-400">Nếu nhân viên dùng bản thấp hơn số này, Extension sẽ bị khóa và yêu cầu cập nhật.</p>
+                    <div className="bento-card p-8 min-h-[500px]">
+                        {activeTab === 'categories' && (
+                            <div className="space-y-6">
+                                {/* Header & Search Toolbar */}
+                                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-100 pb-5">
+                                    <div>
+                                        <h3 className="text-lg font-black text-slate-900 flex items-center gap-2">
+                                            <svg className="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                                            </svg>
+                                            Phân quyền Danh mục ↔ Channel
+                                        </h3>
+                                        <p className="text-xs text-slate-500 mt-1">Cấu hình kênh chat cho danh mục gốc (danh mục con sẽ tự động áp dụng).</p>
                                     </div>
+                                    
+                                    <div className="flex items-center gap-3">
+                                        {/* Search Filter */}
+                                        <div className="relative">
+                                            <svg className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                            </svg>
+                                            <input 
+                                                type="text" 
+                                                placeholder="Tìm danh mục gốc..." 
+                                                value={catSearchQuery} 
+                                                onChange={e => setCatSearchQuery(e.target.value)}
+                                                className="pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 w-56 focus:bg-white focus:border-indigo-500 focus:outline-none transition-all"
+                                            />
+                                        </div>
 
-                                    <div className="space-y-2">
-                                        <label className="text-xs font-black text-slate-400 uppercase tracking-widest">Link tải Extension mới (.zip)</label>
-                                        <input
-                                            type="text"
-                                            className="w-full px-6 py-4 rounded-2xl bg-slate-50 border font-mono"
-                                            value={data.downloadUrl || ''}
-                                            onChange={e => setData({ ...data, downloadUrl: e.target.value })}
-                                            placeholder="https://..."
-                                        />
-                                        <p className="text-[10px] text-slate-400">Dán link Drive hoặc host file .zip chứa extension đã giải nén.</p>
+                                        {/* Refresh Button */}
+                                        <button onClick={fetchCategories} disabled={catLoading} className="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl transition-all flex items-center gap-2 border border-slate-200/60">
+                                            <svg className={`w-3.5 h-3.5 ${catLoading ? 'animate-spin text-indigo-600' : 'text-slate-500'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                            </svg>
+                                            <span>{catLoading ? 'Đang tải...' : 'Làm mới'}</span>
+                                        </button>
                                     </div>
                                 </div>
 
-                                <div className="p-6 bg-amber-50 border border-amber-100 rounded-2xl space-y-2">
-                                    <h4 className="text-sm font-bold text-amber-900 flex items-center gap-2">
-                                        <span>⚠️</span> Lưu ý khi cập nhật
-                                    </h4>
-                                    <ul className="text-xs text-amber-800 space-y-1 list-disc pl-4">
-                                        <li>Đảm bảo link tải luôn hoạt động.</li>
-                                        <li>Nhân viên sẽ thấy hướng dẫn "Load Unpacked" ngay trong Extension.</li>
-                                    </ul>
-                                </div>
+                                {catLoading && categories.length === 0 ? (
+                                    <div className="p-12 text-center text-slate-400 font-bold italic flex items-center justify-center gap-3">
+                                        <svg className="w-5 h-5 animate-spin text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                        </svg>
+                                        <span>Đang tải danh mục từ site Macro...</span>
+                                    </div>
+                                ) : categories.length === 0 ? (
+                                    <div className="p-12 text-center text-slate-500 bg-slate-50 rounded-2xl border border-dashed border-slate-200">
+                                        <p className="font-bold">Chưa tải được danh mục từ site Macro.</p>
+                                        <p className="text-xs text-slate-400 mt-1">Vui lòng kiểm tra kết nối với site <code>https://macro.beegadget.net/api/categories</code> và nhấn <i>Làm mới</i>.</p>
+                                    </div>
+                                ) : (
+                                    <div className="overflow-hidden border border-slate-100 rounded-2xl shadow-sm">
+                                        <table className="w-full text-left border-collapse">
+                                            <thead>
+                                                <tr className="bg-slate-50/80 border-b border-slate-100 text-slate-400 text-[11px] font-black uppercase tracking-wider">
+                                                    <th className="py-3.5 px-5 w-1/4">Danh Mục Gốc</th>
+                                                    <th className="py-3.5 px-5 w-1/5">Phạm Vi Áp Dụng</th>
+                                                    <th className="py-3.5 px-5 w-11/20">Kênh Chat / Brand Độc Quyền</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody className="divide-y divide-slate-100 text-xs">
+                                                {categories
+                                                    .filter(cat => !cat.parent)
+                                                    .filter(cat => !catSearchQuery.trim() || cat.name.toLowerCase().includes(catSearchQuery.toLowerCase().trim()))
+                                                    .map(cat => {
+                                                        const isMacroChung = cat.name.toLowerCase().includes('macro chung') || cat.name.toLowerCase() === 'macrochung';
+                                                        const m = catMappings[cat._id] || { isAllChannels: isMacroChung, appliedChannels: [] };
+                                                        const isAll = m.isAllChannels ?? isMacroChung;
+                                                        const appliedList = m.appliedChannels || [];
+                                                        const channelsText = appliedList.join(', ');
+
+                                                        // Suggestions based on category name
+                                                        const catCleanName = cat.name.trim();
+                                                        const suggestions = [
+                                                            `${catCleanName} - Shopee`,
+                                                            `${catCleanName} - Lazada`,
+                                                            `${catCleanName} - Tiktok`
+                                                        ];
+
+                                                        return (
+                                                            <tr key={cat._id} className="hover:bg-indigo-50/20 transition-colors group">
+                                                                {/* Category Name Column */}
+                                                                <td className="py-4 px-5">
+                                                                    <div className="flex items-center gap-2.5">
+                                                                        <div className={`w-8 h-8 rounded-xl flex items-center justify-center ${isMacroChung ? 'bg-indigo-100 text-indigo-600' : 'bg-slate-100 text-slate-500 group-hover:bg-indigo-50 group-hover:text-indigo-600'} transition-colors`}>
+                                                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
+                                                                            </svg>
+                                                                        </div>
+                                                                        <div>
+                                                                            <span className={`font-bold text-sm ${isMacroChung ? 'text-indigo-600' : 'text-slate-800'}`}>{cat.name}</span>
+                                                                            {isMacroChung ? (
+                                                                                <span className="ml-2 inline-flex items-center gap-1 px-2 py-0.5 bg-indigo-50 text-indigo-700 rounded-md text-[10px] font-bold border border-indigo-200/50">
+                                                                                    Dùng Chung
+                                                                                </span>
+                                                                            ) : (
+                                                                                <div className="text-[11px] text-slate-400 font-medium">Danh mục thương hiệu</div>
+                                                                            )}
+                                                                        </div>
+                                                                    </div>
+                                                                </td>
+
+                                                                {/* Scope / All Channels Switch */}
+                                                                <td className="py-4 px-5">
+                                                                    <button
+                                                                        type="button"
+                                                                        onClick={() => toggleAllChannels(cat._id, cat.name)}
+                                                                        className={`flex items-center gap-2.5 px-3.5 py-2 rounded-xl border text-xs font-bold transition-all cursor-pointer ${
+                                                                            isAll 
+                                                                                ? 'bg-emerald-50 text-emerald-700 border-emerald-200 shadow-sm' 
+                                                                                : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100'
+                                                                        }`}
+                                                                    >
+                                                                        <div className={`w-4 h-4 rounded-full flex items-center justify-center transition-colors ${isAll ? 'bg-emerald-600 text-white' : 'border border-slate-400 bg-white'}`}>
+                                                                            {isAll && (
+                                                                                <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" />
+                                                                                </svg>
+                                                                            )}
+                                                                        </div>
+                                                                        <span>{isAll ? 'Tất cả Channel' : 'Chỉ định Channel'}</span>
+                                                                    </button>
+                                                                </td>
+
+                                                                {/* Interactive Channels Tag & Editor Column */}
+                                                                <td className="py-4 px-5">
+                                                                    {isAll ? (
+                                                                        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-emerald-50/60 text-emerald-700 text-xs font-medium border border-emerald-100">
+                                                                            <svg className="w-3.5 h-3.5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
+                                                                            </svg>                                                                            <span>Tất cả kênh/nhãn hàng đều nhìn thấy danh mục này</span>
+                                                                        </div>
+                                                                    ) : (
+                                                                        <div className="space-y-2">
+                                                                            {/* Active Channel Tag Chips */}
+                                                                            {appliedList.length > 0 && (
+                                                                                <div className="flex flex-wrap gap-1.5">
+                                                                                    {appliedList.map(ch => (
+                                                                                        <span key={ch} className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-indigo-50 text-indigo-700 rounded-lg text-xs font-bold border border-indigo-200/60">
+                                                                                            <svg className="w-3 h-3 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                                                                                            </svg>
+                                                                                            {ch}
+                                                                                            <button 
+                                                                                                type="button" 
+                                                                                                onClick={() => toggleQuickChannel(cat._id, ch, cat.name)}
+                                                                                                className="text-indigo-400 hover:text-indigo-700 ml-0.5"
+                                                                                            >
+                                                                                                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                                                                                                </svg>
+                                                                                            </button>
+                                                                                        </span>
+                                                                                    ))}
+                                                                                </div>
+                                                                            )}
+
+                                                                            {/* Channel Input Field */}
+                                                                            <div className="relative">
+                                                                                <input
+                                                                                    className="w-full pl-8 pr-3 py-2 text-xs font-medium border border-slate-200 rounded-xl bg-slate-50 focus:bg-white focus:border-indigo-500 focus:outline-none transition-all placeholder:text-slate-400"
+                                                                                    placeholder="Nhập channel (phân cách bằng dấu phẩy) hoặc chọn gợi ý bên dưới..."
+                                                                                    value={channelsText}
+                                                                                    onChange={e => updateAppliedChannels(cat._id, e.target.value, cat.name)}
+                                                                                />
+                                                                                <svg className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
+                                                                                </svg>
+                                                                            </div>
+
+                                                                            {/* Quick Suggestion Pills */}
+                                                                            <div className="flex items-center gap-1.5 pt-0.5">
+                                                                                <span className="text-[10px] font-bold text-slate-400">Gợi ý nhanh:</span>
+                                                                                {suggestions.map(sugg => {
+                                                                                    const isAdded = appliedList.includes(sugg);
+                                                                                    return (
+                                                                                        <button
+                                                                                            key={sugg}
+                                                                                            type="button"
+                                                                                            onClick={() => toggleQuickChannel(cat._id, sugg, cat.name)}
+                                                                                            className={`px-2 py-0.5 rounded text-[10px] font-bold border transition-all cursor-pointer ${
+                                                                                                isAdded 
+                                                                                                    ? 'bg-indigo-600 text-white border-indigo-600 shadow-xs' 
+                                                                                                    : 'bg-slate-100 text-slate-600 border-slate-200 hover:bg-indigo-50 hover:text-indigo-600'
+                                                                                            }`}
+                                                                                        >
+                                                                                            {isAdded ? '✓ ' : '+ '}{sugg}
+                                                                                        </button>
+                                                                                    );
+                                                                                })}
+                                                                            </div>
+                                                                        </div>
+                                                                    )}
+                                                                </td>
+                                                            </tr>
+                                                        );
+                                                    })}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                )}
                             </div>
                         )}
                         {activeTab === 'typo' && (
@@ -653,6 +1190,97 @@
                             <div className="space-y-4">
                                 <h3 className="text-xl font-bold">Từ cấm & Ngoại lệ</h3>
                                 <textarea className="w-full h-[400px] bg-slate-50 border rounded-2xl p-8 font-mono text-sm" value={buffers.forbiddenRules} onChange={e => setBuffers({ ...buffers, forbiddenRules: e.target.value })} />
+                            </div>
+                        )}
+                    </div>
+                </div>
+            );
+        }
+
+        function AuditLogsView() {
+            const [logs, setLogs] = React.useState([]);
+            const [loading, setLoading] = React.useState(true);
+
+            React.useEffect(() => {
+                fetch(`${API_BASE}/audit-logs`)
+                    .then(r => r.json())
+                    .then(data => {
+                        setLogs(data);
+                        setLoading(false);
+                    })
+                    .catch(e => {
+                        console.error(e);
+                        setLoading(false);
+                    });
+            }, []);
+
+            const getActionBadgeClass = (action) => {
+                switch (action) {
+                    case 'CREATE_USER':
+                        return 'bg-emerald-50 text-emerald-700 border-emerald-100';
+                    case 'DELETE_USER':
+                        return 'bg-rose-50 text-rose-700 border-rose-100';
+                    case 'UPDATE_USER':
+                        return 'bg-amber-50 text-amber-700 border-amber-100';
+                    case 'UPDATE_SETTINGS':
+                        return 'bg-purple-50 text-purple-700 border-purple-100';
+                    case 'REMOVE_DEVICE':
+                        return 'bg-blue-50 text-blue-700 border-blue-100';
+                    default:
+                        return 'bg-slate-50 text-slate-700 border-slate-100';
+                }
+            };
+
+            const formatTime = (dateStr) => {
+                const date = new Date(dateStr);
+                return date.toLocaleString('vi-VN', {
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit'
+                });
+            };
+
+            return (
+                <div className="space-y-8 animate-fade-in-up">
+                    <header>
+                        <h2 className="text-4xl font-black text-slate-900">Nhật ký hoạt động</h2>
+                        <p className="text-slate-500 font-medium">Theo dõi lịch sử thay đổi cấu hình và quản trị tài khoản</p>
+                    </header>
+
+                    <div className="bento-card p-8 bg-white overflow-hidden">
+                        {loading ? (
+                            <div className="p-20 text-center text-slate-400 font-bold italic">ĐANG TẢI LỊCH SỬ...</div>
+                        ) : logs.length === 0 ? (
+                            <div className="p-20 text-center text-slate-400 font-bold italic">Chưa có nhật ký hoạt động nào ghi nhận</div>
+                        ) : (
+                            <div className="overflow-x-auto">
+                                <table className="w-full text-left border-collapse">
+                                    <thead>
+                                        <tr className="border-b border-slate-100 text-slate-400 text-xs font-bold uppercase tracking-wider">
+                                            <th className="pb-4 font-extrabold w-1/4">Thời gian</th>
+                                            <th className="pb-4 font-extrabold w-1/6">Hành động</th>
+                                            <th className="pb-4 font-extrabold w-1/6">Địa chỉ IP</th>
+                                            <th className="pb-4 font-extrabold w-5/12">Nội dung chi tiết</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-slate-100 text-sm">
+                                        {logs.map((log) => (
+                                            <tr key={log._id} className="hover:bg-slate-50/50 transition-colors duration-200">
+                                                <td className="py-4 font-semibold text-slate-650 font-mono text-xs">{formatTime(log.createdAt)}</td>
+                                                <td className="py-4">
+                                                    <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold border ${getActionBadgeClass(log.action)}`}>
+                                                        {log.action}
+                                                    </span>
+                                                </td>
+                                                <td className="py-4 text-slate-500 font-mono text-xs">{log.adminIp}</td>
+                                                <td className="py-4 text-slate-800 font-medium">{log.details}</td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
                             </div>
                         )}
                     </div>
