@@ -3075,9 +3075,15 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
           const snippetText = getSnippetWithContext(plainText, q, 80);
           const snippetHighlighted = highlightSearchKeyword(snippetText, q);
 
+          const useCount = Number(m.useCount || 0);
+          const formattedUseCount = useCount.toLocaleString('vi-VN');
+
           div.innerHTML = `
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-              <div class="m-category-tag">${escapeHtml(categoryName)}</div>
+            <div style="display: flex; justify-content: space-between; align-items: center; gap: 6px;">
+              <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+                <div class="m-category-tag">${escapeHtml(categoryName)}</div>
+                <span class="m-use-count" title="Số lượt đã sử dụng mẫu này">🔥 ${formattedUseCount} lượt dùng</span>
+              </div>
               <div style="display: flex; align-items: center; gap: 4px;">
                 <button class="macro-star-btn ${m.isStarred ? 'starred' : ''}" title="${m.isStarred ? 'Bỏ đánh sao' : 'Đánh sao yêu thích'}" type="button">
                   ${m.isStarred ? '⭐' : '☆'}

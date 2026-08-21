@@ -511,7 +511,20 @@
   text-transform: uppercase;
   letter-spacing: 0.5px;
   width: fit-content;
-  margin-bottom: 2px;
+}
+
+.m-use-count {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 6px;
+  background: #fff7ed;
+  color: #ea580c;
+  font-size: 10px;
+  font-weight: 700;
+  border-radius: 4px;
+  border: 1px solid #ffedd5;
+  user-select: none;
 }
 
 .macro-search-item strong {
