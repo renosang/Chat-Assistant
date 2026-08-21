@@ -2971,7 +2971,19 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
         }
 
         const macros = await response.json();
+        const removeAccents = (str) => {
+          if (!str) return "";
+          return str
+            .toString()
+            .toLowerCase()
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "")
+            .replace(/đ/g, "d")
+            .replace(/Đ/g, "d");
+        };
+
         const qLower = q.toLowerCase().trim();
+        const qNorm = removeAccents(qLower);
 
         // Merge backend and client-side starred state
         macros.forEach(m => {
@@ -2985,12 +2997,12 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
         // Save synced starred set back to storage
         chrome.storage.sync.set({ starredMacroIds: Array.from(localStarredSet) });
 
-        // SORT: When searching (qLower not empty), Starred macros FIRST -> Title match -> A-Z alphabetical. When empty qLower, default A-Z.
+        // SORT: When searching (qNorm not empty), Starred macros FIRST -> Title match -> A-Z alphabetical
         macros.sort((a, b) => {
           const aTitle = (a.title || "").toLowerCase();
           const bTitle = (b.title || "").toLowerCase();
 
-          if (qLower) {
+          if (qNorm) {
             // Priority 1 when searching: Starred macros float to top
             const aStarred = Boolean(a.isStarred);
             const bStarred = Boolean(b.isStarred);
@@ -2998,8 +3010,8 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
             if (!aStarred && bStarred) return 1;
 
             // Priority 2: Title match first, then content match
-            const aInTitle = aTitle.includes(qLower);
-            const bInTitle = bTitle.includes(qLower);
+            const aInTitle = removeAccents(aTitle).includes(qNorm);
+            const bInTitle = removeAccents(bTitle).includes(qNorm);
             if (aInTitle && !bInTitle) return -1;
             if (!aInTitle && bInTitle) return 1;
           }
@@ -3010,14 +3022,14 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
 
         resultsDiv.innerHTML = "";
         
-        // Client-side: filter by platform AND require search keyword to match title or content
+        // Client-side: filter by platform AND require search keyword (accent-insensitive) to match title or content
         const filteredMacros = macros.filter(m => {
           if (!isPlatformValidForContext(m, context)) return false;
-          if (qLower) {
-            const title = (m.title || "").toLowerCase();
-            const plainText = extractTextFromContent(m.content).toLowerCase();
-            const matchesTitle = title.includes(qLower);
-            const matchesContent = plainText.includes(qLower);
+          if (qNorm) {
+            const titleNorm = removeAccents(m.title);
+            const plainTextNorm = removeAccents(extractTextFromContent(m.content));
+            const matchesTitle = titleNorm.includes(qNorm);
+            const matchesContent = plainTextNorm.includes(qNorm);
             if (!matchesTitle && !matchesContent) return false;
           }
           return true;
@@ -3032,19 +3044,28 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
         const highlightSearchKeyword = (text, keyword) => {
           if (!text) return "";
           if (!keyword || !keyword.trim()) return escapeHtml(text);
-          const safeText = escapeHtml(text);
-          const escapedKw = escapeRegExp(keyword.trim());
-          const regex = new RegExp(`(${escapedKw})`, "gi");
-          return safeText.replace(regex, '<mark style="background: #fef08a; color: #854d0e; font-weight: 700; padding: 1px 3px; border-radius: 3px;">$1</mark>');
+
+          const textNorm = removeAccents(text);
+          const kwNorm = removeAccents(keyword);
+          const index = textNorm.indexOf(kwNorm);
+
+          if (index === -1) return escapeHtml(text);
+
+          const matchLen = keyword.trim().length;
+          const before = escapeHtml(text.substring(0, index));
+          const match = escapeHtml(text.substring(index, index + matchLen));
+          const after = escapeHtml(text.substring(index + matchLen));
+
+          return `${before}<mark style="background: #fef08a; color: #854d0e; font-weight: 700; padding: 1px 3px; border-radius: 3px;">${match}</mark>${after}`;
         };
 
         const getSnippetWithContext = (fullText, keyword, maxLength = 80) => {
           if (!fullText) return "";
           if (!keyword || !keyword.trim()) return fullText.substring(0, maxLength) + (fullText.length > maxLength ? "..." : "");
 
-          const kwLower = keyword.toLowerCase().trim();
-          const textLower = fullText.toLowerCase();
-          const index = textLower.indexOf(kwLower);
+          const kwNorm = removeAccents(keyword);
+          const textNorm = removeAccents(fullText);
+          const index = textNorm.indexOf(kwNorm);
 
           if (index === -1) {
             return fullText.substring(0, maxLength) + (fullText.length > maxLength ? "..." : "");
