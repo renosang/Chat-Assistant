@@ -2985,25 +2985,26 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
         // Save synced starred set back to storage
         chrome.storage.sync.set({ starredMacroIds: Array.from(localStarredSet) });
 
-        // SORT: Starred macros FIRST -> Title match -> A-Z alphabetical
+        // SORT: When searching (qLower not empty), Starred macros FIRST -> Title match -> A-Z alphabetical. When empty qLower, default A-Z.
         macros.sort((a, b) => {
-          const aStarred = Boolean(a.isStarred);
-          const bStarred = Boolean(b.isStarred);
-          if (aStarred && !bStarred) return -1;
-          if (!aStarred && bStarred) return 1;
-
           const aTitle = (a.title || "").toLowerCase();
           const bTitle = (b.title || "").toLowerCase();
 
           if (qLower) {
-            // Priority: title match first, then content match
+            // Priority 1 when searching: Starred macros float to top
+            const aStarred = Boolean(a.isStarred);
+            const bStarred = Boolean(b.isStarred);
+            if (aStarred && !bStarred) return -1;
+            if (!aStarred && bStarred) return 1;
+
+            // Priority 2: Title match first, then content match
             const aInTitle = aTitle.includes(qLower);
             const bInTitle = bTitle.includes(qLower);
             if (aInTitle && !bInTitle) return -1;
             if (!aInTitle && bInTitle) return 1;
           }
 
-          // A-Z alphabetical sort (Vietnamese-aware)
+          // Default order when query is empty: A-Z alphabetical sort
           return aTitle.localeCompare(bTitle, 'vi');
         });
 
