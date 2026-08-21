@@ -2867,10 +2867,7 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
       macroSearchOverlay.id = "gemini-macro-overlay";
       macroSearchOverlay.innerHTML = `
         <div class="macro-search-container">
-          <div class="macro-drag-handle" style="display: flex; justify-between; align-items: center;">
-            <span style="font-size: 11px; font-weight: 700; color: #64748b;">QUICK MACRO</span>
-            <button id="btn-reload-macro-cache" title="Làm mới danh sách từ Server" style="background: none; border: none; cursor: pointer; padding: 2px 4px; font-size: 12px; opacity: 0.7;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.7">🔄</button>
-          </div>
+          <div class="macro-drag-handle"></div>
           <input type="text" id="macro-search-input" placeholder="Tìm macro nhanh..." />
           <div id="macro-search-results"></div>
         </div>
@@ -2882,16 +2879,6 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
       input.addEventListener("input", (e) => {
         renderLiveSearchResults(e.target.value);
       });
-
-      const reloadBtn = macroSearchOverlay.querySelector("#btn-reload-macro-cache");
-      if (reloadBtn) {
-        reloadBtn.addEventListener("click", (e) => {
-          e.stopPropagation();
-          cachedMacrosList = null;
-          cachedBrandContext = null;
-          fetchAndInitLiveSearch(input.value);
-        });
-      }
 
       // Prevent closing when clicking inside
       macroSearchOverlay.addEventListener("mousedown", (e) => e.stopPropagation());
