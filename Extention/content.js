@@ -1578,87 +1578,71 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
   document.addEventListener("click", onGlobalClickCapture, true);
   document.addEventListener("submit", onFormSubmit, true);
 
-  // ALSO inject script into MAIN WORLD to block BEFORE content script runs
-  // This is the ONLY way to truly intercept events before page scripts
-  function injectBlockingScript() {
-    const script = document.createElement('script');
-    script.textContent = `(function() {
-      // Block pointerdown at main world (runs BEFORE content script)
-      document.addEventListener('pointerdown', function(ev) {
-        if (ev.button !== 0) return;
-        var btn = ev.target.closest('button');
-        if (!btn) return;
-        // Check if it's a send button
-        if (btn.matches('button.button--icon.btn.btn-primary.btn-sm') || btn.matches('.send-btn, .btn-send, [class*="send"][role="button"]')) {
-          var panel = document.getElementById('gemini-suggestion-panel');
-          if (panel && panel.classList.contains('gemini-blocking-active')) {
-            btn.disabled = true;
-            btn.style.pointerEvents = 'none';
-            btn.style.opacity = '0.5';
-            ev.preventDefault();
-            ev.stopPropagation();
-            ev.stopImmediatePropagation();
-          }
-        }
-      }, true);
-      
-      // Listen for gemini block commands from content script
-      window.addEventListener('message', function(ev) {
-        if (ev.data && ev.data.type === 'GEMINI_DISABLE_SEND') {
-          var btn = document.querySelector('button.button--icon.btn.btn-primary.btn-sm');
-          if (!btn) btn = document.querySelector('.send-btn, .btn-send, [class*="send"][role="button"]');
-          if (btn) {
-            btn.disabled = true;
-            btn.style.pointerEvents = 'none';
-            btn.style.opacity = '0.5';
-          }
-        }
-        if (ev.data && ev.data.type === 'GEMINI_ENABLE_SEND') {
-          var btn = document.querySelector('button.button--icon.btn.btn-primary.btn-sm');
-          if (!btn) btn = document.querySelector('.send-btn, .btn-send, [class*="send"][role="button"]');
-          if (btn) {
-            btn.disabled = false;
-            btn.style.pointerEvents = '';
-            btn.style.opacity = '';
-          }
-        }
-      });
-      // Poll every 50ms to continuously re-disable send button while blocking panel is active
-      // This is critical because React/SPA frameworks may re-enable the button attribute
-      setInterval(function() {
+  function initSendButtonBlocking() {
+    document.addEventListener('pointerdown', function(ev) {
+      if (ev.button !== 0) return;
+      var btn = ev.target.closest('button');
+      if (!btn) return;
+      if (btn.matches('button.button--icon.btn.btn-primary.btn-sm') || btn.matches('.send-btn, .btn-send, [class*="send"][role="button"]')) {
         var panel = document.getElementById('gemini-suggestion-panel');
         if (panel && panel.classList.contains('gemini-blocking-active')) {
-          var btn = document.querySelector('button.button--icon.btn.btn-primary.btn-sm');
-          if (!btn) btn = document.querySelector('.send-btn, .btn-send, [class*="send"][role="button"]');
-          if (btn) {
-            if (!btn.disabled) {
-              btn.disabled = true;
-            }
-            btn.style.pointerEvents = 'none';
-            btn.style.opacity = '0.5';
-          }
+          btn.disabled = true;
+          btn.style.pointerEvents = 'none';
+          btn.style.opacity = '0.5';
+          ev.preventDefault();
+          ev.stopPropagation();
+          ev.stopImmediatePropagation();
         }
-      }, 50);
-      
-      // ALSO use MutationObserver to detect if button's disabled attribute is removed
-      var observer = new MutationObserver(function() {
-        var panel = document.getElementById('gemini-suggestion-panel');
-        if (panel && panel.classList.contains('gemini-blocking-active')) {
-          var btn = document.querySelector('button.button--icon.btn.btn-primary.btn-sm');
-          if (!btn) btn = document.querySelector('.send-btn, .btn-send, [class*="send"][role="button"]');
-          if (btn && !btn.disabled) {
+      }
+    }, true);
+
+    window.addEventListener('message', function(ev) {
+      if (ev.data && ev.data.type === 'GEMINI_DISABLE_SEND') {
+        var btn = document.querySelector('button.button--icon.btn.btn-primary.btn-sm, .send-btn, .btn-send, [class*="send"][role="button"]');
+        if (btn) {
+          btn.disabled = true;
+          btn.style.pointerEvents = 'none';
+          btn.style.opacity = '0.5';
+        }
+      }
+      if (ev.data && ev.data.type === 'GEMINI_ENABLE_SEND') {
+        var btn = document.querySelector('button.button--icon.btn.btn-primary.btn-sm, .send-btn, .btn-send, [class*="send"][role="button"]');
+        if (btn) {
+          btn.disabled = false;
+          btn.style.pointerEvents = '';
+          btn.style.opacity = '';
+        }
+      }
+    });
+
+    setInterval(function() {
+      var panel = document.getElementById('gemini-suggestion-panel');
+      if (panel && panel.classList.contains('gemini-blocking-active')) {
+        var btn = document.querySelector('button.button--icon.btn.btn-primary.btn-sm, .send-btn, .btn-send, [class*="send"][role="button"]');
+        if (btn) {
+          if (!btn.disabled) {
             btn.disabled = true;
-            btn.style.pointerEvents = 'none';
-            btn.style.opacity = '0.5';
           }
+          btn.style.pointerEvents = 'none';
+          btn.style.opacity = '0.5';
         }
-      });
-      observer.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['disabled'] });
-    })();`;
-    document.documentElement.appendChild(script);
-    script.remove();
+      }
+    }, 50);
+
+    var observer = new MutationObserver(function() {
+      var panel = document.getElementById('gemini-suggestion-panel');
+      if (panel && panel.classList.contains('gemini-blocking-active')) {
+        var btn = document.querySelector('button.button--icon.btn.btn-primary.btn-sm, .send-btn, .btn-send, [class*="send"][role="button"]');
+        if (btn && !btn.disabled) {
+          btn.disabled = true;
+          btn.style.pointerEvents = 'none';
+          btn.style.opacity = '0.5';
+        }
+      }
+    });
+    observer.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['disabled'] });
   }
-  injectBlockingScript();
+  initSendButtonBlocking();
   // Add postMessage helpers to communicate with main world script
   function postDisableSend() {
     try {
