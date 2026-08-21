@@ -2958,10 +2958,10 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
         const localStarredSet = new Set(starredArray);
 
         try {
-          const brandParam = context.currentBrand && context.currentBrand !== 'general'
-            ? `&brand=${encodeURIComponent(context.currentBrand)}`
+          const brandQuery = context.currentBrand && context.currentBrand !== 'general'
+            ? `?brand=${encodeURIComponent(context.currentBrand)}`
             : '';
-          const response = await fetch(`${MACRO_API_BASE_URL}/macros/search?brand=${brandParam}`, {
+          const response = await fetch(`${MACRO_API_BASE_URL}/macros/search${brandQuery}`, {
             headers: { 'Authorization': `Bearer ${data.macroAuthToken}` }
           });
 
