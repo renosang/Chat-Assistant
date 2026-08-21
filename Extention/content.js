@@ -3125,6 +3125,14 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
 
       const categoryName = (m.category && m.category.name) ? m.category.name : (m.category || "Chưa phân loại");
 
+      let catClass = "m-category-tag";
+      const catLower = categoryName.toLowerCase();
+      if (catLower.includes("hủy") || catLower.includes("khiếu nại") || catLower.includes("cảnh báo") || catLower.includes("vat")) {
+        catClass += " cat-warning";
+      } else if (catLower.includes("macro chung") || catLower.includes("chào") || catLower.includes("cảm ơn") || catLower.includes("đồng cảm")) {
+        catClass += " cat-general";
+      }
+
       const titleHighlighted = highlightSearchKeyword(m.title, q);
       const snippetText = getSnippetWithContext(plainText, q, 80);
       const snippetHighlighted = highlightSearchKeyword(snippetText, q);
@@ -3135,7 +3143,12 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
       div.innerHTML = `
         <div style="display: flex; justify-content: space-between; align-items: center; gap: 6px;">
           <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
-            <div class="m-category-tag">${escapeHtml(categoryName)}</div>
+            <div class="${catClass}">
+              <svg style="width: 10px; height: 10px; opacity: 0.75;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+              </svg>
+              <span>${escapeHtml(categoryName)}</span>
+            </div>
             <span class="m-use-count" title="Số lượt đã sử dụng mẫu này">🔥 ${formattedUseCount} lượt dùng</span>
           </div>
           <div style="display: flex; align-items: center; gap: 4px;">
