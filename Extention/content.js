@@ -30,12 +30,12 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
     if (!text || !target) return text;
     // Map of target to normalized value
     const replacement = target === "anh/chị" ? "anh/chị" : target.toLowerCase();
-    
+
     // Improved Regex: Unicode-aware matching for Vietnamese characters
     // Matches compounds like "anh/chị" first, then individual pronouns
     const regex = /(?<!\p{L})(anh[\s/]+chị|anh\s+chị|anh|chị)(?!\p{L})/giu;
 
-    
+
     return text.replace(regex, (match) => {
       // 1. ALL CAPS
       if (match === match.toUpperCase() && match.length > 1) {
@@ -45,32 +45,32 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
       if (match[0] === match[0].toUpperCase()) {
         return replacement.charAt(0).toUpperCase() + replacement.slice(1);
       }
-    // 3. Lowercase
-    return replacement;
-  });
-}
-
-/**
- * Helper to get text from either a textarea or a contenteditable element
- */
-function getChatText(el) {
-  if (!el) return "";
-  return el.tagName === "TEXTAREA" ? el.value : el.innerText;
-}
-
-/**
- * Helper to set text to either a textarea or a contenteditable element
- */
-function setChatText(el, text) {
-  if (!el) return;
-  if (el.tagName === "TEXTAREA") {
-    el.value = text;
-  } else {
-    el.innerText = text;
+      // 3. Lowercase
+      return replacement;
+    });
   }
-  // Dispatch input event for both types
-  el.dispatchEvent(new Event("input", { bubbles: true }));
-}
+
+  /**
+   * Helper to get text from either a textarea or a contenteditable element
+   */
+  function getChatText(el) {
+    if (!el) return "";
+    return el.tagName === "TEXTAREA" ? el.value : el.innerText;
+  }
+
+  /**
+   * Helper to set text to either a textarea or a contenteditable element
+   */
+  function setChatText(el, text) {
+    if (!el) return;
+    if (el.tagName === "TEXTAREA") {
+      el.value = text;
+    } else {
+      el.innerText = text;
+    }
+    // Dispatch input event for both types
+    el.dispatchEvent(new Event("input", { bubbles: true }));
+  }
 
 
 
@@ -88,13 +88,13 @@ function setChatText(el, text) {
     if (!handle) return;
 
     let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
-    
+
     handle.onmousedown = (e) => {
       if (document.activeElement?.tagName === "INPUT" || document.activeElement?.tagName === "TEXTAREA") return;
       e = e || window.event;
       // Don't drag if clicking buttons or inputs (like the opacity slider)
       if (e.target.tagName === "BUTTON" || e.target.tagName === "INPUT") return;
-      
+
       e.preventDefault();
       pos3 = e.clientX;
       pos4 = e.clientY;
@@ -106,7 +106,7 @@ function setChatText(el, text) {
         const newPos = { top: el.style.top, left: el.style.left };
         if (storageKey === 'geminiPanelPos') userSavedPosition = newPos;
         else userSavedMacroPosition = newPos;
-        
+
         chrome.storage.sync.set({ [storageKey]: newPos });
       };
       document.onmousemove = (e) => {
@@ -347,7 +347,7 @@ function setChatText(el, text) {
     // 1) Forbidden (Normalized & Exception-Aware)
     if (cachedConfig.forbiddenWords) {
       const normText = text.normalize('NFC');
-      
+
       cachedConfig.forbiddenWords.forEach(rule => {
         if (!rule) return;
         const [forbidden, ...exceptions] = rule.split('|').map(s => s.trim().normalize('NFC'));
@@ -358,7 +358,7 @@ function setChatText(el, text) {
         while ((match = regex.exec(normText)) !== null) {
           const matchedPos = match.index + (match[1] ? match[1].length : 0);
           const matchedEnd = matchedPos + forbidden.length;
-          
+
           // Check if this forbidden word is part of an exception phrase
           const isException = exceptions.some(ex => {
             const exRegex = new RegExp(`(^|[^\\p{L}])${escapeRegExp(ex)}(?=[^\\p{L}]|$)`, 'iu');
@@ -737,11 +737,20 @@ function setChatText(el, text) {
 
     const t = reasonEvent?.target;
     const btn = t?.closest?.(".btn-primary, button[type='submit'], .btn-save");
-    const isTicketAlert = btn && document.querySelector('input[name="concern_id"]');
+    const isTicketAlert = btn && (() => {
+      const concernInput = document.querySelector('input[name="concern_id"]');
+      if (!concernInput) return false;
+      const ticketContainer = concernInput.closest('form, .ant-drawer, .drawer, .ant-modal, .modal, .card, .tab-pane, #ticket-main-section, .ticket-form');
+      if (ticketContainer && ticketContainer.contains(btn)) return true;
+      if (btn.closest('form')?.querySelector('input[name="concern_id"]')) return true;
+      return false;
+    })();
 
-    if (isTicketAlert && cachedConfig?.blockComplaintTicket) {
+    // Nếu đang ở ticket form → chỉ kiểm tra validation ticket, KHÔNG kiểm tra từ cấm/brand trên textarea chat
+    if (isTicketAlert) {
       const ticketErrors = getTicketValidationErrors();
-      if (ticketErrors.length > 0) {
+      const shouldBlock = ticketErrors.length > 0 && cachedConfig?.blockComplaintTicket;
+      if (shouldBlock) {
         if (reasonEvent) {
           reasonEvent.preventDefault?.();
           reasonEvent.stopPropagation?.();
@@ -750,6 +759,8 @@ function setChatText(el, text) {
         showTicketBlockingAlert(ticketErrors, btn);
         return true;
       }
+      // Ticket form: cho phép lưu, không check từ cấm/brand/sàn trên chat textarea
+      return false;
     }
 
     const latestVal = getChatText(currentActiveTextarea).trim();
@@ -769,15 +780,18 @@ function setChatText(el, text) {
       // Crucial: Stop immediately to prevent page script from running
       if (reasonEvent) {
         reasonEvent.preventDefault?.();
-        
-        // Only stop propagation if we are blocking a terminal action (Enter/Click)
-        // to prevent page scripts from sending but allow other extensions
-        // to still potentially see the event if registered earlier.
-        // reasonEvent.stopPropagation?.(); // Removed to be more polite to other extensions
-        reasonEvent.stopImmediatePropagation?.(); 
+        reasonEvent.stopPropagation?.();
+        reasonEvent.stopImmediatePropagation?.();
       }
 
-      showBlockingAlert(analysis);
+      // Disable send button to prevent page from sending on re-click
+      const sendBtn = document.querySelector(CONFIG.SEND_BUTTON_SELECTORS);
+      if (sendBtn) {
+        sendBtn.style.pointerEvents = 'none';
+        sendBtn.style.opacity = '0.5';
+      }
+
+      showBlockingAlert(analysis, sendBtn);
       return true;
     }
     return false;
@@ -851,7 +865,9 @@ function setChatText(el, text) {
   function showTicketBlockingAlert(errors, targetButton) {
     if (!suggestionPanel) createUIElements();
 
-    const mascotUrl = chrome.runtime.getURL("mascot_alert.png");
+    const mascotUrl = (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.getURL)
+      ? chrome.runtime.getURL("mascot_alert.png")
+      : "mascot_alert.png";
     const errorListHtml = errors.map(e => `<li>• ${e}</li>`).join("");
 
     suggestionPanel.innerHTML = `
@@ -897,7 +913,7 @@ function setChatText(el, text) {
     });
   }
 
-  function showBlockingAlert(analysis) {
+  function showBlockingAlert(analysis, sendBtn = null) {
     if (!suggestionPanel) createUIElements();
 
     let issue = "vi phạm";
@@ -954,18 +970,32 @@ function setChatText(el, text) {
       suggestionPanel.classList.remove("gemini-blocking-active");
       hideUI();
 
-      // Tìm và click nút gửi thật
-      const sendBtn = document.querySelector(CONFIG.SEND_BUTTON_SELECTORS);
+      // Re-enable send button
       if (sendBtn) {
+        sendBtn.style.pointerEvents = '';
+        sendBtn.style.opacity = '';
+      }
+
+      // Tìm và click nút gửi thật
+      const foundSendBtn = sendBtn || document.querySelector(CONFIG.SEND_BUTTON_SELECTORS);
+      if (foundSendBtn) {
         console.log("[Gemini] User bypassed: Triggering send button click.");
-        sendBtn.click();
+        foundSendBtn.click();
       } else {
         // Fallback: nếu không tìm thấy nút, ít nhất người dùng có thể thử gõ Enter lại
         console.warn("[Gemini] Bypassed but send button not found for auto-click.");
       }
     });
+
     document.getElementById("gemini-alert-close")?.addEventListener("click", () => {
       suggestionPanel.classList.remove("gemini-blocking-active");
+
+      // Re-enable send button when closing alert
+      if (sendBtn) {
+        sendBtn.style.pointerEvents = '';
+        sendBtn.style.opacity = '';
+      }
+
       hideUI();
     });
   }
@@ -980,7 +1010,7 @@ function setChatText(el, text) {
 
     // Force visibility and top-most layer
     suggestionPanel.style.display = "block";
-    suggestionPanel.style.position = "fixed"; 
+    suggestionPanel.style.position = "fixed";
     suggestionPanel.style.zIndex = "2147483647";
     suggestionPanel.style.visibility = "visible";
     suggestionPanel.style.opacity = "1";
@@ -1019,13 +1049,13 @@ function setChatText(el, text) {
     const pronounConflict = (analysis.grammar || []).find(g => g && g.word === "conflict_pronoun");
 
     // grammar (pronoun/mechanics/repetition)
-     (analysis.grammar || []).filter(g => g && g.msg).forEach(g => {
-       const isCrit = critKeywords.some(k => g.msg.toLowerCase().includes(k.toLowerCase()));
-       const isProcessed = g.msg.startsWith("Đã sửa") || g.msg.startsWith("Đã thêm");
-       // TREAT ALL grammar/mechanics items as warnings by default to ensure an icon shows up
-       const isWarn = true; 
-       lines.push({ text: g.msg, crit: isCrit, processed: isProcessed, warn: isWarn && !isProcessed });
-     });
+    (analysis.grammar || []).filter(g => g && g.msg).forEach(g => {
+      const isCrit = critKeywords.some(k => g.msg.toLowerCase().includes(k.toLowerCase()));
+      const isProcessed = g.msg.startsWith("Đã sửa") || g.msg.startsWith("Đã thêm");
+      // TREAT ALL grammar/mechanics items as warnings by default to ensure an icon shows up
+      const isWarn = true;
+      lines.push({ text: g.msg, crit: isCrit, processed: isProcessed, warn: isWarn && !isProcessed });
+    });
 
     // forbidden/brand/platform each as its own line
     (analysis.forbidden || []).forEach(v => lines.push({ text: v.msg || v.word || v, crit: true }));
@@ -1090,7 +1120,7 @@ function setChatText(el, text) {
     if (showEditor && suggestedText.includes('\n')) {
       const lines = fullHighlightedText.split('\n');
       const errorLines = lines.filter(l => l.includes('gemini-highlight-') || l.includes('gemini-processed-'));
-      
+
       if (errorLines.length > 0 && errorLines.length < lines.length) {
         displayHtml = errorLines.join('<div class="gemini-fragment-divider">...</div>');
         isFragmented = true;
@@ -1126,7 +1156,7 @@ function setChatText(el, text) {
 
     // Simplified UI for Hover Mode (Tooltip style)
     suggestionPanel.className = `gemini-suggestion-panel ${isHoverMode ? 'gemini-mini-mode' : ''}`;
-    
+
     if (isHoverMode) {
       suggestionPanel.innerHTML = `
         <div class="gemini-panel gemini-tooltip-panel" style="padding: 12px; min-width: 280px; border-radius: 12px;">
@@ -1190,11 +1220,11 @@ function setChatText(el, text) {
     if (!isMinimized) {
       const ro = new ResizeObserver(entries => {
         for (let entry of entries) {
-           const { width, height } = entry.contentRect;
-           if (width > 0 && height > 0) {
-              userSavedSize = { width: suggestionPanel.style.width, height: suggestionPanel.style.height };
-              chrome.storage.sync.set({ geminiPanelSize: userSavedSize });
-           }
+          const { width, height } = entry.contentRect;
+          if (width > 0 && height > 0) {
+            userSavedSize = { width: suggestionPanel.style.width, height: suggestionPanel.style.height };
+            chrome.storage.sync.set({ geminiPanelSize: userSavedSize });
+          }
         }
       });
       ro.observe(suggestionPanel);
@@ -1236,7 +1266,7 @@ function setChatText(el, text) {
     } else {
       repositionPanel();
     }
-    
+
     // Wire up Apply button
     document.getElementById("gemini-apply-suggest")?.addEventListener("click", (e) => {
       e.stopPropagation();
@@ -1257,23 +1287,23 @@ function setChatText(el, text) {
   function positionNearToolbar() {
     const pill = document.getElementById("gemini-toolbar-status");
     if (!pill || !suggestionPanel) return;
-    
+
     // Ensure panel is in mini mode for sizing
     suggestionPanel.style.width = "auto";
     suggestionPanel.classList.add("gemini-mini-mode");
-    
+
     const rect = pill.getBoundingClientRect();
     const panelHeight = suggestionPanel.offsetHeight || 100;
-    
+
     // Target center of the pill
     let left = rect.left + (rect.width / 2);
     let top = rect.top - panelHeight - 12;
-    
+
     // If no room above, show below
     if (top < window.scrollY + 10) {
       top = rect.bottom + 12;
     }
-    
+
     suggestionPanel.style.position = "fixed";
     suggestionPanel.style.left = `${left}px`;
     suggestionPanel.style.top = `${top}px`;
@@ -1304,7 +1334,7 @@ function setChatText(el, text) {
 
     // Failsafe: if topPos is still wacky or textarea is hidden
     if (rect.width === 0 || rect.height === 0 || isNaN(topPos)) {
-      topPos = 20; 
+      topPos = 20;
     }
 
     suggestionPanel.style.top = `${topPos}px`;
@@ -1345,7 +1375,7 @@ function setChatText(el, text) {
       const latestVal = getChatText(textareaRef).trim();
       if (!latestVal) {
         hideUI();
-        updateToolbarStatus(null, ""); 
+        updateToolbarStatus(null, "");
         return;
       }
 
@@ -1357,7 +1387,7 @@ function setChatText(el, text) {
         (analysis.forbidden?.length || 0) > 0 ||
         (analysis.brands?.length || 0) > 0 ||
         (analysis.platforms?.length || 0) > 0;
-      
+
       const hasError = isCritical ||
         (analysis.typos?.length || 0) > 0 ||
         (analysis.grammar?.length || 0) > 0 ||
@@ -1395,7 +1425,7 @@ function setChatText(el, text) {
     if (ev.key === "Enter" && !ev.shiftKey) {
       const blocked = enforceBlockIfNeeded(ev);
       if (blocked) return;
-      
+
       // If not blocked, check if message sent (cleared) after a short delay
       setTimeout(() => {
         const val = getChatText(ev.target).trim();
@@ -1416,15 +1446,10 @@ function setChatText(el, text) {
     }
   }
 
-  // 3) Block send button click (exact button from your HTML + fallback)
-  function onGlobalClickCapture(ev) {
-    const t = ev.target;
-    if (!t) return;
-
-    // exact send button
+  // Helper: find send button from event target
+  function findSendButtonFromEvent(t) {
+    if (!t) return null;
     let btn = t.closest?.("button.button--icon.btn.btn-primary.btn-sm");
-
-    // fallback: button--icon with text Send
     if (!btn) {
       const candidate = t.closest?.("button.button--icon");
       if (candidate) {
@@ -1432,22 +1457,113 @@ function setChatText(el, text) {
         if (label === "send" || label.includes("send")) btn = candidate;
       }
     }
-
-    // broader fallback selectors (in case UI changes)
     if (!btn) btn = t.closest?.(CONFIG.SEND_BUTTON_SELECTORS);
-
-    // ✅ TRICK: Also allow "Save" buttons if on a ticket form
     if (!btn) {
       const isTicketForm = document.querySelector('input[name="concern_id"]');
       if (isTicketForm) {
         btn = t.closest?.(".btn-primary, .btn-save, button[type='submit']");
       }
     }
+    return btn;
+  }
 
+  // 3a) Block at pointerdown (EARLIEST event - fires before mousedown, before page scripts)
+  function onGlobalPointerDownCapture(ev) {
+    if (ev.button !== 0) return;
+    const btn = findSendButtonFromEvent(ev.target);
     if (!btn) return;
 
+    // Check if it is a ticket button
+    const isTicketButton = btn && (() => {
+      const concernInput = document.querySelector('input[name="concern_id"]');
+      if (!concernInput) return false;
+      const ticketContainer = concernInput.closest('form, .ant-drawer, .drawer, .ant-modal, .modal, .card, .tab-pane, #ticket-main-section, .ticket-form');
+      if (ticketContainer && ticketContainer.contains(btn)) return true;
+      if (btn.closest('form')?.querySelector('input[name="concern_id"]')) return true;
+      return false;
+    })();
+
+    if (isTicketButton) {
+      const ticketErrors = getTicketValidationErrors();
+      const shouldBlock = ticketErrors.length > 0 && cachedConfig?.blockComplaintTicket;
+      if (shouldBlock) {
+        btn.disabled = true;
+        btn.style.pointerEvents = 'none';
+        btn.style.opacity = '0.5';
+        ev.preventDefault?.();
+        ev.stopPropagation?.();
+        ev.stopImmediatePropagation?.();
+        showTicketBlockingAlert(ticketErrors, btn);
+      }
+      return; // Do NOT run chat input validation for ticket buttons
+    }
+
+    // Đảm bảo currentActiveTextarea luôn được set
+    if (!currentActiveTextarea || !document.contains(currentActiveTextarea)) {
+      findActiveTextarea();
+    }
+
+    // Nếu vẫn không tìm thấy textarea thì bỏ qua
+    if (!currentActiveTextarea) return;
+
+    const latestVal = getChatText(currentActiveTextarea).trim();
+    if (!latestVal) return;
+    if (!cachedConfig) return;
+
+    const analysis = getAnalysis(latestVal);
+    const isBlocking = hasBlockingErrors(analysis);
+
+    if (isBlocking) {
+      // Vô hiệu hóa button ngay lập tức bằng disabled attribute
+      btn.disabled = true;
+      btn.style.pointerEvents = 'none';
+      btn.style.opacity = '0.5';
+      ev.preventDefault?.();
+      ev.stopPropagation?.();
+      ev.stopImmediatePropagation?.();
+      showBlockingAlert(analysis, btn);
+    }
+  }
+
+  // 3b) Block at mousedown (backup for pointerdown)
+  function onGlobalMouseDownCapture(ev) {
+    if (ev.button !== 0) return;
+    const btn = findSendButtonFromEvent(ev.target);
+    if (!btn) return;
+    // Nếu button đã bị disabled bởi pointerdown thì bỏ qua
+    if (btn.disabled) {
+      ev.preventDefault?.();
+      ev.stopPropagation?.();
+      ev.stopImmediatePropagation?.();
+      return;
+    }
     const blocked = enforceBlockIfNeeded(ev);
-    if (blocked) return;
+    if (blocked) {
+      btn.disabled = true;
+      btn.style.pointerEvents = 'none';
+      btn.style.opacity = '0.5';
+    }
+  }
+
+  // 3c) Block send button click (backup)
+  function onGlobalClickCapture(ev) {
+    if (ev.defaultPrevented) return;
+    const btn = findSendButtonFromEvent(ev.target);
+    if (!btn) return;
+    if (btn.disabled) {
+      ev.preventDefault?.();
+      ev.stopPropagation?.();
+      ev.stopImmediatePropagation?.();
+      return;
+    }
+
+    const blocked = enforceBlockIfNeeded(ev);
+    if (blocked) {
+      btn.disabled = true;
+      btn.style.pointerEvents = 'none';
+      btn.style.opacity = '0.5';
+      return;
+    }
 
     // Not blocked: check if message sent after delay
     setTimeout(() => {
@@ -1455,6 +1571,104 @@ function setChatText(el, text) {
       const val = getChatText(activeEl).trim();
       if (!val) hideUI();
     }, 300);
+  }
+  // Global capture to block send click & submit
+  document.addEventListener("pointerdown", onGlobalPointerDownCapture, true);
+  document.addEventListener("mousedown", onGlobalMouseDownCapture, true);
+  document.addEventListener("click", onGlobalClickCapture, true);
+  document.addEventListener("submit", onFormSubmit, true);
+
+  // ALSO inject script into MAIN WORLD to block BEFORE content script runs
+  // This is the ONLY way to truly intercept events before page scripts
+  function injectBlockingScript() {
+    const script = document.createElement('script');
+    script.textContent = `(function() {
+      // Block pointerdown at main world (runs BEFORE content script)
+      document.addEventListener('pointerdown', function(ev) {
+        if (ev.button !== 0) return;
+        var btn = ev.target.closest('button');
+        if (!btn) return;
+        // Check if it's a send button
+        if (btn.matches('button.button--icon.btn.btn-primary.btn-sm') || btn.matches('.send-btn, .btn-send, [class*="send"][role="button"]')) {
+          var panel = document.getElementById('gemini-suggestion-panel');
+          if (panel && panel.classList.contains('gemini-blocking-active')) {
+            btn.disabled = true;
+            btn.style.pointerEvents = 'none';
+            btn.style.opacity = '0.5';
+            ev.preventDefault();
+            ev.stopPropagation();
+            ev.stopImmediatePropagation();
+          }
+        }
+      }, true);
+      
+      // Listen for gemini block commands from content script
+      window.addEventListener('message', function(ev) {
+        if (ev.data && ev.data.type === 'GEMINI_DISABLE_SEND') {
+          var btn = document.querySelector('button.button--icon.btn.btn-primary.btn-sm');
+          if (!btn) btn = document.querySelector('.send-btn, .btn-send, [class*="send"][role="button"]');
+          if (btn) {
+            btn.disabled = true;
+            btn.style.pointerEvents = 'none';
+            btn.style.opacity = '0.5';
+          }
+        }
+        if (ev.data && ev.data.type === 'GEMINI_ENABLE_SEND') {
+          var btn = document.querySelector('button.button--icon.btn.btn-primary.btn-sm');
+          if (!btn) btn = document.querySelector('.send-btn, .btn-send, [class*="send"][role="button"]');
+          if (btn) {
+            btn.disabled = false;
+            btn.style.pointerEvents = '';
+            btn.style.opacity = '';
+          }
+        }
+      });
+      // Poll every 50ms to continuously re-disable send button while blocking panel is active
+      // This is critical because React/SPA frameworks may re-enable the button attribute
+      setInterval(function() {
+        var panel = document.getElementById('gemini-suggestion-panel');
+        if (panel && panel.classList.contains('gemini-blocking-active')) {
+          var btn = document.querySelector('button.button--icon.btn.btn-primary.btn-sm');
+          if (!btn) btn = document.querySelector('.send-btn, .btn-send, [class*="send"][role="button"]');
+          if (btn) {
+            if (!btn.disabled) {
+              btn.disabled = true;
+            }
+            btn.style.pointerEvents = 'none';
+            btn.style.opacity = '0.5';
+          }
+        }
+      }, 50);
+      
+      // ALSO use MutationObserver to detect if button's disabled attribute is removed
+      var observer = new MutationObserver(function() {
+        var panel = document.getElementById('gemini-suggestion-panel');
+        if (panel && panel.classList.contains('gemini-blocking-active')) {
+          var btn = document.querySelector('button.button--icon.btn.btn-primary.btn-sm');
+          if (!btn) btn = document.querySelector('.send-btn, .btn-send, [class*="send"][role="button"]');
+          if (btn && !btn.disabled) {
+            btn.disabled = true;
+            btn.style.pointerEvents = 'none';
+            btn.style.opacity = '0.5';
+          }
+        }
+      });
+      observer.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['disabled'] });
+    })();`;
+    document.documentElement.appendChild(script);
+    script.remove();
+  }
+  injectBlockingScript();
+  // Add postMessage helpers to communicate with main world script
+  function postDisableSend() {
+    try {
+      window.postMessage({ type: 'GEMINI_DISABLE_SEND' }, '*');
+    } catch (e) { }
+  }
+  function postEnableSend() {
+    try {
+      window.postMessage({ type: 'GEMINI_ENABLE_SEND' }, '*');
+    } catch (e) { }
   }
 
   // ---------- CONFIG & CACHE ----------
@@ -1481,7 +1695,7 @@ function setChatText(el, text) {
     compiledData.forbidden = createRegex(forbiddenList);
 
     // Map to forbiddenWords for getAnalysis compatibility (supports word|exception format)
-    config.forbiddenWords = (config.forbiddenRules?.VI || []).map(r => 
+    config.forbiddenWords = (config.forbiddenRules?.VI || []).map(r =>
       r.word + (r.exception ? `|${r.exception}` : '')
     );
 
@@ -1532,7 +1746,7 @@ function setChatText(el, text) {
     const words2 = sSug.split(/(\s+)/);
 
     const pronounRegex = /(?<!\p{L})(anh[\s/]+chị|anh\s+chị|anh|chị)(?!\p{L})/giu;
-    
+
     const isWordInErrors = (word, list) => {
       if (!list || !list.length) return false;
       const c = word.trim().toLowerCase();
@@ -1576,7 +1790,7 @@ function setChatText(el, text) {
           html += `<span class="${cls}">${escapeHtml(w2)}</span>`;
         }
         // Sync
-        if (words1[i+1] && words1[i+1].normalize() === w2.normalize()) i += 2;
+        if (words1[i + 1] && words1[i + 1].normalize() === w2.normalize()) i += 2;
         else if (w1.trim() && w2.trim()) i++;
       }
     }
@@ -1808,7 +2022,7 @@ function setChatText(el, text) {
         }
         if (!response.ok) return;
         const categories = await response.json();
-        
+
         // Build map: ID -> { name, parentId }
         const newMap = {};
         categories.forEach(cat => {
@@ -1838,12 +2052,12 @@ function setChatText(el, text) {
    */
   function isCategoryAllowedForBrand(categoryId, currentBrandClean, categoryName = null) {
     const targetName = categoryName || (compiledData.categoryMap[categoryId] ? compiledData.categoryMap[categoryId].name : null);
-    
+
     if (targetName) {
       const cn = superClean(targetName);
       // Check if General
       if (cn.includes("chung") || cn.includes("general") || cn === "tatca") return true;
-      
+
       // Check if related to current brand
       if (currentBrandClean !== "general" && areBrandsRelated(cn, currentBrandClean, cachedConfig?.brandGroups)) {
         return true;
@@ -2291,6 +2505,10 @@ function setChatText(el, text) {
   }, true);
 
   function checkMacroConnectionStatusLabel() {
+    try {
+      if (typeof chrome === 'undefined' || !chrome.runtime?.id) return;
+    } catch (e) { return; }
+
     const targetDiv = Array.from(document.querySelectorAll(".justify-content-end.d-flex.col")).find(div => {
       return div.querySelector("svg polyline[points='15 3 21 3 21 9']") || div.querySelector("svg polyline[points='15 3 21 3 21 9']");
     });
@@ -2349,7 +2567,7 @@ function setChatText(el, text) {
       const isEditable = currentActiveTextarea.isContentEditable;
       const currentText = isEditable ? currentActiveTextarea.innerText : currentActiveTextarea.value;
       const newText = translatePronouns(currentText, targetPronoun);
-      
+
       if (currentText !== newText) {
         if (isEditable) {
           // For contenteditable, try to preserve cursor if possible, but simplest is full replace for this feature
@@ -2358,7 +2576,7 @@ function setChatText(el, text) {
           const start = currentActiveTextarea.selectionStart;
           const end = currentActiveTextarea.selectionEnd;
           currentActiveTextarea.value = newText;
-          currentActiveTextarea.selectionStart = start; 
+          currentActiveTextarea.selectionStart = start;
           currentActiveTextarea.selectionEnd = end;
         }
         currentActiveTextarea.dispatchEvent(new Event('input', { bubbles: true }));
@@ -2420,12 +2638,28 @@ function setChatText(el, text) {
   function injectMacroToolbarButton() {
     // Target: Thanh công cụ chat mà user đã gửi HTML
     const toolbar = document.querySelector(".text-left.d-flex.align-items-center.gap-2.col");
-    if (!toolbar || toolbar.querySelector(".gemini-quick-macro-trigger")) return;
+    if (!toolbar) return;
+
+    const parent = toolbar.parentElement;
+    if (!parent) return;
+
+    if (parent.querySelector(".gemini-toolbar-container")) return;
+
+    // Giữ cho toolbar của React không tự động giãn ra
+    toolbar.style.setProperty("flex", "0 0 auto", "important");
+    toolbar.style.setProperty("width", "auto", "important");
+
+    const geminiContainer = document.createElement("div");
+    // Gán class 'col' cho container của chúng ta để nó chiếm phần không gian còn lại
+    // d-flex và gap-2 giúp các nút bên trong tự động căn trái sát với toolbar cũ
+    geminiContainer.className = "gemini-toolbar-container d-flex align-items-center gap-2 col";
+    
+    parent.insertBefore(geminiContainer, toolbar.nextSibling);
 
     const span = document.createElement("span");
     span.className = "cursor-pointer gemini-quick-macro-trigger";
     span.title = "Tìm kiếm Macro";
-    
+
     // Icon SVG đồng bộ với style hệ thống của user (text-black-50, stroke-width 2)
     span.innerHTML = `
       <svg xmlns="http://www.w3.org/2000/svg" width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-black-50" style="margin-top: 3px;">
@@ -2444,7 +2678,7 @@ function setChatText(el, text) {
       openMacroSearchOverlay(span);
     });
 
-    toolbar.appendChild(span);
+    geminiContainer.appendChild(span);
 
     // --- Pronoun Buttons ---
     const ctx = getCurrentContext();
@@ -2460,19 +2694,19 @@ function setChatText(el, text) {
       pBtn.dataset.pronoun = pVal;
       pBtn.innerText = p;
       pBtn.title = `Chốt danh xưng: ${p}`;
-      
+
       pBtn.addEventListener("click", (e) => {
         e.stopPropagation();
         applyPronounChange(pVal);
       });
-      toolbar.appendChild(pBtn);
+      geminiContainer.appendChild(pBtn);
     });
 
     // --- Toolbar Warning Status ---
     const statusPill = document.createElement("div");
     statusPill.id = "gemini-toolbar-status";
     statusPill.className = "gemini-toolbar-status";
-    statusPill.style.display = "none"; 
+    statusPill.style.display = "none";
 
     statusPill.addEventListener("mouseenter", () => {
       if (currentAnalysis) {
@@ -2490,7 +2724,7 @@ function setChatText(el, text) {
     });
 
 
-    toolbar.appendChild(statusPill);
+    geminiContainer.appendChild(statusPill);
   }
 
   function injectGlobalMotivationMascot() {
@@ -2524,9 +2758,9 @@ function setChatText(el, text) {
     // Chèn vào giữa bookmark-wrapper và các icon bên phải
     const bookmarkWrapper = navbar.querySelector(".bookmark-wrapper");
     if (bookmarkWrapper && bookmarkWrapper.nextSibling) {
-        navbar.insertBefore(container, bookmarkWrapper.nextSibling);
+      navbar.insertBefore(container, bookmarkWrapper.nextSibling);
     } else {
-        navbar.appendChild(container);
+      navbar.appendChild(container);
     }
 
     const rotate = () => {
@@ -2544,7 +2778,7 @@ function setChatText(el, text) {
       container.style.opacity = "1";
       const firstText = container.querySelector("#gemini-motivation-text");
       if (firstText) firstText.style.opacity = "1";
-      
+
       if (motivationInterval) clearInterval(motivationInterval);
       motivationInterval = setInterval(rotate, 12000);
     }, 2000);
@@ -2594,19 +2828,19 @@ function setChatText(el, text) {
       statusPill.innerHTML = `⚠️ CÓ TỪ CẤM`;
       statusPill.classList.add("pulse", "critical");
       return;
-    } 
-    
+    }
+
     if (analysis.brands?.length > 0) {
       statusPill.innerHTML = `⚠️ SAI BRAND`;
       statusPill.classList.add("pulse", "critical");
       return;
-    } 
-    
+    }
+
     if (analysis.platforms?.length > 0) {
       statusPill.innerHTML = `⚠️ SAI SÀN`;
       statusPill.classList.add("pulse", "critical");
       return;
-    } 
+    }
 
     // 3. Minor Errors (Only if there are REAL grammar warnings or typo/formatting issues)
     // We ignore if it's just a slight difference in punctuation/spacing
@@ -2647,7 +2881,7 @@ function setChatText(el, text) {
         clearTimeout(searchTimer);
         searchTimer = setTimeout(() => execMacroSearch(e.target.value), 300);
       });
-      
+
       // Prevent closing when clicking inside
       macroSearchOverlay.addEventListener("mousedown", (e) => e.stopPropagation());
 
@@ -2680,7 +2914,7 @@ function setChatText(el, text) {
 
     const rect = triggerEl.getBoundingClientRect();
     macroSearchOverlay.style.display = "block";
-    
+
     if (userSavedMacroPosition) {
       macroSearchOverlay.style.top = userSavedMacroPosition.top;
       macroSearchOverlay.style.left = userSavedMacroPosition.left;
@@ -2693,7 +2927,7 @@ function setChatText(el, text) {
       macroSearchOverlay.style.left = `${Math.max(10, left)}px`;
 
       // Smart Top positioning (Above or Below)
-      const estimatedHeight = 420; 
+      const estimatedHeight = 420;
       if (rect.top > estimatedHeight) {
         macroSearchOverlay.style.top = `${rect.top - estimatedHeight - 10}px`;
       } else {
@@ -2711,14 +2945,22 @@ function setChatText(el, text) {
     const resultsDiv = macroSearchOverlay.querySelector("#macro-search-results");
     resultsDiv.innerHTML = '<div class="macro-loading">Đang tìm...</div>';
 
-    chrome.storage.sync.get(['macroAuthToken'], async (data) => {
+    chrome.storage.sync.get(['macroAuthToken', 'starredMacroIds'], async (data) => {
       if (!data.macroAuthToken) {
         resultsDiv.innerHTML = '<div class="macro-error">Vui lòng đăng nhập hệ thống Macro qua Popup extension.</div>';
         return;
       }
 
+      const starredArray = Array.isArray(data.starredMacroIds) ? data.starredMacroIds : [];
+      const localStarredSet = new Set(starredArray);
+
       try {
-        const response = await fetch(`${MACRO_API_BASE_URL}/macros/search?q=${encodeURIComponent(q)}`, {
+        // Pass brand context to API for server-side category filtering
+        const context = getCurrentContext();
+        const brandParam = context.currentBrand && context.currentBrand !== 'general'
+          ? `&brand=${encodeURIComponent(context.currentBrand)}`
+          : '';
+        const response = await fetch(`${MACRO_API_BASE_URL}/macros/search?q=${encodeURIComponent(q)}${brandParam}`, {
           headers: { 'Authorization': `Bearer ${data.macroAuthToken}` }
         });
 
@@ -2729,60 +2971,164 @@ function setChatText(el, text) {
         }
 
         const macros = await response.json();
-        const qLower = q.toLowerCase();
+        const qLower = q.toLowerCase().trim();
 
-        // SORT PRIORITY: Title Exact > Title Starts > Title Contains > Content Contains
+        // Merge backend and client-side starred state
+        macros.forEach(m => {
+          const mIdStr = m._id ? m._id.toString() : '';
+          if (m.isStarred) {
+            localStarredSet.add(mIdStr);
+          } else if (localStarredSet.has(mIdStr)) {
+            m.isStarred = true;
+          }
+        });
+        // Save synced starred set back to storage
+        chrome.storage.sync.set({ starredMacroIds: Array.from(localStarredSet) });
+
+        // SORT: Starred macros FIRST -> Title match -> A-Z alphabetical
         macros.sort((a, b) => {
+          const aStarred = Boolean(a.isStarred);
+          const bStarred = Boolean(b.isStarred);
+          if (aStarred && !bStarred) return -1;
+          if (!aStarred && bStarred) return 1;
+
           const aTitle = (a.title || "").toLowerCase();
           const bTitle = (b.title || "").toLowerCase();
-          const aContent = extractTextFromContent(a.content).toLowerCase();
-          const bContent = extractTextFromContent(b.content).toLowerCase();
-          
-          if (aTitle === qLower && bTitle !== qLower) return -1;
-          if (bTitle === qLower && aTitle !== qLower) return 1;
-          if (aTitle.startsWith(qLower) && !bTitle.startsWith(qLower)) return -1;
-          if (bTitle.startsWith(qLower) && !aTitle.startsWith(qLower)) return 1;
-          
-          const aInTitle = aTitle.includes(qLower);
-          const bInTitle = bTitle.includes(qLower);
-          if (aInTitle && !bInTitle) return -1;
-          if (!aInTitle && bInTitle) return 1;
 
-          const aInContent = aContent.includes(qLower);
-          const bInContent = bContent.includes(qLower);
-          if (aInContent && !bInContent) return -1;
-          if (!aInContent && bInContent) return 1;
-          
-          return 0;
+          if (qLower) {
+            // Priority: title match first, then content match
+            const aInTitle = aTitle.includes(qLower);
+            const bInTitle = bTitle.includes(qLower);
+            if (aInTitle && !bInTitle) return -1;
+            if (!aInTitle && bInTitle) return 1;
+          }
+
+          // A-Z alphabetical sort (Vietnamese-aware)
+          return aTitle.localeCompare(bTitle, 'vi');
         });
 
         resultsDiv.innerHTML = "";
-        const context = getCurrentContext();
-        const filteredMacros = macros.filter(m => isMacroValidForContext(m, context));
+        
+        // Client-side: filter by platform AND require search keyword to match title or content
+        const filteredMacros = macros.filter(m => {
+          if (!isPlatformValidForContext(m, context)) return false;
+          if (qLower) {
+            const title = (m.title || "").toLowerCase();
+            const plainText = extractTextFromContent(m.content).toLowerCase();
+            const matchesTitle = title.includes(qLower);
+            const matchesContent = plainText.includes(qLower);
+            if (!matchesTitle && !matchesContent) return false;
+          }
+          return true;
+        });
 
         if (filteredMacros.length === 0) {
-          const suffix = (macros.length > 0) ? " (Đã ẩn các mẫu sai sàn/brand)" : "";
+          const suffix = (macros.length > 0) ? " (Đã ẩn các mẫu không khớp từ khóa hoặc sai sàn)" : "";
           resultsDiv.innerHTML = `<div class="macro-empty">Hông thấy macro nào...${suffix}</div>`;
           return;
         }
+
+        const highlightSearchKeyword = (text, keyword) => {
+          if (!text) return "";
+          if (!keyword || !keyword.trim()) return escapeHtml(text);
+          const safeText = escapeHtml(text);
+          const escapedKw = escapeRegExp(keyword.trim());
+          const regex = new RegExp(`(${escapedKw})`, "gi");
+          return safeText.replace(regex, '<mark style="background: #fef08a; color: #854d0e; font-weight: 700; padding: 1px 3px; border-radius: 3px;">$1</mark>');
+        };
+
+        const getSnippetWithContext = (fullText, keyword, maxLength = 80) => {
+          if (!fullText) return "";
+          if (!keyword || !keyword.trim()) return fullText.substring(0, maxLength) + (fullText.length > maxLength ? "..." : "");
+
+          const kwLower = keyword.toLowerCase().trim();
+          const textLower = fullText.toLowerCase();
+          const index = textLower.indexOf(kwLower);
+
+          if (index === -1) {
+            return fullText.substring(0, maxLength) + (fullText.length > maxLength ? "..." : "");
+          }
+
+          const start = Math.max(0, index - 15);
+          const end = Math.min(fullText.length, start + maxLength);
+          let snippet = fullText.substring(start, end);
+
+          if (start > 0) snippet = "..." + snippet;
+          if (end < fullText.length) snippet = snippet + "...";
+
+          return snippet;
+        };
 
         filteredMacros.forEach(m => {
           const plainText = extractTextFromContent(m.content);
           const richHtml = renderMacroAsHtml(m.content);
           const div = document.createElement("div");
           div.className = "macro-search-item";
-          
+
           const categoryName = (m.category && m.category.name) ? m.category.name : (m.category || "Chưa phân loại");
-          
+
+          const titleHighlighted = highlightSearchKeyword(m.title, q);
+          const snippetText = getSnippetWithContext(plainText, q, 80);
+          const snippetHighlighted = highlightSearchKeyword(snippetText, q);
+
           div.innerHTML = `
-            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
               <div class="m-category-tag">${escapeHtml(categoryName)}</div>
-              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="opacity: 0.2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+              <div style="display: flex; align-items: center; gap: 4px;">
+                <button class="macro-star-btn ${m.isStarred ? 'starred' : ''}" title="${m.isStarred ? 'Bỏ đánh sao' : 'Đánh sao yêu thích'}" type="button">
+                  ${m.isStarred ? '⭐' : '☆'}
+                </button>
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="opacity: 0.2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+              </div>
             </div>
-            <strong>${escapeHtml(m.title)}</strong>
-            <p>${escapeHtml(plainText.substring(0, 70))}...</p>
+            <strong>${titleHighlighted}</strong>
+            <p>${snippetHighlighted}</p>
           `;
-          
+
+          const starBtn = div.querySelector('.macro-star-btn');
+          if (starBtn) {
+            starBtn.addEventListener('click', async (e) => {
+              e.stopPropagation(); // Stop macro selection
+              const mIdStr = m._id ? m._id.toString() : '';
+              m.isStarred = !m.isStarred;
+              starBtn.innerHTML = m.isStarred ? '⭐' : '☆';
+              starBtn.title = m.isStarred ? 'Bỏ đánh sao' : 'Đánh sao yêu thích';
+              if (m.isStarred) {
+                starBtn.classList.add('starred');
+              } else {
+                starBtn.classList.remove('starred');
+              }
+
+              // Save to local chrome storage sync immediately
+              chrome.storage.sync.get(['starredMacroIds'], async (stData) => {
+                const set = new Set(Array.isArray(stData.starredMacroIds) ? stData.starredMacroIds : []);
+                if (m.isStarred) {
+                  set.add(mIdStr);
+                } else {
+                  set.delete(mIdStr);
+                }
+                chrome.storage.sync.set({ starredMacroIds: Array.from(set) });
+
+                // Sync API with backend server in background
+                try {
+                  await fetch(`${MACRO_API_BASE_URL}/users/favorites/toggle`, {
+                    method: 'POST',
+                    headers: {
+                      'Content-Type': 'application/json',
+                      'Authorization': `Bearer ${data.macroAuthToken}`
+                    },
+                    body: JSON.stringify({ macroId: m._id })
+                  });
+                } catch (err) {
+                  console.error('Lỗi khi đồng bộ mẫu yêu thích lên server:', err);
+                }
+
+                // Re-run search to update priority sorting
+                execMacroSearch(input.value);
+              });
+            });
+          }
+
           div.addEventListener("mouseenter", () => {
             if (macroHideTimer) clearTimeout(macroHideTimer);
             if (macroFullPreview) {
@@ -2794,22 +3140,22 @@ function setChatText(el, text) {
                 `;
               }
               macroFullPreview.style.display = "block";
-              
+
               // Smart positioning
               const itemRect = div.getBoundingClientRect();
               const overlayRect = macroSearchOverlay.getBoundingClientRect();
-              
+
               let left = overlayRect.right + 12;
-              
+
               // If no space on right, show on left
               if (left + 420 > window.innerWidth) {
                 left = overlayRect.left - 422;
               }
-              
+
               // Vertical adjustment: Center relative to hovered item, then bound by viewport
               const previewHeight = macroFullPreview.offsetHeight || 380;
               let top = itemRect.top + (itemRect.height / 2) - (previewHeight / 2);
-              
+
               // Clamp top position (leave at least 20px margin from top and bottom)
               const minTop = 20;
               const maxTop = window.innerHeight - previewHeight - 20;
@@ -2836,7 +3182,7 @@ function setChatText(el, text) {
               headers: { 'Authorization': `Bearer ${data.macroAuthToken}` }
             }).then(res => {
               if (res.status === 401) chrome.storage.sync.remove(['macroAuthToken']);
-            }).catch(() => {});
+            }).catch(() => { });
           });
           resultsDiv.appendChild(div);
         });
@@ -2885,6 +3231,35 @@ function setChatText(el, text) {
 
 
   /* ---------- QUICK MACRO FILTERING ALGORITHM ---------- */
+
+  /**
+   * Platform-only filter for Quick Macro search.
+   * Brand filtering is now handled server-side via the API.
+   * This only checks if a macro mentions a different platform than the current one.
+   */
+  function isPlatformValidForContext(macro, context) {
+    if (!macro || !context) return true;
+
+    const title = (macro.title || "").toLowerCase();
+    const plainText = extractTextFromContent(macro.content).toLowerCase();
+    const curMarket = (context.currentMarketplace || "general").toLowerCase();
+
+    if (curMarket === "general") return true;
+
+    const platforms = ['shopee', 'lazada', 'tiktok', 'tiki'];
+    const otherPlatforms = platforms.filter(p => p !== curMarket);
+
+    for (const p of otherPlatforms) {
+      const regex = new RegExp(`(^|[^\\p{L}])${p}(?=[^\\p{L}]|$)`, 'iu');
+      if (regex.test(title) || regex.test(plainText)) {
+        // Only block if it does NOT also mention the current marketplace
+        const curMarketRegex = new RegExp(`(^|[^\\p{L}])${curMarket}(?=[^\\p{L}]|$)`, 'iu');
+        if (!curMarketRegex.test(title) && !curMarketRegex.test(plainText)) return false;
+      }
+    }
+    return true;
+  }
+
   function isMacroValidForContext(macro, context) {
     if (!macro || !context) return true;
 
@@ -2896,7 +3271,7 @@ function setChatText(el, text) {
     // 1. Platform Filtering Logic (Strict)
     const platforms = ['shopee', 'lazada', 'tiktok', 'tiki'];
     const otherPlatforms = platforms.filter(p => p !== curMarket);
-    
+
     for (const p of otherPlatforms) {
       const regex = new RegExp(`(^|[^\\p{L}])${p}(?=[^\\p{L}]|$)`, 'iu');
       if (regex.test(title) || regex.test(plainText)) {
@@ -2921,15 +3296,14 @@ function setChatText(el, text) {
     const catId = categoryObj._id || macro.category;
     const catName = categoryObj.name || (typeof macro.category === 'string' ? macro.category : "");
 
-    // Allowed if:
-    // a. Category lineage is General (Chung)
-    // b. Category lineage matches Current Brand
-    // c. It doesn't belong to ANY other brand (Global categories like Empathy)
-    
+    // 1. Cho phép hiển thị nếu Macro KHÔNG có category (coi như dùng chung)
+    if (!catId && !catName) return true;
+
     const isGeneral = isCategoryAllowedForBrand(catId, "general", catName);
     const isTargetBrand = isCategoryAllowedForBrand(catId, curBrandClean, catName);
 
-    // Chế độ WHIETLIST: CHỈ cho phép nếu là Macro Chung hoặc thuộc về đúng Brand hiện tại
+    // Bắt buộc dùng Danh Sách Trắng (Whitelist) để ngăn các brand không xác định (như Adidas) bị lọt vào
+    // Yêu cầu Category dùng chung PHẢI có chữ "Chung", "General" hoặc "Tất cả"
     return isGeneral || isTargetBrand;
   }
 
@@ -2954,7 +3328,7 @@ function setChatText(el, text) {
     if (!content) return "";
     let obj = content;
     if (typeof content === 'string' && (content.startsWith('{') || content.startsWith('['))) {
-      try { obj = JSON.parse(content); } catch(e) { obj = content; }
+      try { obj = JSON.parse(content); } catch (e) { obj = content; }
     }
     if (typeof obj === 'string') {
       // For legacy HTML macros, we want to see the formatting in preview
@@ -2964,18 +3338,18 @@ function setChatText(el, text) {
 
     const parseNode = (node) => {
       if (!node) return "";
-      
+
       // Text node
       if (typeof node.text === 'string') {
         let text = escapeHtml(stripHtml(node.text));
-        
+
         // Handle format (Lexical style)
         if (node.format) {
           if (node.format & 1) text = `<strong>${text}</strong>`; // Bold
           if (node.format & 2) text = `<em>${text}</em>`;   // Italic
           if (node.format & 8) text = `<u>${text}</u>`;   // Underline
         }
-        
+
         // Handle style (colors/highlights)
         if (node.style) {
           const styles = node.style.split(';').filter(s => s.trim());
@@ -3000,14 +3374,14 @@ function setChatText(el, text) {
       if (node.children && Array.isArray(node.children)) {
         const inner = node.children.map(parseNode).join("");
         const type = node.type;
-        
+
         switch (type) {
           case 'bulleted-list': case 'bullet': return `<ul style="margin: 4px 0; padding-left: 1.5em; list-style-type: disc; display: block;">${inner}</ul>`;
           case 'numbered-list': case 'number': return `<ol style="margin: 4px 0; padding-left: 1.5em; list-style-type: decimal; display: block;">${inner}</ol>`;
           case 'list-item': case 'listitem': return `<li style="display: list-item; margin-bottom: 2px;">${inner}</li>`;
-          case 'h1': case 'h2': case 'h3': case 'heading': 
+          case 'h1': case 'h2': case 'h3': case 'heading':
             return `<div style="font-weight: 800; font-size: 1.1em; margin: 10px 0 4px 0; display: block; color: #0f172a;">${inner}</div>`;
-          case 'quote': 
+          case 'quote':
             return `<blockquote style="border-left: 3px solid #e2e8f0; padding: 4px 12px; margin: 10px 0; color: #64748b; font-style: italic; display: block; background: #f8fafc;">${inner}</blockquote>`;
           case 'paragraph':
             // Use div with safe block display and controlled margin to restore structure
@@ -3025,7 +3399,7 @@ function setChatText(el, text) {
 
     try {
       return parseNode(obj);
-    } catch(e) {
+    } catch (e) {
       return "(Lỗi hiển thị nội dung)";
     }
   }
@@ -3038,26 +3412,26 @@ function setChatText(el, text) {
     }
 
     if (typeof obj === 'string') return stripHtml(obj);
-    
+
     try {
       const extract = (node) => {
         if (!node) return "";
         if (typeof node.text === 'string') return stripHtml(node.text);
-        
+
         if (Array.isArray(node)) {
           return node.map(extract).join("");
         }
-        
+
         if (node.children && Array.isArray(node.children)) {
           const childrenText = node.children.map(extract).join("");
           const blockTypes = ['paragraph', 'list-item', 'listitem', 'h1', 'h2', 'h3', 'quote', 'heading'];
-          
+
           // Use double newline for paragraphs and single for list items
           if (node.type === 'paragraph' || node.type === 'heading' || node.type === 'h1' || node.type === 'h2' || node.type === 'h3') {
-             return childrenText.trim() + "\n";
+            return childrenText.trim() + "\n";
           }
           if (blockTypes.includes(node.type)) return childrenText + "\n";
-          
+
           return childrenText;
         }
 
@@ -3065,7 +3439,7 @@ function setChatText(el, text) {
         if (node.type === 'linebreak' || node.type === 'tab') return "\n";
         return "";
       };
-      
+
       return extract(obj).replace(/\n{2,}/g, '\n').trim() || "(Không có nội dung)";
     } catch (e) {
       return "(Không có nội dung)";
@@ -3073,6 +3447,8 @@ function setChatText(el, text) {
   }
 
   // Global capture to block send click & submit
+  document.addEventListener("pointerdown", onGlobalPointerDownCapture, true);
+  document.addEventListener("mousedown", onGlobalMouseDownCapture, true);
   document.addEventListener("click", onGlobalClickCapture, true);
   document.addEventListener("submit", onFormSubmit, true);
   // Absoulte block: capture Enter at document level for any textarea
@@ -3088,13 +3464,13 @@ function setChatText(el, text) {
   // Auto-hide when clicking outside
   document.addEventListener("mousedown", (e) => {
     if (suggestionPanel && suggestionPanel.style.display !== "none") {
-        if (geminiOverlay && geminiOverlay.style.display !== "none") return;
-        const isInsidePanel = suggestionPanel.contains(e.target);
-        const isInsideTextarea = currentActiveTextarea && (currentActiveTextarea.contains(e.target) || e.target === currentActiveTextarea);
+      if (geminiOverlay && geminiOverlay.style.display !== "none") return;
+      const isInsidePanel = suggestionPanel.contains(e.target);
+      const isInsideTextarea = currentActiveTextarea && (currentActiveTextarea.contains(e.target) || e.target === currentActiveTextarea);
 
-        if (!isInsidePanel && !isInsideTextarea) {
-          hideUI();
-        }
+      if (!isInsidePanel && !isInsideTextarea) {
+        hideUI();
+      }
     }
 
     // Auto-hide Macro Overlay
