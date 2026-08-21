@@ -3060,7 +3060,10 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
           return snippet;
         };
 
-        filteredMacros.forEach(m => {
+        const MAX_DISPLAY = 20;
+        const displayMacros = filteredMacros.slice(0, MAX_DISPLAY);
+
+        displayMacros.forEach(m => {
           const plainText = extractTextFromContent(m.content);
           const richHtml = renderMacroAsHtml(m.content);
           const div = document.createElement("div");
@@ -3187,6 +3190,13 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
           });
           resultsDiv.appendChild(div);
         });
+
+        if (filteredMacros.length > MAX_DISPLAY) {
+          const footerInfo = document.createElement("div");
+          footerInfo.style.cssText = "text-align: center; padding: 10px 6px; font-size: 11px; color: #94a3b8; font-weight: 600; border-top: 1px dashed rgba(0,0,0,0.06); margin-top: 6px; user-select: none;";
+          footerInfo.textContent = `Hiển thị Top 20 / ${filteredMacros.length} kết quả (nhập từ khóa để thu hẹp tìm kiếm)`;
+          resultsDiv.appendChild(footerInfo);
+        }
       } catch (err) {
         resultsDiv.innerHTML = '<div class="macro-error">Lỗi kết nối hệ thống Macro.</div>';
       }
