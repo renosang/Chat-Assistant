@@ -67,11 +67,18 @@ document.addEventListener('DOMContentLoaded', () => {
     showMessage(syncMessage, '', ''); // Clear previous
 
     chrome.runtime.sendMessage({ action: "reloadConfig" }, (response) => {
-      // Background usually sends 'fetching'
-      // We'll wait a brief moment to show success if no errors
+      // Broadcast to all active tabs to clear macro cache immediately
+      chrome.tabs.query({}, (tabs) => {
+        tabs.forEach(tab => {
+          if (tab.id) {
+            chrome.tabs.sendMessage(tab.id, { action: "clearMacroCache" }).catch(() => {});
+          }
+        });
+      });
+
       setTimeout(() => {
         setLoading(btnSync, false, 'Đồng bộ cấu hình');
-        showMessage(syncMessage, 'Đã đồng bộ thành công!', 'green');
+        showMessage(syncMessage, 'Đã đồng bộ thành công và xóa bộ nhớ đệm!', 'green');
 
         // RE-CHECK VERSION AFTER SYNC
         checkAuthStatus();

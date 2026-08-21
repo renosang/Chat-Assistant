@@ -2848,6 +2848,16 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
   let cachedMacrosList = null;
   let cachedBrandContext = null;
 
+  try {
+    chrome.runtime.onMessage.addListener((message) => {
+      if (message && message.action === "clearMacroCache") {
+        cachedMacrosList = null;
+        cachedBrandContext = null;
+        console.log("[Gemini] Macro cache cleared via Popup sync.");
+      }
+    });
+  } catch (e) {}
+
   function openMacroSearchOverlay(triggerEl) {
     if (!macroSearchOverlay) {
       macroSearchOverlay = document.createElement("div");
