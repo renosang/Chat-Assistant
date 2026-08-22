@@ -402,20 +402,26 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // --- ACCENT COLOR & FONT SIZE HANDLERS ---
+  // --- ACCENT, BG, TEXT COLOR & FONT SIZE HANDLERS ---
   const accentDots = document.querySelectorAll('.accent-dot');
-  const fontSizeBtns = document.querySelectorAll('.font-size-btn');
+  const bgDots = document.querySelectorAll('.bg-dot');
+  const textColorDots = document.querySelectorAll('.textColor-dot');
+  const fontSizeRange = document.getElementById('fontSizeRange');
+  const fontSizeVal = document.getElementById('fontSizeVal');
 
-  chrome.storage.sync.get(['themeAccent', 'chatFontSize'], (data) => {
+  chrome.storage.sync.get(['themeAccent', 'customBgColor', 'customTextColor', 'chatFontSize'], (data) => {
     if (data.themeAccent) {
-      accentDots.forEach(dot => {
-        dot.classList.toggle('active', dot.dataset.accent === data.themeAccent);
-      });
+      accentDots.forEach(dot => dot.classList.toggle('active', dot.dataset.accent === data.themeAccent));
     }
-    if (data.chatFontSize) {
-      fontSizeBtns.forEach(btn => {
-        btn.classList.toggle('active', btn.dataset.size === data.chatFontSize);
-      });
+    if (data.customBgColor) {
+      bgDots.forEach(dot => dot.classList.toggle('active', dot.dataset.bg === data.customBgColor));
+    }
+    if (data.customTextColor) {
+      textColorDots.forEach(dot => dot.classList.toggle('active', dot.dataset.color === data.customTextColor));
+    }
+    if (data.chatFontSize && fontSizeRange && fontSizeVal) {
+      fontSizeRange.value = data.chatFontSize;
+      fontSizeVal.textContent = data.chatFontSize + 'px';
     }
   });
 
@@ -429,15 +435,35 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  fontSizeBtns.forEach(btn => {
-    btn.addEventListener('click', () => {
-      const selectedSize = btn.dataset.size;
-      fontSizeBtns.forEach(b => b.classList.toggle('active', b.dataset.size === selectedSize));
-      chrome.storage.sync.set({ chatFontSize: selectedSize }, () => {
-        notifyTabsSettingChange('FONT_SIZE_CHANGED', { fontSize: selectedSize });
+  bgDots.forEach(dot => {
+    dot.addEventListener('click', () => {
+      const selectedBg = dot.dataset.bg;
+      bgDots.forEach(d => d.classList.toggle('active', d.dataset.bg === selectedBg));
+      chrome.storage.sync.set({ customBgColor: selectedBg }, () => {
+        notifyTabsSettingChange('CUSTOM_BG_CHANGED', { bgColor: selectedBg });
       });
     });
   });
+
+  textColorDots.forEach(dot => {
+    dot.addEventListener('click', () => {
+      const selectedColor = dot.dataset.color;
+      textColorDots.forEach(d => d.classList.toggle('active', d.dataset.color === selectedColor));
+      chrome.storage.sync.set({ customTextColor: selectedColor }, () => {
+        notifyTabsSettingChange('CUSTOM_TEXT_COLOR_CHANGED', { textColor: selectedColor });
+      });
+    });
+  });
+
+  if (fontSizeRange) {
+    fontSizeRange.addEventListener('input', (e) => {
+      const val = e.target.value;
+      if (fontSizeVal) fontSizeVal.textContent = val + 'px';
+      chrome.storage.sync.set({ chatFontSize: val }, () => {
+        notifyTabsSettingChange('FONT_SIZE_CHANGED', { fontSize: val });
+      });
+    });
+  }
 
   function notifyTabsSettingChange(action, data) {
     chrome.tabs.query({}, (tabs) => {

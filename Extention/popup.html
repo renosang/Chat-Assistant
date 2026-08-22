@@ -69,13 +69,13 @@
         <!-- TAB NAV HEADER -->
         <div class="popup-nav-tabs">
           <button id="tabAssistantBtn" class="popup-nav-btn active" data-tab="tabAssistantContent">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
             </svg>
             <span>Trợ lý & Hệ thống</span>
           </button>
           <button id="tabDisplayBtn" class="popup-nav-btn" data-tab="tabDisplayContent">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
             </svg>
             <span>Giao diện & Mắt</span>
@@ -234,8 +234,8 @@
             </div>
 
             <!-- Accent Color Selection -->
-            <div class="setting-group-section" style="margin-top: 10px; border-top: 1px solid #edf2f7; padding-top: 8px;">
-              <label class="setting-sublabel" style="font-size: 9px; font-weight: 800; color: #64748b; display: block; margin-bottom: 6px;">MÀU NHẤN DARK MODE</label>
+            <div class="setting-group-section" style="margin-top: 8px; border-top: 1px solid #edf2f7; padding-top: 6px;">
+              <label class="setting-sublabel" style="font-size: 9px; font-weight: 800; color: #64748b; display: block; margin-bottom: 4px;">MÀU NHẤN (ACCENT)</label>
               <div class="accent-picker-row">
                 <button class="accent-dot active" data-accent="indigo" style="background: #6366f1;" title="Tím Chàm Indigo"></button>
                 <button class="accent-dot" data-accent="emerald" style="background: #10b981;" title="Xanh Lá Emerald"></button>
@@ -244,18 +244,41 @@
               </div>
             </div>
 
-            <!-- Font Size Selection -->
-            <div class="setting-group-section" style="margin-top: 10px; border-top: 1px solid #edf2f7; padding-top: 8px;">
-              <label class="setting-sublabel" style="font-size: 9px; font-weight: 800; color: #64748b; display: block; margin-bottom: 6px;">CỠ CHỮ TIN NHẮN CHAT</label>
-              <div class="font-size-grid">
-                <button class="font-size-btn" data-size="13">13px (Nhỏ)</button>
-                <button class="font-size-btn active" data-size="15">15px (Vừa)</button>
-                <button class="font-size-btn" data-size="17">17px (Lớn)</button>
+            <!-- Custom Background Color Selection -->
+            <div class="setting-group-section" style="margin-top: 8px; border-top: 1px solid #edf2f7; padding-top: 6px;">
+              <label class="setting-sublabel" style="font-size: 9px; font-weight: 800; color: #64748b; display: block; margin-bottom: 4px;">MÀU NỀN DARK MODE</label>
+              <div class="accent-picker-row">
+                <button class="bg-dot active" data-bg="#0f172a" style="background: #0f172a;" title="Midnight Slate"></button>
+                <button class="bg-dot" data-bg="#090d16" style="background: #090d16;" title="Pitch Black"></button>
+                <button class="bg-dot" data-bg="#182234" style="background: #182234;" title="Slate Blue"></button>
+                <button class="bg-dot" data-bg="#121212" style="background: #121212;" title="Charcoal Dark"></button>
+              </div>
+            </div>
+
+            <!-- Custom Text Color Selection -->
+            <div class="setting-group-section" style="margin-top: 8px; border-top: 1px solid #edf2f7; padding-top: 6px;">
+              <label class="setting-sublabel" style="font-size: 9px; font-weight: 800; color: #64748b; display: block; margin-bottom: 4px;">MÀU CHỮ DARK MODE</label>
+              <div class="accent-picker-row">
+                <button class="textColor-dot active" data-color="#ffffff" style="background: #ffffff;" title="Trắng Tinh"></button>
+                <button class="textColor-dot" data-color="#e2e8f0" style="background: #e2e8f0;" title="Bạc Sáng"></button>
+                <button class="textColor-dot" data-color="#fef08a" style="background: #fef08a;" title="Vàng Ấm"></button>
+                <button class="textColor-dot" data-color="#e0f2fe" style="background: #e0f2fe;" title="Xanh Ngọc"></button>
+              </div>
+            </div>
+
+            <!-- Font Size Range Slider (11px - 19px) -->
+            <div class="setting-group-section" style="margin-top: 8px; border-top: 1px solid #edf2f7; padding-top: 6px;">
+              <label class="setting-sublabel" style="font-size: 9px; font-weight: 800; color: #64748b; display: block; margin-bottom: 4px;">CỠ CHỮ TOÀN TRANG (11px - 19px)</label>
+              <div class="dimmer-box">
+                <span style="font-size: 10px; font-weight: 700; color: #64748b;">A-</span>
+                <input type="range" id="fontSizeRange" min="11" max="19" value="15" step="1" title="Cỡ chữ toàn trang (11px - 19px)">
+                <span style="font-size: 12px; font-weight: 800; color: #6366f1;">A+</span>
+                <span id="fontSizeVal" class="dimmer-val">15px</span>
               </div>
             </div>
 
             <!-- Hotkey & Scrollbar Info -->
-            <div style="margin-top: 10px; text-align: center; background: #f8fafc; border-radius: 12px; padding: 6px; font-size: 10px; color: #64748b; font-weight: 700;">
+            <div style="margin-top: 8px; text-align: center; background: #f8fafc; border-radius: 12px; padding: 5px; font-size: 10px; color: #64748b; font-weight: 700;">
               ⌨️ Phím tắt: <strong style="color: #6366f1;">Alt + Shift + D</strong>
             </div>
           </div>

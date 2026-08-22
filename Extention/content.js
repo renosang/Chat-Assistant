@@ -2719,6 +2719,8 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
 
   let cachedAccent = 'indigo';
   let cachedFontSize = '15';
+  let cachedBgColor = '#0f172a';
+  let cachedTextColor = '#ffffff';
 
   function applyThemeAccent(accent) {
     if (accent) cachedAccent = accent;
@@ -2735,19 +2737,46 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
     }
   }
 
-  function applyChatFontSize(fontSize) {
-    if (fontSize) cachedFontSize = fontSize;
-    const size = `${cachedFontSize}px`;
-    const chatTexts = document.querySelectorAll('.chat-content p, .chat-body p, .chat-item__content p, textarea#chat-input');
-    chatTexts.forEach(t => {
-      t.style.setProperty('font-size', size, 'important');
+  function applyCustomBgColor(bgColor) {
+    if (bgColor) cachedBgColor = bgColor;
+    if (!document.documentElement.classList.contains("gemini-dark-mode")) return;
+    
+    document.documentElement.style.setProperty('--gemini-custom-bg', cachedBgColor);
+    const darkContainers = document.querySelectorAll('.chat-application, .main-menu, .chat-sidebar, .customer-detail, .chat-users__room, .modal-content, .card');
+    darkContainers.forEach(c => {
+      c.style.setProperty('background-color', cachedBgColor, 'important');
+      c.style.setProperty('background', cachedBgColor, 'important');
     });
   }
 
-  // Read initial theme mode, dimmer, accent & font size
-  chrome.storage.sync.get(['themeMode', 'dimmerValue', 'themeAccent', 'chatFontSize'], (data) => {
+  function applyCustomTextColor(textColor) {
+    if (textColor) cachedTextColor = textColor;
+    if (!document.documentElement.classList.contains("gemini-dark-mode")) return;
+    
+    document.documentElement.style.setProperty('--gemini-custom-text', cachedTextColor);
+    const darkTexts = document.querySelectorAll('.chat-content p, .chat-body p, .contact-name, .hermes-title, .hermes-message__title-order');
+    darkTexts.forEach(t => {
+      t.style.setProperty('color', cachedTextColor, 'important');
+    });
+  }
+
+  function applyChatFontSize(fontSize) {
+    if (fontSize) cachedFontSize = fontSize;
+    const size = `${cachedFontSize}px`;
+    const pageTexts = document.querySelectorAll('body, p, span, div, td, th, a, button, input, textarea, .chat-content, .message__content, .hermes-title');
+    pageTexts.forEach(t => {
+      if (!t.closest('.gemini-motivation-bubble') && !t.classList.contains('badge') && !t.classList.contains('badge-sm')) {
+        t.style.setProperty('font-size', size, 'important');
+      }
+    });
+  }
+
+  // Read initial theme mode, dimmer, accent, bg, textColor & font size
+  chrome.storage.sync.get(['themeMode', 'dimmerValue', 'themeAccent', 'customBgColor', 'customTextColor', 'chatFontSize'], (data) => {
     applyDisplayMode(data.themeMode || 'light', data.dimmerValue || 100);
     if (data.themeAccent) applyThemeAccent(data.themeAccent);
+    if (data.customBgColor) applyCustomBgColor(data.customBgColor);
+    if (data.customTextColor) applyCustomTextColor(data.customTextColor);
     if (data.chatFontSize) applyChatFontSize(data.chatFontSize);
   });
 
@@ -2786,6 +2815,14 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
     }
     if (request.action === "ACCENT_CHANGED") {
       applyThemeAccent(request.accent);
+      return;
+    }
+    if (request.action === "CUSTOM_BG_CHANGED") {
+      applyCustomBgColor(request.bgColor);
+      return;
+    }
+    if (request.action === "CUSTOM_TEXT_COLOR_CHANGED") {
+      applyCustomTextColor(request.textColor);
       return;
     }
     if (request.action === "FONT_SIZE_CHANGED") {

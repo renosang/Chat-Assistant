@@ -710,7 +710,8 @@ body {
   gap: 3px;
 }
 
-.popup-tab-btn {
+.popup-tab-btn,
+.popup-nav-btn {
   flex: 1;
   display: flex;
   align-items: center;
@@ -729,13 +730,22 @@ body {
   transition: all 0.2s ease;
 }
 
-.popup-tab-btn svg {
-  width: 14px;
-  height: 14px;
-  stroke: currentColor;
+.popup-tab-btn svg,
+.popup-nav-btn svg {
+  width: 15px !important;
+  height: 15px !important;
+  min-width: 15px !important;
+  max-width: 15px !important;
+  min-height: 15px !important;
+  max-height: 15px !important;
+  stroke: currentColor !important;
+  stroke-width: 2px !important;
+  flex-shrink: 0 !important;
+  display: inline-block !important;
 }
 
-.popup-tab-btn.active {
+.popup-tab-btn.active,
+.popup-nav-btn.active {
   background: white !important;
   color: var(--p) !important;
   border: 1px solid #e2e8f0 !important;
@@ -752,37 +762,44 @@ body {
   animation: fadeIn 0.3s ease-out;
 }
 
-/* Accent color picker */
+/* Accent, Background & Text Color pickers */
 .accent-picker-row {
   display: flex;
   gap: 8px;
   justify-content: space-between;
-  margin-top: 8px;
+  margin-top: 6px;
 }
 
-.accent-dot {
-  width: 28px;
-  height: 28px;
+.accent-dot,
+.bg-dot,
+.textColor-dot {
+  width: 24px;
+  height: 24px;
   border-radius: 50%;
   border: 2px solid transparent;
   cursor: pointer;
   transition: transform 0.2s ease, border-color 0.2s ease;
 }
 
-.accent-dot:hover {
-  transform: scale(1.15);
+.accent-dot:hover,
+.bg-dot:hover,
+.textColor-dot:hover {
+  transform: scale(1.2);
 }
 
-.accent-dot.active {
-  border-color: var(--text);
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+.accent-dot.active,
+.bg-dot.active,
+.textColor-dot.active {
+  border-color: #334155;
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.25);
+  transform: scale(1.1);
 }
 
 /* Font size selector */
 .font-size-grid {
   display: flex;
   gap: 6px;
-  margin-top: 8px;
+  margin-top: 6px;
 }
 
 .font-size-btn {

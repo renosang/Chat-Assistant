@@ -2102,6 +2102,22 @@ html.gemini-dark-mode *::-webkit-scrollbar-thumb:hover {
   background: #475569 !important;
 }
 
+/* --- HERMES PRODUCT & ORDER CARD TITLE FIX --- */
+html.gemini-dark-mode .hermes-message__title-order,
+html.gemini-dark-mode .hermes-title,
+html.gemini-dark-mode .message-customer-order,
+html.gemini-dark-mode .message-customer-order *,
+html.gemini-dark-mode .message__product-info,
+html.gemini-dark-mode .message__product-info *,
+html.gemini-dark-mode [class*="hermes-"] {
+  color: #ffffff !important;
+}
+
+html.gemini-dark-mode .message__product-img-wrapper {
+  background-color: #0f172a !important;
+  border-radius: 6px !important;
+}
+
 /* Toast Notification for Hotkey */
 .gemini-theme-toast {
   position: fixed;
