@@ -668,10 +668,18 @@ body::-webkit-scrollbar,
 }
 
 .card-label-row label {
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 800;
   color: var(--muted);
   letter-spacing: 0.03em;
+}
+
+.setting-sublabel {
+  font-size: 11px !important;
+  font-weight: 800 !important;
+  color: #64748b !important;
+  display: block;
+  margin-bottom: 4px;
 }
 
 .theme-mode-grid {
@@ -697,13 +705,13 @@ body::-webkit-scrollbar,
 }
 
 .theme-mode-btn svg {
-  width: 18px;
-  height: 18px;
+  width: 20px;
+  height: 20px;
   stroke: currentColor;
 }
 
 .theme-mode-btn span {
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 700;
 }
 
@@ -764,10 +772,10 @@ body::-webkit-scrollbar,
 }
 
 .dimmer-val {
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 800;
   color: var(--text);
-  min-width: 32px;
+  min-width: 36px;
   text-align: right;
 }
 
@@ -943,7 +951,7 @@ body::-webkit-scrollbar,
 }
 
 .preset-title {
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 800;
   color: var(--text);
 }
@@ -953,12 +961,12 @@ body::-webkit-scrollbar,
   background: white;
   border: 1px solid #edf2f7;
   border-radius: 16px;
-  padding: 8px 10px;
+  padding: 10px 12px;
   margin-bottom: 8px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
+  gap: 10px;
   transition: all 0.2s ease;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.02);
 }
@@ -972,7 +980,7 @@ body::-webkit-scrollbar,
 .feature-info {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 3px;
   flex: 1;
 }
 
@@ -983,24 +991,24 @@ body::-webkit-scrollbar,
 }
 
 .feature-title-row svg {
-  width: 14px;
-  height: 14px;
+  width: 16px;
+  height: 16px;
   color: var(--p);
   flex-shrink: 0;
 }
 
 .feature-title {
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 800;
   color: var(--text);
 }
 
 .feature-desc {
-  font-size: 9.5px;
+  font-size: 11.5px;
   font-weight: 600;
   color: var(--muted);
-  line-height: 1.3;
-  padding-left: 20px;
+  line-height: 1.35;
+  padding-left: 22px;
 }
 
 /* TOGGLE SWITCH */
