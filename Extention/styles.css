@@ -1691,6 +1691,71 @@ html.gemini-dark-mode .gemini-pronoun-quick-btn.active {
   border-color: #6366f1 !important;
 }
 
+/* --- SYSTEM MESSAGES TEXT COLOR FIX --- */
+html.gemini-dark-mode .chat-item__content--message-system,
+html.gemini-dark-mode .chat-item__content--message-system *,
+html.gemini-dark-mode .message-system,
+html.gemini-dark-mode [class*="message-system"] {
+  color: #94a3b8 !important;
+  background-color: transparent !important;
+  background: transparent !important;
+  font-weight: 600 !important;
+}
+
+/* --- CHANNEL ACTIVE ITEM FIX (.channel-items__el.active) --- */
+html.gemini-dark-mode .channel-items__el,
+html.gemini-dark-mode .channel-items__el.active,
+html.gemini-dark-mode [class*="channel-items"] .active {
+  background-color: #334155 !important;
+  background: #334155 !important;
+  border-color: #475569 !important;
+}
+
+html.gemini-dark-mode .channel-items__el.active .channel-name,
+html.gemini-dark-mode .channel-items__el .channel-name {
+  color: #ffffff !important;
+}
+
+/* --- MAIN MENU ACTIVE ITEM FIX (.side-menu-item.active) --- */
+html.gemini-dark-mode .nav-item.side-menu-item.active,
+html.gemini-dark-mode .nav-item.side-menu-item.active a,
+html.gemini-dark-mode li.side-menu-item.active,
+html.gemini-dark-mode li.side-menu-item.active a {
+  background-color: #312e81 !important;
+  background: #312e81 !important;
+  color: #ffffff !important;
+  border-radius: 8px !important;
+}
+
+html.gemini-dark-mode .side-menu-item.active svg,
+html.gemini-dark-mode .side-menu-item.active span,
+html.gemini-dark-mode .side-menu-item.active .menu-item {
+  color: #ffffff !important;
+}
+
+/* --- RIGHT SIDEBAR TAB BUTTONS FIX (.btn-group .btn-outline-secondary) --- */
+html.gemini-dark-mode .customer-info .btn-group .btn,
+html.gemini-dark-mode .customer-info .btn-group .btn-outline-secondary,
+html.gemini-dark-mode .btn-group .btn-outline-secondary {
+  background-color: #0f172a !important;
+  background: #0f172a !important;
+  color: #94a3b8 !important;
+  border-color: #334155 !important;
+}
+
+html.gemini-dark-mode .customer-info .btn-group .btn.active,
+html.gemini-dark-mode .customer-info .btn-group .btn-outline-secondary.active,
+html.gemini-dark-mode .btn-group .btn-outline-secondary.active {
+  background-color: #6366f1 !important;
+  background: #6366f1 !important;
+  color: #ffffff !important;
+  border-color: #6366f1 !important;
+}
+
+html.gemini-dark-mode .btn-outline-secondary span {
+  color: inherit !important;
+}
+
 /* Toast Notification for Hotkey */
 .gemini-theme-toast {
   position: fixed;

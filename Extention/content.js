@@ -2556,8 +2556,49 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
     // 4. Ensure all message texts in chat body are visible
     const chatTexts = document.querySelectorAll('.chat-content p, .chat-body p, .chat-body span, .chat-content span, [class*="chat"] p, [class*="message"] p, .contact-name');
     chatTexts.forEach(t => {
-      if (!t.classList.contains('gemini-motivation-bubble')) {
+      if (!t.classList.contains('gemini-motivation-bubble') && !t.classList.contains('message-system') && !t.closest('.chat-item__content--message-system')) {
         t.style.setProperty('color', '#ffffff', 'important');
+      }
+    });
+
+    // 5. System messages text color fix (.message-system)
+    const sysMsgs = document.querySelectorAll('.chat-item__content--message-system, .message-system, [class*="message-system"]');
+    sysMsgs.forEach(sm => {
+      sm.style.setProperty('color', '#94a3b8', 'important');
+      sm.style.setProperty('font-weight', '600', 'important');
+    });
+
+    // 6. Active Channel item (.channel-items__el.active)
+    const activeChannels = document.querySelectorAll('.channel-items__el.active, [class*="channel-items"] .active');
+    activeChannels.forEach(ch => {
+      ch.style.setProperty('background-color', '#334155', 'important');
+      ch.style.setProperty('background', '#334155', 'important');
+      ch.style.setProperty('border-color', '#475569', 'important');
+      const nameEl = ch.querySelector('.channel-name');
+      if (nameEl) nameEl.style.setProperty('color', '#ffffff', 'important');
+    });
+
+    // 7. Active Side Menu Item (.side-menu-item.active)
+    const activeSideMenus = document.querySelectorAll('.side-menu-item.active, .nav-item.side-menu-item.active a');
+    activeSideMenus.forEach(sm => {
+      sm.style.setProperty('background-color', '#312e81', 'important');
+      sm.style.setProperty('background', '#312e81', 'important');
+      sm.style.setProperty('color', '#ffffff', 'important');
+    });
+
+    // 8. Right sidebar tab buttons (.btn-outline-secondary)
+    const tabBtns = document.querySelectorAll('.customer-info .btn-group .btn, .btn-outline-secondary');
+    tabBtns.forEach(tb => {
+      if (tb.classList.contains('active')) {
+        tb.style.setProperty('background-color', '#6366f1', 'important');
+        tb.style.setProperty('background', '#6366f1', 'important');
+        tb.style.setProperty('color', '#ffffff', 'important');
+        tb.style.setProperty('border-color', '#6366f1', 'important');
+      } else {
+        tb.style.setProperty('background-color', '#0f172a', 'important');
+        tb.style.setProperty('background', '#0f172a', 'important');
+        tb.style.setProperty('color', '#94a3b8', 'important');
+        tb.style.setProperty('border-color', '#334155', 'important');
       }
     });
   }
