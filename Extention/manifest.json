@@ -5,13 +5,19 @@
   "description": "Hệ thống kiểm duyệt Onpoint - Tích hợp nhận diện Brand & Sàn đa nền tảng.",
   "permissions": [
     "storage",
-    "alarms"
+    "alarms",
+    "activeTab",
+    "scripting"
   ],
   "host_permissions": [
     "https://api.beegadget.net/*",
     "https://macro.beegadget.net/*",
-    "*://admin.onpoint.vn/*",
-    "*://admin.opollo.vn/*"
+    "*://*.onpoint.vn/*",
+    "*://*.opollo.vn/*",
+    "*://*.lazada.vn/*",
+    "*://*.shopee.vn/*",
+    "*://*.tiktok.com/*",
+    "<all_urls>"
   ],
   "background": {
     "service_worker": "background.js",
@@ -20,11 +26,12 @@
   "content_scripts": [
     {
       "matches": [
-        "https://admin.onpoint.vn/*",
-        "https://admin.opollo.vn/*",
-        "https://sellercenter.lazada.vn/*",
-        "https://banhang.shopee.vn/*",
-        "https://seller-vn.tiktok.com/*"
+        "*://*.onpoint.vn/*",
+        "*://*.opollo.vn/*",
+        "*://*.lazada.vn/*",
+        "*://*.shopee.vn/*",
+        "*://*.tiktok.com/*",
+        "<all_urls>"
       ],
       "js": [
         "content.js"
@@ -32,7 +39,8 @@
       "css": [
         "styles.css"
       ],
-      "all_frames": true
+      "all_frames": true,
+      "run_at": "document_start"
     }
   ],
   "action": {

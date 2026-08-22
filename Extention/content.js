@@ -2940,15 +2940,16 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
             } catch(e) {}
           });
 
-          // Nuke inline style user-select: none
-          const noSelectEls = document.querySelectorAll('[style*="user-select"], [oncontextmenu], [onselectstart], [oncopy], [ondragstart]');
+          // Nuke inline style user-select: none & pointer-events: none on TikTok Shop and protected sites
+          const noSelectEls = document.querySelectorAll('[style*="user-select"], [style*="pointer-events"], [oncontextmenu], [onselectstart], [oncopy], [ondragstart], div, span, p, a, td, th');
           noSelectEls.forEach(el => {
             try {
               el.removeAttribute('oncontextmenu');
               el.removeAttribute('onselectstart');
               el.removeAttribute('oncopy');
               el.removeAttribute('ondragstart');
-              if (el.style.userSelect === 'none' || el.style.webkitUserSelect === 'none') {
+              const comp = window.getComputedStyle(el);
+              if (comp.userSelect === 'none' || comp.webkitUserSelect === 'none') {
                 el.style.setProperty('user-select', 'text', 'important');
                 el.style.setProperty('-webkit-user-select', 'text', 'important');
               }
