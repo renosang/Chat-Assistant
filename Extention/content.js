@@ -2919,83 +2919,19 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
     });
   }
 
-  // ---------- ULTIMATE ALLOW COPY & UNLOCK SELECTION ENGINE ----------
+  // ---------- TIKTOK SHOP ALLOW COPY & UNLOCK SELECTION ENGINE ----------
   let cachedAllowCopy = true;
   let cachedAutoCapitalize = true;
   let cachedCleanPaste = true;
-
-  function injectMainWorldUnblockScript() {
-    const scriptId = "gemini-main-world-allow-copy";
-    if (document.getElementById(scriptId)) return;
-
-    const script = document.createElement("script");
-    script.id = scriptId;
-    script.textContent = `
-      (function() {
-        const eventsToUnblock = ['contextmenu', 'selectstart', 'copy', 'cut', 'dragstart', 'mousedown', 'mouseup', 'keydown', 'keyup'];
-        
-        function nukeInlineHandlers() {
-          eventsToUnblock.forEach(evt => {
-            try {
-              if (document['on' + evt]) document['on' + evt] = null;
-              if (window['on' + evt]) window['on' + evt] = null;
-              if (document.body && document.body['on' + evt]) document.body['on' + evt] = null;
-            } catch(e) {}
-          });
-
-          // Nuke inline style user-select: none & pointer-events: none on TikTok Shop and protected sites
-          const noSelectEls = document.querySelectorAll('[style*="user-select"], [style*="pointer-events"], [oncontextmenu], [onselectstart], [oncopy], [ondragstart], div, span, p, a, td, th');
-          noSelectEls.forEach(el => {
-            try {
-              el.removeAttribute('oncontextmenu');
-              el.removeAttribute('onselectstart');
-              el.removeAttribute('oncopy');
-              el.removeAttribute('ondragstart');
-              const comp = window.getComputedStyle(el);
-              if (comp.userSelect === 'none' || comp.webkitUserSelect === 'none') {
-                el.style.setProperty('user-select', 'text', 'important');
-                el.style.setProperty('-webkit-user-select', 'text', 'important');
-              }
-            } catch(e) {}
-          });
-        }
-
-        // Intercept EventTarget.prototype.addEventListener in Page World to block preventDefault calls on copy/contextmenu
-        try {
-          const originalAddEventListener = EventTarget.prototype.addEventListener;
-          EventTarget.prototype.addEventListener = function(type, listener, options) {
-            if (eventsToUnblock.includes(type)) {
-              const wrappedListener = function(e) {
-                if (typeof listener === 'function') {
-                  try {
-                    const noopPrevent = function() {};
-                    const origPrevent = e.preventDefault;
-                    e.preventDefault = noopPrevent;
-                    const res = listener.call(this, e);
-                    e.preventDefault = origPrevent;
-                    return res;
-                  } catch(err) {}
-                }
-              };
-              return originalAddEventListener.call(this, type, wrappedListener, options);
-            }
-            return originalAddEventListener.call(this, type, listener, options);
-          };
-        } catch(e) {}
-
-        nukeInlineHandlers();
-        setInterval(nukeInlineHandlers, 1000);
-      })();
-    `;
-    (document.head || document.documentElement).appendChild(script);
-  }
 
   function applyAllowCopyFeature(enabled) {
     cachedAllowCopy = enabled !== false;
     const styleId = "gemini-allow-copy-style";
     let styleEl = document.getElementById(styleId);
 
-    if (cachedAllowCopy) {
+    const isTikTokShop = window.location.hostname.includes("tiktok.com");
+
+    if (cachedAllowCopy && isTikTokShop) {
       if (!styleEl) {
         styleEl = document.createElement("style");
         styleEl.id = styleId;
@@ -3006,34 +2942,31 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
             -ms-user-select: text !important;
             user-select: text !important;
             -webkit-touch-callout: default !important;
-            pointer-events: auto !important;
           }
         `;
         (document.head || document.documentElement).appendChild(styleEl);
       }
-      injectMainWorldUnblockScript();
+
+      if (!window.geminiTikTokUnblockInterval) {
+        window.geminiTikTokUnblockInterval = setInterval(() => {
+          if (!cachedAllowCopy) return;
+          const blockedEls = document.querySelectorAll('[style*="user-select"]');
+          blockedEls.forEach(el => {
+            if (el.style.userSelect === 'none' || el.style.webkitUserSelect === 'none') {
+              el.style.setProperty('user-select', 'text', 'important');
+              el.style.setProperty('-webkit-user-select', 'text', 'important');
+            }
+          });
+        }, 1000);
+      }
     } else {
       if (styleEl) styleEl.remove();
-      const scriptEl = document.getElementById("gemini-main-world-allow-copy");
-      if (scriptEl) scriptEl.remove();
+      if (window.geminiTikTokUnblockInterval) {
+        clearInterval(window.geminiTikTokUnblockInterval);
+        window.geminiTikTokUnblockInterval = null;
+      }
     }
   }
-
-  // Intercept events in capture phase in Content Script
-  ['contextmenu', 'selectstart', 'copy', 'cut', 'dragstart'].forEach(eventName => {
-    window.addEventListener(eventName, function(e) {
-      if (cachedAllowCopy) {
-        e.stopImmediatePropagation();
-      }
-    }, true);
-  });
-
-  // Intercept keydown for Ctrl+C, Ctrl+V, Ctrl+A, Ctrl+X, Ctrl+U, F12
-  window.addEventListener('keydown', function(e) {
-    if (cachedAllowCopy && (e.ctrlKey || e.metaKey) && ['c', 'v', 'a', 'x', 'u'].includes(e.key.toLowerCase())) {
-      e.stopImmediatePropagation();
-    }
-  }, true);
 
   // Global event interceptor for Clean Paste
   document.addEventListener('paste', function(e) {
