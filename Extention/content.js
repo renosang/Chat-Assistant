@@ -2759,6 +2759,29 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
         }
       });
     });
+
+    // 21. Quick Macro Search Overlay & Full Preview Modal (#gemini-macro-overlay, #gemini-macro-full-preview)
+    const macroOverlay = document.getElementById("gemini-macro-overlay");
+    if (macroOverlay) {
+      macroOverlay.style.setProperty('background-color', pPanel, 'important');
+      macroOverlay.style.setProperty('background', pPanel, 'important');
+      macroOverlay.style.setProperty('border', '1px solid rgba(255, 255, 255, 0.15)', 'important');
+      macroOverlay.style.setProperty('color', '#f8fafc', 'important');
+    }
+
+    const macroFullPreview = document.getElementById("gemini-macro-full-preview");
+    if (macroFullPreview) {
+      macroFullPreview.style.setProperty('background-color', pPanel, 'important');
+      macroFullPreview.style.setProperty('background', pPanel, 'important');
+      macroFullPreview.style.setProperty('border', '1px solid rgba(255, 255, 255, 0.15)', 'important');
+      macroFullPreview.style.setProperty('color', '#f8fafc', 'important');
+
+      const previewHeader = macroFullPreview.querySelector('strong, h4, h3');
+      if (previewHeader) previewHeader.style.setProperty('color', '#38bdf8', 'important');
+
+      const previewText = macroFullPreview.querySelector('.m-content');
+      if (previewText) previewText.style.setProperty('color', '#e2e8f0', 'important');
+    }
   }
 
   setInterval(applyDynamicDarkModeOverrides, 1000);

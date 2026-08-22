@@ -2311,4 +2311,77 @@ html.gemini-dark-mode [class*="message__product-img-wrapper"] img {
   to { transform: translateY(0); opacity: 1; }
 }
 
+/* --- QUICK MACRO DARK MODE OVERHAUL (#gemini-macro-overlay, #gemini-macro-full-preview) --- */
+html.gemini-dark-mode #gemini-macro-overlay,
+html.gemini-dark-mode #gemini-macro-full-preview {
+  background: var(--gemini-panel, #1e293b) !important;
+  background-color: var(--gemini-panel, #1e293b) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7), 0 0 1px rgba(255, 255, 255, 0.2) !important;
+  color: #f8fafc !important;
+}
+
+html.gemini-dark-mode .macro-drag-handle {
+  background: rgba(255, 255, 255, 0.2) !important;
+}
+
+html.gemini-dark-mode #macro-search-input {
+  background: rgba(15, 23, 42, 0.8) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  color: #ffffff !important;
+}
+
+html.gemini-dark-mode #macro-search-input::placeholder {
+  color: #94a3b8 !important;
+}
+
+html.gemini-dark-mode .gemini-macro-card,
+html.gemini-dark-mode [class*="gemini-macro-card"],
+html.gemini-dark-mode .macro-item,
+html.gemini-dark-mode [class*="macro-item"] {
+  background: rgba(15, 23, 42, 0.6) !important;
+  background-color: rgba(15, 23, 42, 0.6) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  color: #f8fafc !important;
+}
+
+html.gemini-dark-mode .gemini-macro-card:hover,
+html.gemini-dark-mode .gemini-macro-card.selected,
+html.gemini-dark-mode .macro-item:hover,
+html.gemini-dark-mode .macro-item.selected {
+  background: rgba(99, 102, 241, 0.22) !important;
+  border-color: var(--gemini-accent, #6366f1) !important;
+}
+
+html.gemini-dark-mode .gemini-macro-card strong,
+html.gemini-dark-mode .gemini-macro-card .macro-title,
+html.gemini-dark-mode .macro-item strong {
+  color: #38bdf8 !important;
+}
+
+html.gemini-dark-mode .gemini-macro-card p,
+html.gemini-dark-mode .gemini-macro-card .macro-desc,
+html.gemini-dark-mode .macro-item p {
+  color: #cbd5e1 !important;
+}
+
+html.gemini-dark-mode .preview-inner {
+  background: transparent !important;
+}
+
+html.gemini-dark-mode .preview-inner strong,
+html.gemini-dark-mode #gemini-macro-full-preview strong,
+html.gemini-dark-mode #gemini-macro-full-preview h4,
+html.gemini-dark-mode #gemini-macro-full-preview h3 {
+  color: #38bdf8 !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+html.gemini-dark-mode .preview-inner .m-content,
+html.gemini-dark-mode #gemini-macro-full-preview .m-content,
+html.gemini-dark-mode #gemini-macro-full-preview p,
+html.gemini-dark-mode #gemini-macro-full-preview span {
+  color: #e2e8f0 !important;
+}
+
 
