@@ -2702,6 +2702,27 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
       sp.style.setProperty('color', '#f8fafc', 'important');
       sp.style.setProperty('border-color', '#334155', 'important');
     });
+
+    // 20. Customer Order Card (.message-customer-order, .chat-item__content--link)
+    const orderCards = document.querySelectorAll('.message-customer-order, [class*="message-customer-order"]');
+    orderCards.forEach(oc => {
+      oc.style.setProperty('background-color', pPanel, 'important');
+      oc.style.setProperty('background', pPanel, 'important');
+      oc.style.setProperty('border', '1px solid rgba(255, 255, 255, 0.12)', 'important');
+      oc.style.setProperty('border-radius', '14px', 'important');
+
+      const titleOrder = oc.querySelector('.hermes-message__title-order');
+      if (titleOrder) titleOrder.style.setProperty('color', '#38bdf8', 'important');
+
+      const innerContent = oc.querySelector('.message__content, .message__product-info');
+      if (innerContent) {
+        innerContent.style.setProperty('background', 'transparent', 'important');
+        innerContent.style.setProperty('background-color', 'transparent', 'important');
+      }
+
+      const productTitle = oc.querySelector('.hermes-title');
+      if (productTitle) productTitle.style.setProperty('color', '#f8fafc', 'important');
+    });
   }
 
   setInterval(applyDynamicDarkModeOverrides, 1000);

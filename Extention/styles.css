@@ -2171,14 +2171,65 @@ html.gemini-dark-mode *::-webkit-scrollbar-thumb:hover {
   background: #475569 !important;
 }
 
-/* --- HERMES PRODUCT & ORDER CARD TITLE FIX --- */
-html.gemini-dark-mode .hermes-message__title-order,
-html.gemini-dark-mode .hermes-title,
+/* --- CUSTOMER ORDER & PRODUCT CARD OVERHAUL --- */
+html.gemini-dark-mode .chat-item__content--link,
+html.gemini-dark-mode [class*="chat-item__content--link"] {
+  background-color: transparent !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+}
+
 html.gemini-dark-mode .message-customer-order,
-html.gemini-dark-mode .message-customer-order *,
-html.gemini-dark-mode .message__product-info,
-html.gemini-dark-mode .message__product-info * {
-  color: #ffffff !important;
+html.gemini-dark-mode [class*="message-customer-order"],
+html.gemini-dark-mode [class*="message-product-info"] {
+  background-color: var(--gemini-panel, #1e293b) !important;
+  background: var(--gemini-panel, #1e293b) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  border-radius: 14px !important;
+  padding: 12px 14px !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3) !important;
+}
+
+html.gemini-dark-mode .hermes-message__title-order,
+html.gemini-dark-mode [class*="hermes-message__title-order"] {
+  color: #38bdf8 !important; /* Bright Cyan for Order ID */
+  font-weight: 800 !important;
+  font-size: 13px !important;
+  display: block !important;
+  margin-bottom: 8px !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+  padding-bottom: 6px !important;
+}
+
+html.gemini-dark-mode .message__content,
+html.gemini-dark-mode .message__product-info {
+  background: transparent !important;
+  background-color: transparent !important;
+  border: none !important;
+  padding: 0 !important;
+}
+
+html.gemini-dark-mode .hermes-title,
+html.gemini-dark-mode [class*="hermes-title"] {
+  color: #f8fafc !important;
+  font-weight: 600 !important;
+  line-height: 1.4 !important;
+  display: block !important;
+  margin-bottom: 4px !important;
+}
+
+html.gemini-dark-mode .message__product-info span,
+html.gemini-dark-mode .message__product-info .text-bold-700 {
+  color: #94a3b8 !important;
+}
+
+html.gemini-dark-mode .message__product-info span:last-child {
+  color: #34d399 !important; /* Vibrant emerald for DELIVERED status */
+  font-weight: 800 !important;
+  margin-top: 4px !important;
+  display: inline-block !important;
 }
 
 html.gemini-dark-mode .hermes-message__unavailable,
@@ -2203,8 +2254,11 @@ html.gemini-dark-mode [class*="hermes-price"] {
 }
 
 html.gemini-dark-mode .message__product-img-wrapper {
-  background-color: #0f172a !important;
-  border-radius: 6px !important;
+  background-color: rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  border-radius: 8px !important;
+  padding: 2px !important;
+  overflow: hidden !important;
 }
 
 /* Toast Notification for Hotkey */
