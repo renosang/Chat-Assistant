@@ -72,13 +72,19 @@
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
             </svg>
-            <span>Trợ lý & Hệ thống</span>
+            <span>Cấu hình</span>
+          </button>
+          <button id="tabFeaturesBtn" class="popup-nav-btn" data-tab="tabFeaturesContent">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+            </svg>
+            <span>Tính năng</span>
           </button>
           <button id="tabDisplayBtn" class="popup-nav-btn" data-tab="tabDisplayContent">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
             </svg>
-            <span>Giao diện & Mắt</span>
+            <span>Giao diện</span>
           </button>
         </div>
 
@@ -165,6 +171,91 @@
           </div>
         </div>
 
+        <!-- TAB 2: EXTENSION FEATURES -->
+        <div id="tabFeaturesContent" class="popup-tab-pane">
+          <div class="display-mode-card">
+            <div class="card-label-row">
+              <svg class="label-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+              </svg>
+              <label>TÍNH NĂNG MỞ RỘNG BẢO VỆ & HỖ TRỢ</label>
+            </div>
+
+            <!-- Feature 1: Allow Copy & Unlock Text Selection -->
+            <div class="feature-card">
+              <div class="feature-info">
+                <div class="feature-title-row">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                  </svg>
+                  <span class="feature-title">Cho phép Sao chép & Bôi đen</span>
+                </div>
+                <span class="feature-desc">Bỏ chặn chuột phải, bôi đen văn bản và phím tắt Ctrl+C trên mọi trang web.</span>
+              </div>
+              <label class="toggle-switch">
+                <input type="checkbox" id="toggleAllowCopy">
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+
+            <!-- Recommended Feature 2: Auto-Capitalize Sentence Start -->
+            <div class="feature-card">
+              <div class="feature-info">
+                <div class="feature-title-row">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M4 7V4h16v3"></path>
+                    <line x1="9" y1="20" x2="15" y2="20"></line>
+                    <line x1="12" y1="4" x2="12" y2="20"></line>
+                  </svg>
+                  <span class="feature-title">Tự động Viết hoa đầu câu</span>
+                </div>
+                <span class="feature-desc">Tự động viết hoa chữ cái đầu tiên khi gõ tin nhắn hỗ trợ khách hàng.</span>
+              </div>
+              <label class="toggle-switch">
+                <input type="checkbox" id="toggleAutoCapitalize">
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+
+            <!-- Recommended Feature 3: Clean Blank Lines on Paste -->
+            <div class="feature-card">
+              <div class="feature-info">
+                <div class="feature-title-row">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="3 6 5 6 21 6"></polyline>
+                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                  </svg>
+                  <span class="feature-title">Làm sạch dòng thừa khi dán</span>
+                </div>
+                <span class="feature-desc">Loại bỏ khoảng trắng dư thừa và dòng trống liên tiếp khi dán văn bản.</span>
+              </div>
+              <label class="toggle-switch">
+                <input type="checkbox" id="toggleCleanPaste">
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+
+            <!-- Recommended Feature 4: Quick Pronoun Selector Bar -->
+            <div class="feature-card">
+              <div class="feature-info">
+                <div class="feature-title-row">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                  </svg>
+                  <span class="feature-title">Thanh Xưng hô Nhanh (Anh/Chị)</span>
+                </div>
+                <span class="feature-desc">Hiển thị các nút bấm chèn nhanh đại từ xưng hô lịch sự phía trên khung chat.</span>
+              </div>
+              <label class="toggle-switch">
+                <input type="checkbox" id="togglePronounBar">
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+
+          </div>
+        </div>
+
         <!-- TAB 2: DISPLAY & EYE CARE -->
         <div id="tabDisplayContent" class="popup-tab-pane">
           <div class="display-mode-card">
@@ -198,7 +289,8 @@
                 <span>Đêm</span>
               </button>
 
-              <button id="themeSepia" class="theme-mode-btn" data-mode="sepia" title="Chế độ Vàng Ấm (Chống ánh sáng xanh)">
+              <button id="themeSepia" class="theme-mode-btn" data-mode="sepia"
+                title="Chế độ Vàng Ấm (Chống ánh sáng xanh)">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
                   <circle cx="12" cy="12" r="3"></circle>
@@ -220,7 +312,8 @@
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="dimmer-icon-sm">
                 <circle cx="12" cy="12" r="3"></circle>
               </svg>
-              <input type="range" id="dimmerRange" min="20" max="100" value="100" step="5" title="Độ sáng màn hình (20% - 100%)">
+              <input type="range" id="dimmerRange" min="20" max="100" value="100" step="5"
+                title="Độ sáng màn hình (20% - 100%)">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="dimmer-icon-lg">
                 <circle cx="12" cy="12" r="5"></circle>
                 <line x1="12" y1="1" x2="12" y2="3"></line>
@@ -236,8 +329,11 @@
             <!-- DARK MODE CUSTOMIZATION SECTION (Only visible when Dark or Auto mode) -->
             <div id="darkModeCustomSection">
               <!-- Dark Mode Theme Presets -->
-              <div class="setting-group-section" style="margin-top: 8px; border-top: 1px solid #edf2f7; padding-top: 6px;">
-                <label class="setting-sublabel" style="font-size: 9px; font-weight: 800; color: #64748b; display: block; margin-bottom: 4px;">PRESET THEME GIAO DIỆN ĐÊM</label>
+              <div class="setting-group-section"
+                style="margin-top: 8px; border-top: 1px solid #edf2f7; padding-top: 6px;">
+                <label class="setting-sublabel"
+                  style="font-size: 9px; font-weight: 800; color: #64748b; display: block; margin-bottom: 4px;">PRESET
+                  THEME GIAO DIỆN ĐÊM</label>
                 <div class="preset-grid">
                   <button class="preset-card active" data-preset="midnight" title="Midnight Slate">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="2">
@@ -276,30 +372,42 @@
               </div>
 
               <!-- Accent Color Selection -->
-              <div class="setting-group-section" style="margin-top: 8px; border-top: 1px solid #edf2f7; padding-top: 6px;">
-                <label class="setting-sublabel" style="font-size: 9px; font-weight: 800; color: #64748b; display: block; margin-bottom: 4px;">MÀU NHẤN (ACCENT)</label>
+              <div class="setting-group-section"
+                style="margin-top: 8px; border-top: 1px solid #edf2f7; padding-top: 6px;">
+                <label class="setting-sublabel"
+                  style="font-size: 9px; font-weight: 800; color: #64748b; display: block; margin-bottom: 4px;">MÀU NHẤN
+                  (ACCENT)</label>
                 <div class="accent-picker-row">
-                  <button class="accent-dot active" data-accent="indigo" style="background: #6366f1;" title="Tím Chàm Indigo"></button>
-                  <button class="accent-dot" data-accent="emerald" style="background: #10b981;" title="Xanh Lá Emerald"></button>
-                  <button class="accent-dot" data-accent="cyan" style="background: #06b6d4;" title="Xanh Ngọc Cyan"></button>
-                  <button class="accent-dot" data-accent="amber" style="background: #f59e0b;" title="Vàng Cam Amber"></button>
+                  <button class="accent-dot active" data-accent="indigo" style="background: #6366f1;"
+                    title="Tím Chàm Indigo"></button>
+                  <button class="accent-dot" data-accent="emerald" style="background: #10b981;"
+                    title="Xanh Lá Emerald"></button>
+                  <button class="accent-dot" data-accent="cyan" style="background: #06b6d4;"
+                    title="Xanh Ngọc Cyan"></button>
+                  <button class="accent-dot" data-accent="amber" style="background: #f59e0b;"
+                    title="Vàng Cam Amber"></button>
                 </div>
               </div>
             </div>
 
             <!-- Font Size Range Slider (11px - 19px) -->
-            <div class="setting-group-section" style="margin-top: 8px; border-top: 1px solid #edf2f7; padding-top: 6px;">
-              <label class="setting-sublabel" style="font-size: 9px; font-weight: 800; color: #64748b; display: block; margin-bottom: 4px;">CỠ CHỮ TOÀN TRANG (11px - 19px)</label>
+            <div class="setting-group-section"
+              style="margin-top: 8px; border-top: 1px solid #edf2f7; padding-top: 6px;">
+              <label class="setting-sublabel"
+                style="font-size: 9px; font-weight: 800; color: #64748b; display: block; margin-bottom: 4px;">CỠ CHỮ
+                TOÀN TRANG (11px - 19px)</label>
               <div class="dimmer-box">
                 <span style="font-size: 10px; font-weight: 700; color: #64748b;">A-</span>
-                <input type="range" id="fontSizeRange" min="11" max="19" value="15" step="1" title="Cỡ chữ toàn trang (11px - 19px)">
+                <input type="range" id="fontSizeRange" min="11" max="19" value="15" step="1"
+                  title="Cỡ chữ toàn trang (11px - 19px)">
                 <span style="font-size: 12px; font-weight: 800; color: #6366f1;">A+</span>
                 <span id="fontSizeVal" class="dimmer-val">15px</span>
               </div>
             </div>
 
             <!-- Hotkey & Scrollbar Info -->
-            <div style="margin-top: 8px; text-align: center; background: #f8fafc; border-radius: 12px; padding: 5px; font-size: 10px; color: #64748b; font-weight: 700;">
+            <div
+              style="margin-top: 8px; text-align: center; background: #f8fafc; border-radius: 12px; padding: 5px; font-size: 10px; color: #64748b; font-weight: 700;">
               ⌨️ Phím tắt: <strong style="color: #6366f1;">Alt + Shift + D</strong>
             </div>
           </div>
@@ -309,12 +417,13 @@
       <!-- MACRO VIEW (New Integration) -->
       <div id="macroView" class="view">
         <div class="view-header">
-           <button id="btnBackToMain" class="btn-back">
-             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width: 20px; height: 20px;">
-               <polyline points="15 18 9 12 15 6"></polyline>
-             </svg>
-           </button>
-           <h2>Hệ thống Macro</h2>
+          <button id="btnBackToMain" class="btn-back">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+              style="width: 20px; height: 20px;">
+              <polyline points="15 18 9 12 15 6"></polyline>
+            </svg>
+          </button>
+          <h2>Hệ thống Macro</h2>
         </div>
 
         <!-- Macro Login (If not authenticated) -->

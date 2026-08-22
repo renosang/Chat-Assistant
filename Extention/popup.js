@@ -461,6 +461,55 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  // --- EXTENSION FEATURES TOGGLES LOGIC ---
+  const toggleAllowCopy = document.getElementById('toggleAllowCopy');
+  const toggleAutoCapitalize = document.getElementById('toggleAutoCapitalize');
+  const toggleCleanPaste = document.getElementById('toggleCleanPaste');
+  const togglePronounBar = document.getElementById('togglePronounBar');
+
+  chrome.storage.sync.get(['allowCopy', 'autoCapitalize', 'cleanPaste', 'pronounBar'], (data) => {
+    if (toggleAllowCopy) toggleAllowCopy.checked = data.allowCopy !== false; // Default enabled
+    if (toggleAutoCapitalize) toggleAutoCapitalize.checked = data.autoCapitalize !== false; // Default enabled
+    if (toggleCleanPaste) toggleCleanPaste.checked = data.cleanPaste !== false; // Default enabled
+    if (togglePronounBar) togglePronounBar.checked = data.pronounBar !== false; // Default enabled
+  });
+
+  if (toggleAllowCopy) {
+    toggleAllowCopy.addEventListener('change', (e) => {
+      const val = e.target.checked;
+      chrome.storage.sync.set({ allowCopy: val }, () => {
+        notifyTabsSettingChange('ALLOW_COPY_CHANGED', { allowCopy: val });
+      });
+    });
+  }
+
+  if (toggleAutoCapitalize) {
+    toggleAutoCapitalize.addEventListener('change', (e) => {
+      const val = e.target.checked;
+      chrome.storage.sync.set({ autoCapitalize: val }, () => {
+        notifyTabsSettingChange('AUTO_CAPITALIZE_CHANGED', { autoCapitalize: val });
+      });
+    });
+  }
+
+  if (toggleCleanPaste) {
+    toggleCleanPaste.addEventListener('change', (e) => {
+      const val = e.target.checked;
+      chrome.storage.sync.set({ cleanPaste: val }, () => {
+        notifyTabsSettingChange('CLEAN_PASTE_CHANGED', { cleanPaste: val });
+      });
+    });
+  }
+
+  if (togglePronounBar) {
+    togglePronounBar.addEventListener('change', (e) => {
+      const val = e.target.checked;
+      chrome.storage.sync.set({ pronounBar: val }, () => {
+        notifyTabsSettingChange('PRONOUN_BAR_CHANGED', { pronounBar: val });
+      });
+    });
+  }
+
   function notifyTabsSettingChange(action, data) {
     chrome.tabs.query({}, (tabs) => {
       tabs.forEach(tab => {

@@ -2916,12 +2916,99 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
     });
   }
 
-  // Read initial theme mode, dimmer, preset, accent & font size
-  chrome.storage.sync.get(['themeMode', 'dimmerValue', 'darkModePreset', 'themeAccent', 'chatFontSize'], (data) => {
+  // ---------- FEATURE TOGGLES & ALLOW COPY LOGIC ----------
+  let cachedAllowCopy = true;
+  let cachedAutoCapitalize = true;
+  let cachedCleanPaste = true;
+  let cachedPronounBar = true;
+
+  function applyAllowCopyFeature(enabled) {
+    cachedAllowCopy = enabled !== false;
+    const styleId = "gemini-allow-copy-style";
+    let styleEl = document.getElementById(styleId);
+
+    if (cachedAllowCopy) {
+      if (!styleEl) {
+        styleEl = document.createElement("style");
+        styleEl.id = styleId;
+        styleEl.textContent = `
+          *, html, body, div, span, p, a, td, th, img, code, pre, label {
+            user-select: text !important;
+            -webkit-user-select: text !important;
+            -moz-user-select: text !important;
+            -ms-user-select: text !important;
+          }
+        `;
+        (document.head || document.documentElement).appendChild(styleEl);
+      }
+    } else {
+      if (styleEl) styleEl.remove();
+    }
+  }
+
+  // Global event interceptors for Allow Copy
+  ['contextmenu', 'selectstart', 'copy', 'cut', 'dragstart'].forEach(eventName => {
+    window.addEventListener(eventName, function(e) {
+      if (cachedAllowCopy) {
+        e.stopPropagation();
+      }
+    }, true);
+  });
+
+  // Global event interceptor for Clean Paste
+  document.addEventListener('paste', function(e) {
+    if (!cachedCleanPaste) return;
+    const active = document.activeElement;
+    if (active && (active.tagName === 'TEXTAREA' || active.tagName === 'INPUT' || active.isContentEditable)) {
+      const pasteText = (e.clipboardData || window.clipboardData).getData('text');
+      if (pasteText) {
+        const cleaned = pasteText.replace(/\r\n/g, '\n').replace(/\n{3,}/g, '\n\n').replace(/[ \t]{2,}/g, ' ');
+        if (cleaned !== pasteText) {
+          e.preventDefault();
+          document.execCommand('insertText', false, cleaned);
+        }
+      }
+    }
+  }, true);
+
+  // Global event interceptor for Auto-Capitalize First Letter
+  document.addEventListener('input', function(e) {
+    if (!cachedAutoCapitalize) return;
+    const target = e.target;
+    if (target && (target.tagName === 'TEXTAREA' || (target.tagName === 'INPUT' && target.type === 'text'))) {
+      const val = target.value;
+      if (val.length === 1 && /[a-z]/.test(val)) {
+        target.value = val.toUpperCase();
+      } else if (val.length > 1) {
+        const newText = val.replace(/([.!?]\s+)([a-z])/g, (m, p1, p2) => p1 + p2.toUpperCase());
+        if (newText !== val) {
+          const start = target.selectionStart;
+          const end = target.selectionEnd;
+          target.value = newText;
+          target.setSelectionRange(start, end);
+        }
+      }
+    }
+  }, true);
+
+  function applyPronounBarFeature(enabled) {
+    cachedPronounBar = enabled !== false;
+    const pronounWrappers = document.querySelectorAll('.gemini-pronoun-wrapper, .gemini-pronoun-quick-btn');
+    pronounWrappers.forEach(pw => {
+      pw.style.display = cachedPronounBar ? '' : 'none !important';
+    });
+  }
+
+  // Read initial theme mode, dimmer, preset, accent, font size & feature toggles
+  chrome.storage.sync.get(['themeMode', 'dimmerValue', 'darkModePreset', 'themeAccent', 'chatFontSize', 'allowCopy', 'autoCapitalize', 'cleanPaste', 'pronounBar'], (data) => {
     applyDisplayMode(data.themeMode || 'light', data.dimmerValue || 100);
     if (data.darkModePreset) applyDarkModePreset(data.darkModePreset);
     if (data.themeAccent) applyThemeAccent(data.themeAccent);
     if (data.chatFontSize) applyChatFontSize(data.chatFontSize);
+    applyAllowCopyFeature(data.allowCopy);
+    cachedAutoCapitalize = data.autoCapitalize !== false;
+    cachedCleanPaste = data.cleanPaste !== false;
+    applyPronounBarFeature(data.pronounBar);
   });
 
   // Hotkey Alt + Shift + D to toggle Day / Night Mode
@@ -2967,6 +3054,22 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
     }
     if (request.action === "FONT_SIZE_CHANGED") {
       applyChatFontSize(request.fontSize);
+      return;
+    }
+    if (request.action === "ALLOW_COPY_CHANGED") {
+      applyAllowCopyFeature(request.allowCopy);
+      return;
+    }
+    if (request.action === "AUTO_CAPITALIZE_CHANGED") {
+      cachedAutoCapitalize = request.autoCapitalize !== false;
+      return;
+    }
+    if (request.action === "CLEAN_PASTE_CHANGED") {
+      cachedCleanPaste = request.cleanPaste !== false;
+      return;
+    }
+    if (request.action === "PRONOUN_BAR_CHANGED") {
+      applyPronounBarFeature(request.pronounBar);
       return;
     }
   });
