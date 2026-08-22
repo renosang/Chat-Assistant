@@ -2467,6 +2467,86 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
     element.addEventListener("keydown", onTextareaKeyDown);
   }
 
+  // ---------- DISPLAY MODE & EYE CARE SYSTEM ----------
+  function applyDimmerFilter(dimmerVal) {
+    let overlay = document.getElementById("gemini-dimmer-overlay");
+    const val = parseInt(dimmerVal, 10) || 100;
+    
+    if (val >= 100) {
+      if (overlay) overlay.style.display = "none";
+      return;
+    }
+    
+    if (!overlay) {
+      overlay = document.createElement("div");
+      overlay.id = "gemini-dimmer-overlay";
+      overlay.style.cssText = "position: fixed; inset: 0; pointer-events: none; z-index: 999999; transition: background 0.2s ease;";
+      (document.body || document.documentElement).appendChild(overlay);
+    }
+    
+    const opacity = (100 - val) / 100 * 0.65;
+    overlay.style.background = `rgba(0, 0, 0, ${opacity})`;
+    overlay.style.display = "block";
+  }
+
+  function applyDisplayMode(mode, dimmer = 100) {
+    let effectiveMode = mode || 'light';
+    if (effectiveMode === 'auto') {
+      const hour = new Date().getHours();
+      effectiveMode = (hour >= 18 || hour < 6) ? 'dark' : 'light';
+    }
+
+    const html = document.documentElement;
+    const body = document.body;
+
+    if (effectiveMode === 'dark') {
+      html.classList.add('gemini-dark-mode');
+      if (body) body.classList.add('gemini-dark-mode');
+      html.classList.remove('gemini-sepia-mode');
+      if (body) body.classList.remove('gemini-sepia-mode');
+    } else if (effectiveMode === 'sepia') {
+      html.classList.add('gemini-sepia-mode');
+      if (body) body.classList.add('gemini-sepia-mode');
+      html.classList.remove('gemini-dark-mode');
+      if (body) body.classList.remove('gemini-dark-mode');
+    } else {
+      html.classList.remove('gemini-dark-mode', 'gemini-sepia-mode');
+      if (body) body.classList.remove('gemini-dark-mode', 'gemini-sepia-mode');
+    }
+
+    applyDimmerFilter(dimmer);
+  }
+
+  function showThemeToast(msg) {
+    let toast = document.querySelector(".gemini-theme-toast");
+    if (toast) toast.remove();
+    toast = document.createElement("div");
+    toast.className = "gemini-theme-toast";
+    toast.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg> <span>${msg}</span>`;
+    document.body.appendChild(toast);
+    setTimeout(() => { if (toast) toast.remove(); }, 2500);
+  }
+
+  // Read initial theme mode & dimmer
+  chrome.storage.sync.get(['themeMode', 'dimmerValue'], (data) => {
+    applyDisplayMode(data.themeMode || 'light', data.dimmerValue || 100);
+  });
+
+  // Hotkey Alt + Shift + D to toggle Day / Night Mode
+  window.addEventListener("keydown", (e) => {
+    if (e.altKey && e.shiftKey && (e.code === "KeyD" || e.key === "D" || e.key === "d")) {
+      chrome.storage.sync.get(['themeMode', 'dimmerValue'], (data) => {
+        const current = data.themeMode || 'light';
+        const nextMode = current === 'dark' ? 'light' : 'dark';
+        const currentDimmer = data.dimmerValue || 100;
+        chrome.storage.sync.set({ themeMode: nextMode }, () => {
+          applyDisplayMode(nextMode, currentDimmer);
+          showThemeToast(nextMode === 'dark' ? 'Đã bật Chế độ Ban Đêm 🌙' : 'Đã bật Chế độ Ban Ngày ☀️');
+        });
+      });
+    }
+  });
+
   // ---------- INIT ----------
 
   chrome.storage.local.get("remoteConfig", (data) => {
@@ -2479,6 +2559,10 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
     if (request.action === "CONFIG_UPDATED") {
       updateCachedConfig(request.config);
       compileData();
+      return;
+    }
+    if (request.action === "THEME_MODE_CHANGED") {
+      applyDisplayMode(request.mode, request.dimmer);
       return;
     }
   });

@@ -89,6 +89,74 @@
           </div>
         </div>
 
+        <!-- DISPLAY MODE & EYE CARE SECTION -->
+        <div class="display-mode-card">
+          <div class="card-label-row">
+            <svg class="label-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+            </svg>
+            <label>BẢO VỆ MẮT & CHẾ ĐỘ ĐÊM</label>
+          </div>
+
+          <div class="theme-mode-grid">
+            <button id="themeLight" class="theme-mode-btn" data-mode="light" title="Chế độ Ban Ngày">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="5"></circle>
+                <line x1="12" y1="1" x2="12" y2="3"></line>
+                <line x1="12" y1="21" x2="12" y2="23"></line>
+                <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                <line x1="1" y1="12" x2="3" y2="12"></line>
+                <line x1="21" y1="12" x2="23" y2="12"></line>
+                <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+              </svg>
+              <span>Sáng</span>
+            </button>
+
+            <button id="themeDark" class="theme-mode-btn" data-mode="dark" title="Chế độ Ban Đêm (Giảm mỏi mắt)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+              </svg>
+              <span>Đêm</span>
+            </button>
+
+            <button id="themeSepia" class="theme-mode-btn" data-mode="sepia" title="Chế độ Vàng Ấm (Chống ánh sáng xanh)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                <circle cx="12" cy="12" r="3"></circle>
+              </svg>
+              <span>Ấm áp</span>
+            </button>
+
+            <button id="themeAuto" class="theme-mode-btn" data-mode="auto" title="Tự động theo giờ (18h - 6h)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <polyline points="12 6 12 12 16 14"></polyline>
+              </svg>
+              <span>Tự động</span>
+            </button>
+          </div>
+
+          <!-- Dimmer Slider -->
+          <div class="dimmer-box">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="dimmer-icon-sm">
+              <circle cx="12" cy="12" r="3"></circle>
+            </svg>
+            <input type="range" id="dimmerRange" min="50" max="100" value="100" step="5" title="Độ sáng màn hình">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="dimmer-icon-lg">
+              <circle cx="12" cy="12" r="5"></circle>
+              <line x1="12" y1="1" x2="12" y2="3"></line>
+              <line x1="12" y1="21" x2="12" y2="23"></line>
+              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+              <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+              <line x1="1" y1="12" x2="3" y2="12"></line>
+              <line x1="21" y1="12" x2="23" y2="12"></line>
+            </svg>
+            <span id="dimmerVal" class="dimmer-val">100%</span>
+          </div>
+        </div>
+
         <div class="button-grid">
           <button id="btnSync" class="btn-sync">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"

@@ -323,4 +323,65 @@ document.addEventListener('DOMContentLoaded', () => {
     if (span) span.textContent = text;
     btn.style.opacity = isLoading ? '0.7' : '1';
   }
+
+  // --- DISPLAY MODE & EYE CARE LOGIC ---
+  const themeButtons = document.querySelectorAll('.theme-mode-btn');
+  const dimmerRange = document.getElementById('dimmerRange');
+  const dimmerVal = document.getElementById('dimmerVal');
+
+  let currentThemeMode = 'light';
+  let currentDimmerVal = 100;
+
+  chrome.storage.sync.get(['themeMode', 'dimmerValue'], (data) => {
+    if (data.themeMode) currentThemeMode = data.themeMode;
+    if (data.dimmerValue !== undefined) currentDimmerVal = data.dimmerValue;
+
+    updateThemeModeUI(currentThemeMode);
+    if (dimmerRange && dimmerVal) {
+      dimmerRange.value = currentDimmerVal;
+      dimmerVal.textContent = currentDimmerVal + '%';
+    }
+  });
+
+  function updateThemeModeUI(mode) {
+    themeButtons.forEach(btn => {
+      if (btn.dataset.mode === mode) {
+        btn.classList.add('active');
+      } else {
+        btn.classList.remove('active');
+      }
+    });
+  }
+
+  function notifyTabsThemeChange(mode, dimmer) {
+    chrome.tabs.query({}, (tabs) => {
+      tabs.forEach(tab => {
+        if (tab.id) {
+          chrome.tabs.sendMessage(tab.id, { action: "THEME_MODE_CHANGED", mode, dimmer }).catch(() => {});
+        }
+      });
+    });
+  }
+
+  themeButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const selectedMode = btn.dataset.mode;
+      currentThemeMode = selectedMode;
+      updateThemeModeUI(selectedMode);
+      chrome.storage.sync.set({ themeMode: selectedMode }, () => {
+        notifyTabsThemeChange(selectedMode, currentDimmerVal);
+      });
+    });
+  });
+
+  if (dimmerRange) {
+    dimmerRange.addEventListener('input', (e) => {
+      const val = parseInt(e.target.value, 10);
+      currentDimmerVal = val;
+      if (dimmerVal) dimmerVal.textContent = val + '%';
+      chrome.storage.sync.set({ dimmerValue: val }, () => {
+        notifyTabsThemeChange(currentThemeMode, val);
+      });
+    });
+  }
 });

@@ -1312,4 +1312,203 @@
   font-weight: 800;
 }
 
+/* ==========================================================================
+   DEEP DARK MODE & EYE CARE SYSTEM (SLATE NIGHT THEME)
+   ========================================================================== */
+
+/* --- DARK MODE GLOBAL STYLES --- */
+html.gemini-dark-mode,
+body.gemini-dark-mode {
+  background-color: #0f172a !important;
+  color: #f8fafc !important;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Backgrounds & Containers */
+html.gemini-dark-mode body,
+html.gemini-dark-mode #app,
+html.gemini-dark-mode .app-content,
+html.gemini-dark-mode .content-wrapper,
+html.gemini-dark-mode .content-body,
+html.gemini-dark-mode .header-navbar,
+html.gemini-dark-mode .navbar-container,
+html.gemini-dark-mode #navbar-mobile,
+html.gemini-dark-mode .main-menu,
+html.gemini-dark-mode .menu-content,
+html.gemini-dark-mode .sidebar-content,
+html.gemini-dark-mode .chat-application,
+html.gemini-dark-mode .chat-app-window,
+html.gemini-dark-mode .chat-wrapper,
+html.gemini-dark-mode .chat-sidebar,
+html.gemini-dark-mode .chat-user-list,
+html.gemini-dark-mode .sidebar-right,
+html.gemini-dark-mode .card,
+html.gemini-dark-mode .card-body,
+html.gemini-dark-mode .card-header,
+html.gemini-dark-mode .modal-content {
+  background-color: #0f172a !important;
+  background: #0f172a !important;
+  color: #f8fafc !important;
+  border-color: #1e293b !important;
+}
+
+/* Sub-containers & User Cards */
+html.gemini-dark-mode .media,
+html.gemini-dark-mode .list-group-item,
+html.gemini-dark-mode .chat-sidebar .media,
+html.gemini-dark-mode .store-list,
+html.gemini-dark-mode .customer-list-item,
+html.gemini-dark-mode .nav-tabs,
+html.gemini-dark-mode .nav-tabs .nav-link,
+html.gemini-dark-mode .tab-content {
+  background-color: #1e293b !important;
+  color: #f1f5f9 !important;
+  border-color: #334155 !important;
+}
+
+/* Active / Hover items */
+html.gemini-dark-mode .media:hover,
+html.gemini-dark-mode .media.active,
+html.gemini-dark-mode .list-group-item:hover,
+html.gemini-dark-mode .list-group-item.active,
+html.gemini-dark-mode .nav-tabs .nav-link.active {
+  background-color: #334155 !important;
+  color: #38bdf8 !important;
+  border-color: #38bdf8 !important;
+}
+
+/* Chat Message Area & Bubbles */
+html.gemini-dark-mode .chat-app-window,
+html.gemini-dark-mode .chat-content,
+html.gemini-dark-mode .chat-body {
+  background-color: #0f172a !important;
+}
+
+/* Incoming / Customer Messages */
+html.gemini-dark-mode .chat-left .chat-content,
+html.gemini-dark-mode .chat-left .chat-body,
+html.gemini-dark-mode .chat-left p {
+  background-color: #1e293b !important;
+  color: #f8fafc !important;
+  border: 1px solid #334155 !important;
+}
+
+/* Outgoing / Agent Messages */
+html.gemini-dark-mode .chat-right .chat-content,
+html.gemini-dark-mode .chat-right .chat-body {
+  background-color: #312e81 !important;
+  color: #e0e7ff !important;
+  border: 1px solid #4338ca !important;
+}
+
+/* Form Inputs, Textarea & Selects */
+html.gemini-dark-mode textarea,
+html.gemini-dark-mode input[type="text"],
+html.gemini-dark-mode input[type="search"],
+html.gemini-dark-mode select,
+html.gemini-dark-mode #chat-input,
+html.gemini-dark-mode .form-control {
+  background-color: #1e293b !important;
+  color: #f8fafc !important;
+  border-color: #334155 !important;
+}
+
+html.gemini-dark-mode textarea:focus,
+html.gemini-dark-mode input:focus,
+html.gemini-dark-mode #chat-input:focus {
+  background-color: #0f172a !important;
+  border-color: #6366f1 !important;
+  color: #ffffff !important;
+}
+
+/* Text & Labels Override */
+html.gemini-dark-mode h1,
+html.gemini-dark-mode h2,
+html.gemini-dark-mode h3,
+html.gemini-dark-mode h4,
+html.gemini-dark-mode h5,
+html.gemini-dark-mode h6,
+html.gemini-dark-mode p,
+html.gemini-dark-mode span:not(.gemini-motivation-bubble),
+html.gemini-dark-mode label,
+html.gemini-dark-mode strong,
+html.gemini-dark-mode a {
+  color: #e2e8f0 !important;
+}
+
+html.gemini-dark-mode .text-muted,
+html.gemini-dark-mode .secondary-text,
+html.gemini-dark-mode time {
+  color: #94a3b8 !important;
+}
+
+/* Icons in Dark Mode */
+html.gemini-dark-mode svg:not(.gemini-mascot) {
+  color: #cbd5e1 !important;
+}
+
+/* Tables, Modals & Dropdowns */
+html.gemini-dark-mode table,
+html.gemini-dark-mode tr,
+html.gemini-dark-mode td,
+html.gemini-dark-mode th,
+html.gemini-dark-mode .dropdown-menu {
+  background-color: #1e293b !important;
+  color: #f8fafc !important;
+  border-color: #334155 !important;
+}
+
+/* Gemini Macro System in Dark Mode */
+html.gemini-dark-mode .gemini-macro-toolbar,
+html.gemini-dark-mode .gemini-macro-search-overlay,
+html.gemini-dark-mode .gemini-macro-preview-overlay {
+  background-color: #1e293b !important;
+  border-color: #334155 !important;
+  color: #f8fafc !important;
+}
+
+html.gemini-dark-mode .gemini-macro-item {
+  background-color: #0f172a !important;
+  border-color: #334155 !important;
+  color: #f8fafc !important;
+}
+
+html.gemini-dark-mode .gemini-macro-item:hover,
+html.gemini-dark-mode .gemini-macro-item.selected {
+  background-color: #312e81 !important;
+  border-color: #6366f1 !important;
+}
+
+/* --- WARM SEPIA EYE CARE MODE --- */
+html.gemini-sepia-mode {
+  filter: sepia(0.35) contrast(0.95) saturate(1.1) !important;
+  transition: filter 0.3s ease;
+}
+
+/* Toast Notification for Hotkey */
+.gemini-theme-toast {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  background: rgba(15, 23, 42, 0.9);
+  color: #ffffff;
+  padding: 10px 18px;
+  border-radius: 100px;
+  font-size: 13px;
+  font-weight: 700;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  z-index: 9999999;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255,255,255,0.1);
+  animation: gemini-toast-in 0.3s ease-out;
+}
+
+@keyframes gemini-toast-in {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
 
