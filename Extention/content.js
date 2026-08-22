@@ -2730,30 +2730,11 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
 
   function applyDarkModePreset(presetKey) {
     if (presetKey) cachedPreset = presetKey;
-    const preset = DARK_PRESETS[cachedPreset] || DARK_PRESETS.midnight;
-    if (!document.documentElement.classList.contains("gemini-dark-mode")) return;
-
-    document.documentElement.style.setProperty('--gemini-bg-color', preset.bg);
-    document.documentElement.style.setProperty('--gemini-panel-color', preset.panel);
-    document.documentElement.style.setProperty('--gemini-sidebar-color', preset.sidebar);
-
-    const body = document.body;
     const html = document.documentElement;
-    html.style.setProperty('background-color', preset.bg, 'important');
-    if (body) body.style.setProperty('background-color', preset.bg, 'important');
+    html.classList.remove('preset-midnight', 'preset-oled', 'preset-cyber', 'preset-bronze');
+    html.classList.add(`preset-${cachedPreset}`);
 
-    const panels = document.querySelectorAll('.chat-application, .chat-users__room, .modal-content, .card, .chat-app-input--utils, .sort-dropdown');
-    panels.forEach(p => {
-      p.style.setProperty('background-color', preset.panel, 'important');
-      p.style.setProperty('background', preset.panel, 'important');
-    });
-
-    const sidebars = document.querySelectorAll('.main-menu, .chat-sidebar, .customer-detail, .sidebar-content');
-    sidebars.forEach(s => {
-      s.style.setProperty('background-color', preset.sidebar, 'important');
-      s.style.setProperty('background', preset.sidebar, 'important');
-    });
-
+    const preset = DARK_PRESETS[cachedPreset] || DARK_PRESETS.midnight;
     applyThemeAccent(preset.accent);
   }
 

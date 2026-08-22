@@ -1316,13 +1316,82 @@
    DEEP DARK MODE & EYE CARE SYSTEM (SLATE NIGHT THEME)
    ========================================================================== */
 
-/* --- DARK MODE GLOBAL STYLES --- */
+/* --- DARK MODE THEME PRESET CSS VARIABLES --- */
 html.gemini-dark-mode,
-body.gemini-dark-mode {
-  background-color: #0f172a !important;
-  background: #0f172a !important;
+html.gemini-dark-mode.preset-midnight {
+  --gemini-bg: #0b0f19;
+  --gemini-panel: #1e293b;
+  --gemini-sidebar: #0f172a;
+  --gemini-accent: #6366f1;
+}
+
+html.gemini-dark-mode.preset-oled {
+  --gemini-bg: #000000;
+  --gemini-panel: #121212;
+  --gemini-sidebar: #080808;
+  --gemini-accent: #10b981;
+}
+
+html.gemini-dark-mode.preset-cyber {
+  --gemini-bg: #050b14;
+  --gemini-panel: #111a2e;
+  --gemini-sidebar: #0a1220;
+  --gemini-accent: #06b6d4;
+}
+
+html.gemini-dark-mode.preset-bronze {
+  --gemini-bg: #181311;
+  --gemini-panel: #26201c;
+  --gemini-sidebar: #1e1815;
+  --gemini-accent: #f59e0b;
+}
+
+/* Apply CSS Variables to base dark mode elements */
+html.gemini-dark-mode,
+body.gemini-dark-mode,
+html.gemini-dark-mode body,
+html.gemini-dark-mode #app,
+html.gemini-dark-mode .app-content,
+html.gemini-dark-mode .content-wrapper,
+html.gemini-dark-mode [class*="chat-app"],
+html.gemini-dark-mode [class*="chat-history"],
+html.gemini-dark-mode [class*="chat-container"],
+html.gemini-dark-mode [class*="chat-wrapper"],
+html.gemini-dark-mode [class*="user-chats"],
+html.gemini-dark-mode .chats,
+html.gemini-dark-mode .chat-body {
+  background-color: var(--gemini-bg) !important;
+  background: var(--gemini-bg) !important;
   color: #f8fafc !important;
   transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+html.gemini-dark-mode .card,
+html.gemini-dark-mode .modal-content,
+html.gemini-dark-mode .chat-application,
+html.gemini-dark-mode .chat-users__room,
+html.gemini-dark-mode .chat-app-input--utils,
+html.gemini-dark-mode .chat-suggestions,
+html.gemini-dark-mode .sort-dropdown,
+html.gemini-dark-mode .ql-container,
+html.gemini-dark-mode .ql-editor {
+  background-color: var(--gemini-panel) !important;
+  background: var(--gemini-panel) !important;
+}
+
+html.gemini-dark-mode .main-menu,
+html.gemini-dark-mode .sidebar-content,
+html.gemini-dark-mode .chat-sidebar,
+html.gemini-dark-mode .customer-detail {
+  background-color: var(--gemini-sidebar) !important;
+  background: var(--gemini-sidebar) !important;
+}
+
+html.gemini-dark-mode .btn-primary,
+html.gemini-dark-mode .side-menu-item.active {
+  background-color: var(--gemini-accent) !important;
+  background: var(--gemini-accent) !important;
+  border-color: var(--gemini-accent) !important;
 }
 
 /* Backgrounds & Containers Catch-All */
