@@ -2001,6 +2001,62 @@ html.gemini-dark-mode .chat-users__room {
   border: 1px solid #334155 !important;
 }
 
+/* --- CHAT INPUT UTILS TOOLBAR FIX (.chat-app-input--utils) --- */
+html.gemini-dark-mode .chat-app-input--utils,
+html.gemini-dark-mode [class*="chat-app-input--utils"] {
+  background-color: #1e293b !important;
+  background: #1e293b !important;
+  border-top-left-radius: 8px !important;
+  border-top-right-radius: 8px !important;
+  padding: 8px 12px !important;
+  border: 1px solid #334155 !important;
+  border-bottom: none !important;
+}
+
+html.gemini-dark-mode .chat-app-input--utils svg,
+html.gemini-dark-mode .chat-app-input--utils .text-black-50,
+html.gemini-dark-mode .text-black-50 {
+  color: #cbd5e1 !important;
+  stroke: #cbd5e1 !important;
+}
+
+html.gemini-dark-mode .chat-app-input--utils .cursor-pointer:hover svg {
+  color: #38bdf8 !important;
+  stroke: #38bdf8 !important;
+}
+
+html.gemini-dark-mode #chat-input,
+html.gemini-dark-mode textarea.message {
+  border-top-left-radius: 0 !important;
+  border-top-right-radius: 0 !important;
+  border-color: #334155 !important;
+}
+
+/* --- QUICK ANSWER & EMOJI SUGGESTIONS PANEL FIX (.chat-suggestions) --- */
+html.gemini-dark-mode .chat-suggestions,
+html.gemini-dark-mode .chat-suggestions .holder,
+html.gemini-dark-mode .footer-quickanswer,
+html.gemini-dark-mode .header-quickanswer,
+html.gemini-dark-mode .emoji-panel,
+html.gemini-dark-mode [class*="quickanswer"] {
+  background-color: #1e293b !important;
+  background: #1e293b !important;
+  color: #f8fafc !important;
+  border-color: #334155 !important;
+}
+
+html.gemini-dark-mode .chat-suggestions .nav-tabs,
+html.gemini-dark-mode .chat-suggestions .nav-link {
+  background-color: #0f172a !important;
+  color: #cbd5e1 !important;
+  border-color: #334155 !important;
+}
+
+html.gemini-dark-mode .chat-suggestions .nav-link.active {
+  background-color: #312e81 !important;
+  color: #ffffff !important;
+}
+
 /* Toast Notification for Hotkey */
 .gemini-theme-toast {
   position: fixed;

@@ -2672,6 +2672,30 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
       cp.style.setProperty('color', '#a5b4fc', 'important');
       cp.style.setProperty('border-color', '#4338ca', 'important');
     });
+
+    // 17. Chat input utils toolbar (.chat-app-input--utils)
+    const utilsToolbars = document.querySelectorAll('.chat-app-input--utils, [class*="chat-app-input--utils"]');
+    utilsToolbars.forEach(ut => {
+      ut.style.setProperty('background-color', '#1e293b', 'important');
+      ut.style.setProperty('background', '#1e293b', 'important');
+      ut.style.setProperty('border-color', '#334155', 'important');
+    });
+
+    // 18. Toolbar icons (.text-black-50)
+    const black50Icons = document.querySelectorAll('.text-black-50, .chat-app-input--utils svg');
+    black50Icons.forEach(ic => {
+      ic.style.setProperty('color', '#cbd5e1', 'important');
+      ic.style.setProperty('stroke', '#cbd5e1', 'important');
+    });
+
+    // 19. Quick Answer & Emoji suggestions panel (.chat-suggestions, .holder, .emoji-panel)
+    const suggestPanels = document.querySelectorAll('.chat-suggestions, .chat-suggestions .holder, .footer-quickanswer, .header-quickanswer, .emoji-panel, [class*="quickanswer"]');
+    suggestPanels.forEach(sp => {
+      sp.style.setProperty('background-color', '#1e293b', 'important');
+      sp.style.setProperty('background', '#1e293b', 'important');
+      sp.style.setProperty('color', '#f8fafc', 'important');
+      sp.style.setProperty('border-color', '#334155', 'important');
+    });
   }
 
   setInterval(applyDynamicDarkModeOverrides, 1000);
