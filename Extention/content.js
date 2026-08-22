@@ -1719,6 +1719,9 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
     mergeAndCompile("exclude", MOOD_INDICATORS.exclude);
 
     console.log("[Gemini Content] Empathy Mood Indicators Compiled.");
+    try {
+      injectGlobalMotivationMascot();
+    } catch (e) {}
   }
 
   // ---------- DIFF & HIGHLIGHT ----------
@@ -2527,6 +2530,19 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
     });
   }
 
+  let lastConfigFetchTime = 0;
+  function checkAutoReloadConfig() {
+    const now = Date.now();
+    if (now - lastConfigFetchTime > 15000) {
+      lastConfigFetchTime = now;
+      try {
+        if (typeof chrome !== 'undefined' && chrome.runtime?.id) {
+          chrome.runtime.sendMessage({ action: "reloadConfig" }).catch(() => {});
+        }
+      } catch (e) {}
+    }
+  }
+
   function scan() {
     const chatInput = document.getElementById("chat-input");
     if (chatInput) attachListeners(chatInput);
@@ -2534,6 +2550,7 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
     injectMacroToolbarButton(); // Tích hợp vào thanh công cụ chat
     injectGlobalMotivationMascot(); // Tích hợp vào Navbar Mobile (nếu có)
     checkMacroConnectionStatusLabel(); // Kiểm tra hiển thị trạng thái kết nối Macro
+    checkAutoReloadConfig(); // Tự động làm mới config từ xa 15s/lần
   }
   setInterval(scan, 2000);
 
@@ -2711,76 +2728,207 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
     geminiContainer.appendChild(statusPill);
   }
 
+  // --- MOTIVATION CONFIG & DYNAMIC ROTATION ---
+  const DEFAULT_MOTIVATION_MESSAGES = [
+    "Chào khách hàng đầu ngày thật tươi tắn nhé!",
+    "Sử dụng đúng danh xưng giúp khách hàng cảm thấy được tôn trọng!",
+    "Hãy luôn đồng cảm, khách hàng sẽ rất trân trọng đó!",
+    "Nhớ kiểm tra lịch sử chat và đơn hàng trước khi tư vấn nhé!",
+    "Hãy soát lại ticket thật kỹ trước khi gửi SWAT bạn nhé!",
+    "Điền đầy đủ thông tin khi tạo ticket khiếu nại nhé!",
+    "Cố gắng lên nào, bạn đang làm rất tốt công việc của mình đó!",
+    "Một nụ cười của khách hàng là niềm vui của chúng ta!"
+  ];
+  let currentMotivationIdx = 0;
+  let motivationInterval = null;
+
+  function getActiveMotivationList() {
+    const config = cachedConfig?.motivationConfig;
+    // Fallback if config or messages array is absent or empty
+    if (!config || !Array.isArray(config.messages) || config.messages.length === 0) {
+      return DEFAULT_MOTIVATION_MESSAGES;
+    }
+
+    let active = config.messages.filter(m => m && (m.isActive ?? true));
+    // If messages list is defined but all items were manually disabled by admin, return empty array []
+    if (active.length === 0) {
+      return [];
+    }
+
+    if (config.displayMode === 'time_based') {
+      const hour = new Date().getHours();
+      let slot = 'all';
+      if (hour >= 6 && hour < 12) slot = 'morning';
+      else if (hour >= 12 && hour < 18) slot = 'afternoon';
+      else slot = 'evening';
+
+      const filteredBySlot = active.filter(m => !m.timeSlot || m.timeSlot === 'all' || m.timeSlot === slot);
+      if (filteredBySlot.length > 0) active = filteredBySlot;
+    }
+
+    return active.map(m => (typeof m === 'string' ? m : m.text)).filter(Boolean);
+  }
+
+  function safeInsertNode(parent, newChild, targetChild) {
+    if (!parent || !newChild) return;
+    try {
+      if (targetChild && targetChild.parentNode) {
+        targetChild.parentNode.insertBefore(newChild, targetChild);
+        return;
+      }
+    } catch (e) {}
+    try {
+      parent.appendChild(newChild);
+    } catch (e) {}
+  }
+
   function injectGlobalMotivationMascot() {
-    let navbar = document.getElementById("navbar-mobile") || document.querySelector(".navbar-container") || document.querySelector("nav");
-    if (!navbar || navbar.querySelector(".gemini-motivation-container")) return;
+    const motiConfig = cachedConfig?.motivationConfig;
 
-    const container = document.createElement("div");
-    container.className = "gemini-motivation-container gemini-navbar-motivation";
-    container.id = "gemini-motivation-section";
-    container.style.opacity = "0";
-    container.style.transition = "opacity 0.8s ease";
-    container.style.flex = "1"; // Để nó chiếm khoảng trống giữa và tự căn giữa nội dung
-    container.style.justifyContent = "center";
-    container.style.margin = "0 20px";
+    // Target exact #navbar-mobile container provided by user HTML snippet
+    let navbarMobile = document.getElementById("navbar-mobile") || 
+                       document.querySelector(".navbar-collapse") || 
+                       document.querySelector(".navbar-container .content") || 
+                       document.querySelector(".navbar-container") || 
+                       document.querySelector("nav");
+                 
+    if (!navbarMobile) return;
 
-    container.innerHTML = `
-      <div class="gemini-motivation-bubble nav-mode" id="gemini-motivation-text" style="opacity: 0; transition: opacity 0.5s ease;">
-        ${MOTIVATION_MESSAGES[0]}
-      </div>
-      <span class="cursor-pointer gemini-mascot-wrapper">
-        <svg class="gemini-mascot" viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="2">
-          <rect x="4" y="8" width="16" height="12" rx="4" fill="#eef2ff"></rect>
-          <circle class="gemini-mascot-eye" cx="9" cy="13" r="1.5" fill="#6366f1"></circle>
-          <circle class="gemini-mascot-eye" cx="15" cy="13" r="1.5" fill="#6366f1"></circle>
-          <path d="M10 17C10 17 11 18 12 18C13 18 14 17 14 17" stroke="#6366f1" stroke-linecap="round"></path>
-          <path d="M12 8V4M12 4L9 2M12 4L15 2" stroke="#6366f1" stroke-width="2"></path>
-        </svg>
-      </span>
-    `;
+    let container = document.getElementById("gemini-motivation-section");
+    const messages = getActiveMotivationList();
 
-    // Chèn vào giữa bookmark-wrapper và các icon bên phải
-    const bookmarkWrapper = navbar.querySelector(".bookmark-wrapper");
-    if (bookmarkWrapper && bookmarkWrapper.nextSibling) {
-      navbar.insertBefore(container, bookmarkWrapper.nextSibling);
+    // Check master enable switch & active messages count
+    if ((motiConfig && motiConfig.isEnabled === false) || messages.length === 0) {
+      if (container) {
+        container.style.display = "none";
+      }
+      return;
+    }
+
+    const theme = motiConfig?.theme || 'indigo';
+    const showMascot = motiConfig?.showMascot ?? true;
+    const intervalMs = (motiConfig?.intervalSeconds || 12) * 1000;
+
+    const rightUserList = navbarMobile.querySelector(".navbar-nav-user") || 
+                          navbarMobile.querySelector("ul.float-right");
+
+    if (!container) {
+      container = document.createElement("div");
+      container.id = "gemini-motivation-section";
+      container.style.transition = "opacity 0.5s ease";
+      container.style.flex = "1";
+      container.style.display = "flex";
+      container.style.justifyContent = "center";
+      container.style.alignItems = "center";
+      container.style.margin = "0 15px";
+
+      if (rightUserList && rightUserList.parentNode === navbarMobile) {
+        navbarMobile.insertBefore(container, rightUserList);
+      } else {
+        safeInsertNode(navbarMobile, container, rightUserList);
+      }
+    } else if (container.parentElement !== navbarMobile) {
+      if (rightUserList && rightUserList.parentNode === navbarMobile) {
+        navbarMobile.insertBefore(container, rightUserList);
+      } else {
+        safeInsertNode(navbarMobile, container, rightUserList);
+      }
+    }
+
+    const THEME_PALETTES = {
+      indigo: { bg: 'rgba(238, 242, 255, 0.95)', border: 'rgba(199, 210, 254, 0.8)', text: '#3730a3', mascot: '#6366f1' },
+      emerald: { bg: 'rgba(236, 253, 245, 0.95)', border: 'rgba(167, 243, 208, 0.8)', text: '#065f46', mascot: '#10b981' },
+      sunset: { bg: 'rgba(255, 247, 237, 0.95)', border: 'rgba(254, 215, 170, 0.8)', text: '#9a3412', mascot: '#f97316' },
+      cyber: { bg: 'rgba(15, 23, 42, 0.95)', border: 'rgba(56, 189, 248, 0.5)', text: '#38bdf8', mascot: '#06b6d4', shadow: '0 0 15px rgba(6,182,212,0.3)' },
+      minimal: { bg: 'rgba(248, 250, 252, 0.95)', border: 'rgba(226, 232, 240, 0.8)', text: '#334155', mascot: '#64748b' }
+    };
+
+    const palette = THEME_PALETTES[theme] || THEME_PALETTES.indigo;
+
+    container.className = `gemini-motivation-container gemini-navbar-motivation theme-${theme}`;
+    container.style.display = "flex";
+    container.style.opacity = "1";
+
+    let bubble = container.querySelector("#gemini-motivation-text");
+    let mascotWrapper = container.querySelector(".gemini-mascot-wrapper");
+    let mascotSvg = container.querySelector(".gemini-mascot");
+
+    if (!bubble) {
+      container.innerHTML = `
+        <div class="gemini-motivation-bubble nav-mode" id="gemini-motivation-text" style="opacity: 1; transition: opacity 0.5s ease;">
+          ${messages[0] || ''}
+        </div>
+        <span class="cursor-pointer gemini-mascot-wrapper" style="display: ${showMascot ? 'inline-flex' : 'none'};">
+          <svg class="gemini-mascot" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="4" y="8" width="16" height="12" rx="4" fill="currentColor" fill-opacity="0.15"></rect>
+            <circle class="gemini-mascot-eye" cx="9" cy="13" r="1.5" fill="currentColor"></circle>
+            <circle class="gemini-mascot-eye" cx="15" cy="13" r="1.5" fill="currentColor"></circle>
+            <path d="M10 17C10 17 11 18 12 18C13 18 14 17 14 17" stroke="currentColor" stroke-linecap="round"></path>
+            <path d="M12 8V4M12 4L9 2M12 4L15 2" stroke="currentColor" stroke-width="2"></path>
+          </svg>
+        </span>
+      `;
+      bubble = container.querySelector("#gemini-motivation-text");
+      mascotSvg = container.querySelector(".gemini-mascot");
     } else {
-      navbar.appendChild(container);
+      bubble.style.opacity = "1";
+      if (mascotWrapper) {
+        mascotWrapper.style.display = showMascot ? 'inline-flex' : 'none';
+      }
+    }
+
+    if (bubble) {
+      bubble.style.setProperty("background", palette.bg, "important");
+      bubble.style.setProperty("border-color", palette.border, "important");
+      bubble.style.setProperty("color", palette.text, "important");
+      if (palette.shadow) bubble.style.setProperty("box-shadow", palette.shadow, "important");
+      else bubble.style.setProperty("box-shadow", "0 4px 15px rgba(0, 0, 0, 0.06)", "important");
+    }
+
+    if (mascotSvg) {
+      mascotSvg.style.setProperty("color", palette.mascot, "important");
     }
 
     const rotate = () => {
       const textEl = container.querySelector("#gemini-motivation-text");
       if (!textEl) return;
+      const currentMsgs = getActiveMotivationList();
+      if (currentMsgs.length === 0) {
+        container.style.display = "none";
+        return;
+      }
+
       textEl.style.opacity = "0";
       setTimeout(() => {
-        currentMotivationIdx = (currentMotivationIdx + 1) % MOTIVATION_MESSAGES.length;
-        textEl.textContent = MOTIVATION_MESSAGES[currentMotivationIdx];
+        const mode = motiConfig?.displayMode || 'sequential';
+        if (mode === 'random') {
+          currentMotivationIdx = Math.floor(Math.random() * currentMsgs.length);
+        } else {
+          currentMotivationIdx = (currentMotivationIdx + 1) % currentMsgs.length;
+        }
+        if (!currentMsgs[currentMotivationIdx]) currentMotivationIdx = 0;
+        textEl.textContent = currentMsgs[currentMotivationIdx];
         textEl.style.opacity = "1";
       }, 500);
     };
 
-    setTimeout(() => {
-      container.style.opacity = "1";
-      const firstText = container.querySelector("#gemini-motivation-text");
-      if (firstText) firstText.style.opacity = "1";
-
+    if (!container.dataset.initialized || container.dataset.intervalMs !== String(intervalMs)) {
+      container.dataset.initialized = "true";
+      container.dataset.intervalMs = String(intervalMs);
       if (motivationInterval) clearInterval(motivationInterval);
-      motivationInterval = setInterval(rotate, 12000);
-    }, 2000);
+      motivationInterval = setInterval(rotate, intervalMs);
+    }
   }
 
-  // --- MOTIVATION CONFIG ---
-  const MOTIVATION_MESSAGES = [
-    "Chào khách hàng đầu ngày thật tươi tắn nhé! ☀️",
-    "Sử dụng đúng danh xưng giúp khách hàng cảm thấy được tôn trọng! ✨",
-    "Hãy luôn đồng cảm, khách hàng sẽ rất trân trọng đó! ❤️",
-    "Nhớ kiểm tra lịch sử chat và đơn hàng trước khi tư vấn nhé! 🔍",
-    "Hãy soát lại ticket thật kỹ trước khi gửi SWAT bạn nhé! ✅",
-    "Điền đầy đủ thông tin khi tạo ticket khiếu nại nhé! 📝",
-    "Cố gắng lên nào, bạn đang làm rất tốt công việc của mình đó! 💪",
-    "Một nụ cười của khách hàng là niềm vui của chúng ta! 😊"
-  ];
-  let currentMotivationIdx = 0;
-  let motivationInterval = null;
+  // Lắng nghe thay đổi storage từ chrome.storage.local để cập nhật ngay lập tức
+  try {
+    chrome.storage.onChanged.addListener((changes, namespace) => {
+      if (namespace === 'local' && changes.remoteConfig && changes.remoteConfig.newValue) {
+        updateCachedConfig(changes.remoteConfig.newValue);
+        injectGlobalMotivationMascot();
+      }
+    });
+  } catch (e) {}
 
   // Xóa hàm inject cũ trong toolbar
   // ...

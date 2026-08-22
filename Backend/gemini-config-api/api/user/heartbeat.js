@@ -18,7 +18,7 @@ module.exports = async (req, res) => {
     const token = authHeader.split(' ')[1];
     const decoded = jwt.verify(token, process.env.JWT_SECRET || 'secret-key-123');
 
-    const { version } = req.body;
+    const { version, userAgent } = req.body;
     const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
     await User.findByIdAndUpdate(decoded.userId, {
       lastActiveAt: new Date(),
@@ -26,6 +26,9 @@ module.exports = async (req, res) => {
       isUninstalled: false,
       extVersion: version || "N/A"
     });
+
+    const { updateDevice } = require('../../lib/deviceHelper');
+    await updateDevice(decoded.userId, userAgent || req.headers['user-agent'], ip, version);
 
     return res.status(200).json({ success: true });
   } catch (error) {

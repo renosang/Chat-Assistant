@@ -14,13 +14,16 @@ app.use(express.urlencoded({ extended: true }));
 const apiRoutes = {
   '/api/login': require('./api/login'),
   '/api/config': require('./api/config'),
+  '/api/categories': require('./api/categories'),
   '/api/admin/login': require('./api/admin/login'),
   '/api/admin/users': require('./api/admin/users'),
   '/api/admin/settings': require('./api/admin/settings'),
+  '/api/admin/audit-logs': require('./api/admin/audit-logs'),
   '/api/user/heartbeat': require('./api/user/heartbeat'),
   '/api/user/uninstalled': require('./api/user/uninstalled'),
   '/api/user/update-key': require('./api/user/update-key'),
-  '/api/deactivate': require('./api/deactivate')
+  '/api/deactivate': require('./api/deactivate'),
+  '/api/zalo-webhook': require('./api/zalo-webhook')
 };
 
 // Đăng ký tất cả các HTTP methods (GET, POST, PUT, DELETE, OPTIONS) cho từng Route
@@ -39,6 +42,9 @@ Object.keys(apiRoutes).forEach(route => {
 
 // Phục vụ giao diện trang Admin dưới dạng file tĩnh
 app.use('/admin', express.static(path.join(__dirname, 'admin')));
+
+// Tránh lỗi 404 cho favicon.ico
+app.get('/favicon.ico', (req, res) => res.status(204).end());
 
 // Chuyển hướng khi truy cập trang chủ
 app.get('/', (req, res) => {

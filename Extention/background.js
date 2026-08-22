@@ -58,33 +58,43 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   }
 });
 
+async function getActiveApiUrl() {
+  try {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 1000);
+    const res = await fetch(`http://localhost:3010/api/config?t=${Date.now()}`, { signal: controller.signal });
+    clearTimeout(timer);
+    if (res.ok) {
+      return "http://localhost:3010/api";
+    }
+  } catch (e) {}
+  return "https://api.beegadget.net/api";
+}
+
 // 2. CORE FUNCTIONS
 async function fetchRemoteConfig() {
   try {
     const settings = await chrome.storage.sync.get(['authToken']);
-
-    // Log cảnh báo nếu chưa đăng nhập
-    if (!settings.authToken) {
-      console.warn("[Gemini BG] ⚠️ Chưa có AuthToken. Vui lòng đăng nhập qua Popup để tải Config.");
-      return;
+    const headers = {};
+    if (settings.authToken) {
+      headers['Authorization'] = `Bearer ${settings.authToken}`;
     }
 
-    console.log("[Gemini BG] Fetching from:", API_URL);
-    const response = await fetch(`${API_URL}?t=${Date.now()}`, {
-      headers: { 
-        'Authorization': `Bearer ${settings.authToken}`
-      }
-    });
+    const baseUrl = await getActiveApiUrl();
+    const apiUrl = `${baseUrl}/config?t=${Date.now()}`;
+    console.log("[Gemini BG] Fetching from:", apiUrl);
 
-      if (response.ok) {
-        const config = await response.json();
-        
-        const typoCount = config.typoDictionary ? config.typoDictionary.length : 0;
-        console.log(`[Gemini BG] ✅ Config loaded. Typos: ${typoCount}`);
+    const response = await fetch(apiUrl, { headers });
 
-        await chrome.storage.local.set({
-          remoteConfig: config
-        });
+    if (response.ok) {
+      const config = await response.json();
+      
+      const typoCount = config.typoDictionary ? config.typoDictionary.length : 0;
+      console.log(`[Gemini BG] ✅ Config loaded from ${baseUrl}. Theme: ${config.motivationConfig?.theme}`);
+
+      await chrome.storage.local.set({
+        remoteConfig: config
+      });
 
       // Notify all tabs including the active one
       chrome.tabs.query({}, (tabs) => {

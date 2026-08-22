@@ -1,6 +1,7 @@
 
 const connectToDatabase = require('../../lib/db');
 const User = require('../../models/User');
+const { sendZaloAlert } = require('../../lib/zaloAlert');
 
 module.exports = async (req, res) => {
   const { u } = req.query; // Nhận username từ URL
@@ -10,6 +11,10 @@ module.exports = async (req, res) => {
     await connectToDatabase();
     await User.findOneAndUpdate({ username: u }, { isUninstalled: true });
     
+    // Gửi cảnh báo Zalo
+    const timeStr = new Date().toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' });
+    await sendZaloAlert(`⚠️ CẢNH BÁO: Nhân viên @${u} đã gỡ cài đặt tiện ích Extension lúc ${timeStr}.`);
+
     // Trả về trang thông báo thân thiện
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
     return res.send(`

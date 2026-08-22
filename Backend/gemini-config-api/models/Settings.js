@@ -19,6 +19,27 @@ const SettingsSchema = new mongoose.Schema({
     }],
     EN: [String]
   },
+  categoryChannelMappings: [{
+    categoryId: String,
+    categoryName: String,
+    appliedChannels: [String],
+    isAllChannels: Boolean
+  }],
+  motivationConfig: {
+    isEnabled: { type: Boolean, default: true },
+    intervalSeconds: { type: Number, default: 12 },
+    displayMode: { type: String, default: 'sequential' },
+    theme: { type: String, default: 'indigo' },
+    showMascot: { type: Boolean, default: true },
+    messages: [{
+      id: String,
+      text: String,
+      category: String,
+      isActive: Boolean,
+      priority: Number,
+      timeSlot: String
+    }]
+  },
   minVersion: { type: String, default: '4.1' },
   downloadUrl: { type: String, default: '' },
   updatedAt: { type: Date, default: Date.now }

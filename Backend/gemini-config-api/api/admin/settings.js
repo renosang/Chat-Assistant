@@ -1,6 +1,8 @@
 
 const connectToDatabase = require('../../lib/db');
 const Settings = require('../../models/Settings');
+const { logAction } = require('../../lib/auditLogger');
+const { sendZaloAlert } = require('../../lib/zaloAlert');
 
 module.exports = async (req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -31,6 +33,8 @@ module.exports = async (req, res) => {
             brandGroups: data.brandGroups || [],
             typoDictionary: data.typoDictionary || [],
             forbiddenRules: data.forbiddenRules || { VI: [], EN: [] },
+            categoryChannelMappings: data.categoryChannelMappings || [],
+            motivationConfig: data.motivationConfig || undefined,
             minVersion: data.minVersion || '4.1',
             downloadUrl: data.downloadUrl || '',
             updatedAt: new Date()
@@ -39,6 +43,12 @@ module.exports = async (req, res) => {
         { upsert: true }
       );
       const saved = await Settings.findOne({ type: 'global' }).lean();
+      await logAction('UPDATE_SETTINGS', 'Cập nhật cấu hình hệ thống toàn cục (Global Settings)', req);
+      
+      // Gửi cảnh báo Zalo
+      const timeStr = new Date().toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' });
+      await sendZaloAlert(`⚙️ CẤU HÌNH: Cấu hình hệ thống toàn cục (Global Settings) đã được cập nhật thành công từ trang quản trị lúc ${timeStr}.`);
+
       return res.json(saved);
     } catch (error) {
       return res.status(500).json({ error: error.message });
