@@ -2173,6 +2173,7 @@ html.gemini-dark-mode *::-webkit-scrollbar-thumb:hover {
 
 /* --- CUSTOMER ORDER & PRODUCT CARD OVERHAUL --- */
 html.gemini-dark-mode .chat-item__content--link,
+html.gemini-dark-mode .chat-left .chat-item__content--link,
 html.gemini-dark-mode [class*="chat-item__content--link"] {
   background-color: transparent !important;
   background: transparent !important;
@@ -2182,8 +2183,7 @@ html.gemini-dark-mode [class*="chat-item__content--link"] {
 }
 
 html.gemini-dark-mode .message-customer-order,
-html.gemini-dark-mode [class*="message-customer-order"],
-html.gemini-dark-mode [class*="message-product-info"] {
+html.gemini-dark-mode [class*="message-customer-order"] {
   background-color: var(--gemini-panel, #1e293b) !important;
   background: var(--gemini-panel, #1e293b) !important;
   border: 1px solid rgba(255, 255, 255, 0.12) !important;
@@ -2253,12 +2253,34 @@ html.gemini-dark-mode [class*="hermes-price"] {
   font-weight: 800 !important;
 }
 
-html.gemini-dark-mode .message__product-img-wrapper {
+/* Perfect Square Product Image with 4 Rounded Corners */
+html.gemini-dark-mode .message__product-img-wrapper,
+html.gemini-dark-mode [class*="message__product-img-wrapper"] {
+  width: 56px !important;
+  height: 56px !important;
+  min-width: 56px !important;
+  min-height: 56px !important;
+  max-width: 56px !important;
+  max-height: 56px !important;
+  border-radius: 8px !important;
+  overflow: hidden !important;
   background-color: rgba(255, 255, 255, 0.05) !important;
   border: 1px solid rgba(255, 255, 255, 0.12) !important;
-  border-radius: 8px !important;
-  padding: 2px !important;
-  overflow: hidden !important;
+  margin-right: 10px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex: 0 0 56px !important;
+  padding: 0 !important;
+}
+
+html.gemini-dark-mode .message__product-img-wrapper img,
+html.gemini-dark-mode [class*="message__product-img-wrapper"] img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  border-radius: 6px !important;
+  display: block !important;
 }
 
 /* Toast Notification for Hotkey */

@@ -2704,6 +2704,15 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
     });
 
     // 20. Customer Order Card (.message-customer-order, .chat-item__content--link)
+    const linkContainers = document.querySelectorAll('.chat-item__content--link, [class*="chat-item__content--link"]');
+    linkContainers.forEach(lc => {
+      lc.style.setProperty('background-color', 'transparent', 'important');
+      lc.style.setProperty('background', 'transparent', 'important');
+      lc.style.setProperty('border', 'none', 'important');
+      lc.style.setProperty('box-shadow', 'none', 'important');
+      lc.style.setProperty('padding', '0', 'important');
+    });
+
     const orderCards = document.querySelectorAll('.message-customer-order, [class*="message-customer-order"]');
     orderCards.forEach(oc => {
       oc.style.setProperty('background-color', pPanel, 'important');
@@ -2722,6 +2731,25 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
 
       const productTitle = oc.querySelector('.hermes-title');
       if (productTitle) productTitle.style.setProperty('color', '#f8fafc', 'important');
+
+      const imgWrappers = oc.querySelectorAll('.message__product-img-wrapper');
+      imgWrappers.forEach(iw => {
+        iw.style.setProperty('width', '56px', 'important');
+        iw.style.setProperty('height', '56px', 'important');
+        iw.style.setProperty('min-width', '56px', 'important');
+        iw.style.setProperty('min-height', '56px', 'important');
+        iw.style.setProperty('border-radius', '8px', 'important');
+        iw.style.setProperty('overflow', 'hidden', 'important');
+        iw.style.setProperty('padding', '0', 'important');
+
+        const img = iw.querySelector('img');
+        if (img) {
+          img.style.setProperty('width', '100%', 'important');
+          img.style.setProperty('height', '100%', 'important');
+          img.style.setProperty('object-fit', 'cover', 'important');
+          img.style.setProperty('border-radius', '6px', 'important');
+        }
+      });
     });
   }
 
