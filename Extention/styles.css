@@ -2177,9 +2177,29 @@ html.gemini-dark-mode .hermes-title,
 html.gemini-dark-mode .message-customer-order,
 html.gemini-dark-mode .message-customer-order *,
 html.gemini-dark-mode .message__product-info,
-html.gemini-dark-mode .message__product-info *,
-html.gemini-dark-mode [class*="hermes-"] {
+html.gemini-dark-mode .message__product-info * {
   color: #ffffff !important;
+}
+
+html.gemini-dark-mode .hermes-message__unavailable,
+html.gemini-dark-mode [class*="hermes-message__unavailable"] {
+  color: #94a3b8 !important;
+  background-color: rgba(255, 255, 255, 0.05) !important;
+  border-radius: 8px !important;
+  padding: 6px 12px !important;
+  font-style: italic !important;
+}
+
+html.gemini-dark-mode .hermes-message__title-product,
+html.gemini-dark-mode [class*="hermes-message__title-product"] {
+  color: #38bdf8 !important;
+  font-weight: 700 !important;
+}
+
+html.gemini-dark-mode .hermes-price,
+html.gemini-dark-mode [class*="hermes-price"] {
+  color: #34d399 !important;
+  font-weight: 800 !important;
 }
 
 html.gemini-dark-mode .message__product-img-wrapper {

@@ -2741,7 +2741,40 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
     html.classList.add(`preset-${cachedPreset}`);
 
     const preset = DARK_PRESETS[cachedPreset] || DARK_PRESETS.midnight;
-    applyThemeAccent(preset.accent);
+    cachedAccent = preset.accent;
+
+    if (html.classList.contains("gemini-dark-mode")) {
+      // 1. Force main app background
+      const body = document.body;
+      html.style.setProperty('background-color', preset.bg, 'important');
+      html.style.setProperty('background', preset.bg, 'important');
+      if (body) {
+        body.style.setProperty('background-color', preset.bg, 'important');
+        body.style.setProperty('background', preset.bg, 'important');
+      }
+
+      const mainContainers = document.querySelectorAll('#app, .app-content, .content-wrapper, .content-body, .chat-application, .chat-app-window, .user-chats, .chats, .chat-body');
+      mainContainers.forEach(mc => {
+        mc.style.setProperty('background-color', preset.bg, 'important');
+        mc.style.setProperty('background', preset.bg, 'important');
+      });
+
+      // 2. Force sidebars (Left menu, Customer detail, Chat list)
+      const sidebars = document.querySelectorAll('.main-menu, .menu-content, .sidebar-content, .chat-sidebar, .customer-detail, .sidebar-right, #navbar-mobile, .header-navbar');
+      sidebars.forEach(sb => {
+        sb.style.setProperty('background-color', preset.sidebar, 'important');
+        sb.style.setProperty('background', preset.sidebar, 'important');
+      });
+
+      // 3. Force panels & cards
+      const panels = document.querySelectorAll('.card, .card-body, .card-header, .modal-content, .chat-users__room, .chat-app-input--utils, .chat-suggestions, .sort-dropdown, .ql-container, .ql-editor');
+      panels.forEach(pn => {
+        pn.style.setProperty('background-color', preset.panel, 'important');
+        pn.style.setProperty('background', preset.panel, 'important');
+      });
+
+      applyThemeAccent(preset.accent);
+    }
   }
 
   function applyThemeAccent(accent) {
