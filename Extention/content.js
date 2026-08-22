@@ -1640,7 +1640,10 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
         }
       }
     });
-    observer.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['disabled'] });
+    var targetNode = document.body || document.documentElement;
+    if (targetNode) {
+      observer.observe(targetNode, { childList: true, subtree: true, attributes: true, attributeFilter: ['disabled'] });
+    }
   }
   initSendButtonBlocking();
   // Add postMessage helpers to communicate with main world script
