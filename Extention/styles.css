@@ -2174,14 +2174,7 @@ html.gemini-dark-mode *::-webkit-scrollbar-thumb:hover {
 /* --- CUSTOMER ORDER & PRODUCT CARD OVERHAUL --- */
 html.gemini-dark-mode .chat-item__content--link,
 html.gemini-dark-mode .chat-left .chat-item__content--link,
-html.gemini-dark-mode [class*="chat-item__content--link"] {
-  background-color: transparent !important;
-  background: transparent !important;
-  border: none !important;
-  box-shadow: none !important;
-  padding: 0 !important;
-}
-
+html.gemini-dark-mode [class*="chat-item__content--link"],
 html.gemini-dark-mode .message-customer-order,
 html.gemini-dark-mode [class*="message-customer-order"],
 html.gemini-dark-mode .message-product-info,
@@ -2192,6 +2185,21 @@ html.gemini-dark-mode [class*="message-product-info"] {
   border-radius: 14px !important;
   padding: 12px 14px !important;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3) !important;
+}
+
+/* Inner nested containers should be transparent */
+html.gemini-dark-mode .chat-item__content--link .message-customer-order,
+html.gemini-dark-mode .chat-item__content--link .message-product-info,
+html.gemini-dark-mode .chat-item__content--link .message__content,
+html.gemini-dark-mode .chat-item__content--link div,
+html.gemini-dark-mode .message-customer-order .message__content,
+html.gemini-dark-mode .message-product-info .message__content,
+html.gemini-dark-mode .message__content {
+  background: transparent !important;
+  background-color: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
 }
 
 html.gemini-dark-mode .hermes-message__title-order,
@@ -2207,15 +2215,6 @@ html.gemini-dark-mode [class*="hermes-message__title-product"] {
   margin-bottom: 8px !important;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
   padding-bottom: 6px !important;
-}
-
-html.gemini-dark-mode .message__content,
-html.gemini-dark-mode .message__product-info {
-  background: transparent !important;
-  background-color: transparent !important;
-  border: none !important;
-  padding: 0 !important;
-  box-shadow: none !important;
 }
 
 html.gemini-dark-mode .hermes-title,
