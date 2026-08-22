@@ -2916,11 +2916,75 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
     });
   }
 
-  // ---------- FEATURE TOGGLES & ALLOW COPY LOGIC ----------
+  // ---------- ULTIMATE ALLOW COPY & UNLOCK SELECTION ENGINE ----------
   let cachedAllowCopy = true;
   let cachedAutoCapitalize = true;
   let cachedCleanPaste = true;
-  let cachedPronounBar = true;
+
+  function injectMainWorldUnblockScript() {
+    const scriptId = "gemini-main-world-allow-copy";
+    if (document.getElementById(scriptId)) return;
+
+    const script = document.createElement("script");
+    script.id = scriptId;
+    script.textContent = `
+      (function() {
+        const eventsToUnblock = ['contextmenu', 'selectstart', 'copy', 'cut', 'dragstart', 'mousedown', 'mouseup', 'keydown', 'keyup'];
+        
+        function nukeInlineHandlers() {
+          eventsToUnblock.forEach(evt => {
+            try {
+              if (document['on' + evt]) document['on' + evt] = null;
+              if (window['on' + evt]) window['on' + evt] = null;
+              if (document.body && document.body['on' + evt]) document.body['on' + evt] = null;
+            } catch(e) {}
+          });
+
+          // Nuke inline style user-select: none
+          const noSelectEls = document.querySelectorAll('[style*="user-select"], [oncontextmenu], [onselectstart], [oncopy], [ondragstart]');
+          noSelectEls.forEach(el => {
+            try {
+              el.removeAttribute('oncontextmenu');
+              el.removeAttribute('onselectstart');
+              el.removeAttribute('oncopy');
+              el.removeAttribute('ondragstart');
+              if (el.style.userSelect === 'none' || el.style.webkitUserSelect === 'none') {
+                el.style.setProperty('user-select', 'text', 'important');
+                el.style.setProperty('-webkit-user-select', 'text', 'important');
+              }
+            } catch(e) {}
+          });
+        }
+
+        // Intercept EventTarget.prototype.addEventListener in Page World to block preventDefault calls on copy/contextmenu
+        try {
+          const originalAddEventListener = EventTarget.prototype.addEventListener;
+          EventTarget.prototype.addEventListener = function(type, listener, options) {
+            if (eventsToUnblock.includes(type)) {
+              const wrappedListener = function(e) {
+                if (typeof listener === 'function') {
+                  try {
+                    const noopPrevent = function() {};
+                    const origPrevent = e.preventDefault;
+                    e.preventDefault = noopPrevent;
+                    const res = listener.call(this, e);
+                    e.preventDefault = origPrevent;
+                    return res;
+                  } catch(err) {}
+                }
+              };
+              return originalAddEventListener.call(this, type, wrappedListener, options);
+            }
+            return originalAddEventListener.call(this, type, listener, options);
+          };
+        } catch(e) {}
+
+        nukeInlineHandlers();
+        setInterval(nukeInlineHandlers, 1000);
+      })();
+    `;
+    (document.head || document.documentElement).appendChild(script);
+  }
 
   function applyAllowCopyFeature(enabled) {
     cachedAllowCopy = enabled !== false;
@@ -2932,28 +2996,40 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
         styleEl = document.createElement("style");
         styleEl.id = styleId;
         styleEl.textContent = `
-          *, html, body, div, span, p, a, td, th, img, code, pre, label {
-            user-select: text !important;
+          html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pre, a, abbr, acronym, address, big, cite, code, del, dfn, em, img, ins, kbd, q, s, samp, small, strike, strong, sub, sup, tt, var, b, u, i, center, dl, dt, dd, ol, ul, li, fieldset, form, label, legend, table, caption, tbody, tfoot, thead, tr, th, td, article, aside, canvas, details, embed, figure, figcaption, footer, header, hgroup, menu, nav, output, ruby, section, summary, time, mark, audio, video, input, textarea, select, button, * {
             -webkit-user-select: text !important;
             -moz-user-select: text !important;
             -ms-user-select: text !important;
+            user-select: text !important;
+            -webkit-touch-callout: default !important;
+            pointer-events: auto !important;
           }
         `;
         (document.head || document.documentElement).appendChild(styleEl);
       }
+      injectMainWorldUnblockScript();
     } else {
       if (styleEl) styleEl.remove();
+      const scriptEl = document.getElementById("gemini-main-world-allow-copy");
+      if (scriptEl) scriptEl.remove();
     }
   }
 
-  // Global event interceptors for Allow Copy
+  // Intercept events in capture phase in Content Script
   ['contextmenu', 'selectstart', 'copy', 'cut', 'dragstart'].forEach(eventName => {
     window.addEventListener(eventName, function(e) {
       if (cachedAllowCopy) {
-        e.stopPropagation();
+        e.stopImmediatePropagation();
       }
     }, true);
   });
+
+  // Intercept keydown for Ctrl+C, Ctrl+V, Ctrl+A, Ctrl+X, Ctrl+U, F12
+  window.addEventListener('keydown', function(e) {
+    if (cachedAllowCopy && (e.ctrlKey || e.metaKey) && ['c', 'v', 'a', 'x', 'u'].includes(e.key.toLowerCase())) {
+      e.stopImmediatePropagation();
+    }
+  }, true);
 
   // Global event interceptor for Clean Paste
   document.addEventListener('paste', function(e) {
@@ -2991,16 +3067,8 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
     }
   }, true);
 
-  function applyPronounBarFeature(enabled) {
-    cachedPronounBar = enabled !== false;
-    const pronounWrappers = document.querySelectorAll('.gemini-pronoun-wrapper, .gemini-pronoun-quick-btn');
-    pronounWrappers.forEach(pw => {
-      pw.style.display = cachedPronounBar ? '' : 'none !important';
-    });
-  }
-
   // Read initial theme mode, dimmer, preset, accent, font size & feature toggles
-  chrome.storage.sync.get(['themeMode', 'dimmerValue', 'darkModePreset', 'themeAccent', 'chatFontSize', 'allowCopy', 'autoCapitalize', 'cleanPaste', 'pronounBar'], (data) => {
+  chrome.storage.sync.get(['themeMode', 'dimmerValue', 'darkModePreset', 'themeAccent', 'chatFontSize', 'allowCopy', 'autoCapitalize', 'cleanPaste'], (data) => {
     applyDisplayMode(data.themeMode || 'light', data.dimmerValue || 100);
     if (data.darkModePreset) applyDarkModePreset(data.darkModePreset);
     if (data.themeAccent) applyThemeAccent(data.themeAccent);
@@ -3008,7 +3076,6 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
     applyAllowCopyFeature(data.allowCopy);
     cachedAutoCapitalize = data.autoCapitalize !== false;
     cachedCleanPaste = data.cleanPaste !== false;
-    applyPronounBarFeature(data.pronounBar);
   });
 
   // Hotkey Alt + Shift + D to toggle Day / Night Mode
@@ -3066,10 +3133,6 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
     }
     if (request.action === "CLEAN_PASTE_CHANGED") {
       cachedCleanPaste = request.cleanPaste !== false;
-      return;
-    }
-    if (request.action === "PRONOUN_BAR_CHANGED") {
-      applyPronounBarFeature(request.pronounBar);
       return;
     }
   });

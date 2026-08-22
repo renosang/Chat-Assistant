@@ -465,13 +465,11 @@ document.addEventListener('DOMContentLoaded', () => {
   const toggleAllowCopy = document.getElementById('toggleAllowCopy');
   const toggleAutoCapitalize = document.getElementById('toggleAutoCapitalize');
   const toggleCleanPaste = document.getElementById('toggleCleanPaste');
-  const togglePronounBar = document.getElementById('togglePronounBar');
 
-  chrome.storage.sync.get(['allowCopy', 'autoCapitalize', 'cleanPaste', 'pronounBar'], (data) => {
+  chrome.storage.sync.get(['allowCopy', 'autoCapitalize', 'cleanPaste'], (data) => {
     if (toggleAllowCopy) toggleAllowCopy.checked = data.allowCopy !== false; // Default enabled
     if (toggleAutoCapitalize) toggleAutoCapitalize.checked = data.autoCapitalize !== false; // Default enabled
     if (toggleCleanPaste) toggleCleanPaste.checked = data.cleanPaste !== false; // Default enabled
-    if (togglePronounBar) togglePronounBar.checked = data.pronounBar !== false; // Default enabled
   });
 
   if (toggleAllowCopy) {
@@ -497,15 +495,6 @@ document.addEventListener('DOMContentLoaded', () => {
       const val = e.target.checked;
       chrome.storage.sync.set({ cleanPaste: val }, () => {
         notifyTabsSettingChange('CLEAN_PASTE_CHANGED', { cleanPaste: val });
-      });
-    });
-  }
-
-  if (togglePronounBar) {
-    togglePronounBar.addEventListener('change', (e) => {
-      const val = e.target.checked;
-      chrome.storage.sync.set({ pronounBar: val }, () => {
-        notifyTabsSettingChange('PRONOUN_BAR_CHANGED', { pronounBar: val });
       });
     });
   }
