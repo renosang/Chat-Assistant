@@ -2968,6 +2968,37 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
     }
   }
 
+  // Auto Copy on Text Selection (Copy-on-Select)
+  let lastCopiedText = "";
+  document.addEventListener("mouseup", function(e) {
+    if (!cachedAllowCopy) return;
+
+    setTimeout(() => {
+      const selection = window.getSelection();
+      const text = selection ? selection.toString().trim() : "";
+
+      if (text && text.length > 0 && text !== lastCopiedText) {
+        lastCopiedText = text;
+
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(text).then(() => {
+            showThemeToast("Đã tự động sao chép văn bản! 📋");
+          }).catch(() => {
+            try {
+              document.execCommand("copy");
+              showThemeToast("Đã tự động sao chép văn bản! 📋");
+            } catch (err) {}
+          });
+        } else {
+          try {
+            document.execCommand("copy");
+            showThemeToast("Đã tự động sao chép văn bản! 📋");
+          } catch (err) {}
+        }
+      }
+    }, 50);
+  });
+
   // Global event interceptor for Clean Paste
   document.addEventListener('paste', function(e) {
     if (!cachedCleanPaste) return;
