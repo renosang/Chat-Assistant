@@ -2183,7 +2183,9 @@ html.gemini-dark-mode [class*="chat-item__content--link"] {
 }
 
 html.gemini-dark-mode .message-customer-order,
-html.gemini-dark-mode [class*="message-customer-order"] {
+html.gemini-dark-mode [class*="message-customer-order"],
+html.gemini-dark-mode .message-product-info,
+html.gemini-dark-mode [class*="message-product-info"] {
   background-color: var(--gemini-panel, #1e293b) !important;
   background: var(--gemini-panel, #1e293b) !important;
   border: 1px solid rgba(255, 255, 255, 0.12) !important;
@@ -2193,8 +2195,12 @@ html.gemini-dark-mode [class*="message-customer-order"] {
 }
 
 html.gemini-dark-mode .hermes-message__title-order,
-html.gemini-dark-mode [class*="hermes-message__title-order"] {
-  color: #38bdf8 !important; /* Bright Cyan for Order ID */
+html.gemini-dark-mode [class*="hermes-message__title-order"],
+html.gemini-dark-mode .hermes-message__title-product,
+html.gemini-dark-mode [class*="hermes-message__title-product"] {
+  color: #38bdf8 !important; /* Bright Cyan for Headers */
+  background: transparent !important;
+  background-color: transparent !important;
   font-weight: 800 !important;
   font-size: 13px !important;
   display: block !important;
@@ -2209,6 +2215,7 @@ html.gemini-dark-mode .message__product-info {
   background-color: transparent !important;
   border: none !important;
   padding: 0 !important;
+  box-shadow: none !important;
 }
 
 html.gemini-dark-mode .hermes-title,
@@ -2226,7 +2233,7 @@ html.gemini-dark-mode .message__product-info .text-bold-700 {
 }
 
 html.gemini-dark-mode .message__product-info span:last-child {
-  color: #34d399 !important; /* Vibrant emerald for DELIVERED status */
+  color: #34d399 !important; /* Vibrant emerald for status/price */
   font-weight: 800 !important;
   margin-top: 4px !important;
   display: inline-block !important;
@@ -2241,16 +2248,12 @@ html.gemini-dark-mode [class*="hermes-message__unavailable"] {
   font-style: italic !important;
 }
 
-html.gemini-dark-mode .hermes-message__title-product,
-html.gemini-dark-mode [class*="hermes-message__title-product"] {
-  color: #38bdf8 !important;
-  font-weight: 700 !important;
-}
-
 html.gemini-dark-mode .hermes-price,
 html.gemini-dark-mode [class*="hermes-price"] {
-  color: #34d399 !important;
+  color: #34d399 !important; /* Vibrant emerald for price */
   font-weight: 800 !important;
+  display: block !important;
+  margin-top: 4px !important;
 }
 
 /* Perfect Square Product Image with 4 Rounded Corners */

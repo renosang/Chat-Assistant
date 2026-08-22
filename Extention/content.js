@@ -2703,7 +2703,7 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
       sp.style.setProperty('border-color', '#334155', 'important');
     });
 
-    // 20. Customer Order Card (.message-customer-order, .chat-item__content--link)
+    // 20. Customer Order Card & Product Information Card (.message-customer-order, .message-product-info, .chat-item__content--link)
     const linkContainers = document.querySelectorAll('.chat-item__content--link, [class*="chat-item__content--link"]');
     linkContainers.forEach(lc => {
       lc.style.setProperty('background-color', 'transparent', 'important');
@@ -2713,24 +2713,32 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
       lc.style.setProperty('padding', '0', 'important');
     });
 
-    const orderCards = document.querySelectorAll('.message-customer-order, [class*="message-customer-order"]');
-    orderCards.forEach(oc => {
+    const cardBoxes = document.querySelectorAll('.message-customer-order, [class*="message-customer-order"], .message-product-info, [class*="message-product-info"]');
+    cardBoxes.forEach(oc => {
       oc.style.setProperty('background-color', pPanel, 'important');
       oc.style.setProperty('background', pPanel, 'important');
       oc.style.setProperty('border', '1px solid rgba(255, 255, 255, 0.12)', 'important');
       oc.style.setProperty('border-radius', '14px', 'important');
+      oc.style.setProperty('padding', '12px 14px', 'important');
 
-      const titleOrder = oc.querySelector('.hermes-message__title-order');
-      if (titleOrder) titleOrder.style.setProperty('color', '#38bdf8', 'important');
+      const titleHeader = oc.querySelector('.hermes-message__title-order, .hermes-message__title-product');
+      if (titleHeader) {
+        titleHeader.style.setProperty('color', '#38bdf8', 'important');
+        titleHeader.style.setProperty('background', 'transparent', 'important');
+        titleHeader.style.setProperty('background-color', 'transparent', 'important');
+      }
 
       const innerContent = oc.querySelector('.message__content, .message__product-info');
-      if (innerContent) {
+      if (innerContent && innerContent !== oc) {
         innerContent.style.setProperty('background', 'transparent', 'important');
         innerContent.style.setProperty('background-color', 'transparent', 'important');
       }
 
       const productTitle = oc.querySelector('.hermes-title');
       if (productTitle) productTitle.style.setProperty('color', '#f8fafc', 'important');
+
+      const priceTag = oc.querySelector('.hermes-price');
+      if (priceTag) priceTag.style.setProperty('color', '#34d399', 'important');
 
       const imgWrappers = oc.querySelectorAll('.message__product-img-wrapper');
       imgWrappers.forEach(iw => {
