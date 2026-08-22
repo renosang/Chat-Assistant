@@ -2384,4 +2384,69 @@ html.gemini-dark-mode #gemini-macro-full-preview span {
   color: #e2e8f0 !important;
 }
 
+/* --- QUICK MACRO SEARCH RESULTS ITEMS DARK MODE OVERHAUL --- */
+html.gemini-dark-mode .macro-search-item,
+html.gemini-dark-mode [class*="macro-search-item"] {
+  background: rgba(15, 23, 42, 0.75) !important;
+  background-color: rgba(15, 23, 42, 0.75) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  color: #f8fafc !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+}
+
+html.gemini-dark-mode .macro-search-item:hover,
+html.gemini-dark-mode .macro-search-item.selected,
+html.gemini-dark-mode [class*="macro-search-item"]:hover {
+  background: rgba(99, 102, 241, 0.22) !important;
+  background-color: rgba(99, 102, 241, 0.22) !important;
+  border-color: var(--gemini-accent, #6366f1) !important;
+  box-shadow: 0 8px 24px rgba(99, 102, 241, 0.25) !important;
+}
+
+html.gemini-dark-mode .macro-search-item strong,
+html.gemini-dark-mode [class*="macro-search-item"] strong {
+  color: #38bdf8 !important;
+  font-weight: 800 !important;
+}
+
+html.gemini-dark-mode .macro-search-item p,
+html.gemini-dark-mode [class*="macro-search-item"] p {
+  color: #cbd5e1 !important;
+}
+
+/* Category Badges in Dark Mode */
+html.gemini-dark-mode .m-category-tag {
+  background: rgba(99, 102, 241, 0.2) !important;
+  color: #a5b4fc !important;
+  border-color: rgba(99, 102, 241, 0.4) !important;
+}
+
+html.gemini-dark-mode .m-category-tag.cat-general {
+  background: rgba(16, 185, 129, 0.2) !important;
+  color: #6ee7b7 !important;
+  border-color: rgba(16, 185, 129, 0.4) !important;
+}
+
+html.gemini-dark-mode .m-category-tag.cat-warning {
+  background: rgba(244, 63, 94, 0.2) !important;
+  color: #fda4af !important;
+  border-color: rgba(244, 63, 94, 0.4) !important;
+}
+
+/* Use Count Badges in Dark Mode */
+html.gemini-dark-mode .m-use-count {
+  background: rgba(245, 158, 11, 0.2) !important;
+  color: #fcd34d !important;
+  border-color: rgba(245, 158, 11, 0.4) !important;
+}
+
+/* Highlighted Search Keywords in Dark Mode */
+html.gemini-dark-mode .macro-search-item mark {
+  background: rgba(234, 179, 8, 0.3) !important;
+  color: #fef08a !important;
+  border: 1px solid rgba(234, 179, 8, 0.5) !important;
+  border-radius: 4px !important;
+  padding: 1px 4px !important;
+}
+
 

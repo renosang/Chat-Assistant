@@ -2767,6 +2767,19 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
       macroOverlay.style.setProperty('background', pPanel, 'important');
       macroOverlay.style.setProperty('border', '1px solid rgba(255, 255, 255, 0.15)', 'important');
       macroOverlay.style.setProperty('color', '#f8fafc', 'important');
+
+      const items = macroOverlay.querySelectorAll('.macro-search-item');
+      items.forEach(it => {
+        if (!it.classList.contains('selected')) {
+          it.style.setProperty('background-color', 'rgba(15, 23, 42, 0.65)', 'important');
+          it.style.setProperty('background', 'rgba(15, 23, 42, 0.65)', 'important');
+          it.style.setProperty('border', '1px solid rgba(255, 255, 255, 0.1)', 'important');
+        }
+        const st = it.querySelector('strong');
+        if (st) st.style.setProperty('color', '#38bdf8', 'important');
+        const p = it.querySelector('p');
+        if (p) p.style.setProperty('color', '#cbd5e1', 'important');
+      });
     }
 
     const macroFullPreview = document.getElementById("gemini-macro-full-preview");
