@@ -3003,10 +3003,16 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
   document.addEventListener('paste', function(e) {
     if (!cachedCleanPaste) return;
     const active = document.activeElement;
-    if (active && (active.tagName === 'TEXTAREA' || active.tagName === 'INPUT' || active.isContentEditable)) {
+    if (active && (active.tagName === 'TEXTAREA' || active.tagName === 'INPUT' || active.isContentEditable || active.closest('.ql-editor'))) {
       const pasteText = (e.clipboardData || window.clipboardData).getData('text');
       if (pasteText) {
-        const cleaned = pasteText.replace(/\r\n/g, '\n').replace(/\n{3,}/g, '\n\n').replace(/[ \t]{2,}/g, ' ');
+        // Normalize newlines, collapse consecutive empty lines, trim trailing line spaces, and trim overall end of text
+        let cleaned = pasteText.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+        cleaned = cleaned.replace(/[ \t]+$/gm, ''); // Trim spaces at end of each line
+        cleaned = cleaned.replace(/\n{3,}/g, '\n\n'); // Max 2 newlines between paragraphs
+        cleaned = cleaned.replace(/[ \t]{2,}/g, ' '); // Collapse double spaces
+        cleaned = cleaned.trim(); // Trim all leading and trailing empty lines/spaces
+
         if (cleaned !== pasteText) {
           e.preventDefault();
           document.execCommand('insertText', false, cleaned);
