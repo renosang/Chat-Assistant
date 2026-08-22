@@ -1320,11 +1320,12 @@
 html.gemini-dark-mode,
 body.gemini-dark-mode {
   background-color: #0f172a !important;
+  background: #0f172a !important;
   color: #f8fafc !important;
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-/* Backgrounds & Containers */
+/* Backgrounds & Containers Catch-All */
 html.gemini-dark-mode body,
 html.gemini-dark-mode #app,
 html.gemini-dark-mode .app-content,
@@ -1345,14 +1346,44 @@ html.gemini-dark-mode .sidebar-right,
 html.gemini-dark-mode .card,
 html.gemini-dark-mode .card-body,
 html.gemini-dark-mode .card-header,
-html.gemini-dark-mode .modal-content {
+html.gemini-dark-mode .modal-content,
+html.gemini-dark-mode div.bg-white,
+html.gemini-dark-mode div.bg-light,
+html.gemini-dark-mode div[class*="bg-white"],
+html.gemini-dark-mode div[class*="bg-light"],
+html.gemini-dark-mode [class*="right-sidebar"],
+html.gemini-dark-mode [class*="sidebar-detached"],
+html.gemini-dark-mode [class*="orders"],
+html.gemini-dark-mode [class*="product"],
+html.gemini-dark-mode [class*="ticket"] {
   background-color: #0f172a !important;
   background: #0f172a !important;
   color: #f8fafc !important;
   border-color: #1e293b !important;
 }
 
-/* Sub-containers & User Cards */
+/* Force dark on inline white backgrounds */
+html.gemini-dark-mode div[style*="background-color: white"],
+html.gemini-dark-mode div[style*="background-color: rgb(255"],
+html.gemini-dark-mode div[style*="background-color: #fff"],
+html.gemini-dark-mode div[style*="background-color: #FFF"],
+html.gemini-dark-mode div[style*="background: white"],
+html.gemini-dark-mode div[style*="background: rgb(255"],
+html.gemini-dark-mode div[style*="background: #fff"],
+html.gemini-dark-mode div[style*="background: #FFF"],
+html.gemini-dark-mode div[style*="background:#fff"],
+html.gemini-dark-mode div[style*="background:#FFF"],
+html.gemini-dark-mode div[style*="background: #f8f9fa"],
+html.gemini-dark-mode div[style*="background-color: #f8f9fa"],
+html.gemini-dark-mode div[style*="background: #f3f4f6"],
+html.gemini-dark-mode div[style*="background-color: #f3f4f6"] {
+  background-color: #1e293b !important;
+  background: #1e293b !important;
+  color: #f8fafc !important;
+  border-color: #334155 !important;
+}
+
+/* Sub-containers, User Cards & List Items */
 html.gemini-dark-mode .media,
 html.gemini-dark-mode .list-group-item,
 html.gemini-dark-mode .chat-sidebar .media,
@@ -1360,48 +1391,76 @@ html.gemini-dark-mode .store-list,
 html.gemini-dark-mode .customer-list-item,
 html.gemini-dark-mode .nav-tabs,
 html.gemini-dark-mode .nav-tabs .nav-link,
-html.gemini-dark-mode .tab-content {
+html.gemini-dark-mode .tab-content,
+html.gemini-dark-mode [class*="user-profile"],
+html.gemini-dark-mode [class*="chat-header"],
+html.gemini-dark-mode [class*="chat-navbar"] {
   background-color: #1e293b !important;
+  background: #1e293b !important;
   color: #f1f5f9 !important;
   border-color: #334155 !important;
 }
 
-/* Active / Hover items */
+/* Active & Hover items */
 html.gemini-dark-mode .media:hover,
 html.gemini-dark-mode .media.active,
 html.gemini-dark-mode .list-group-item:hover,
 html.gemini-dark-mode .list-group-item.active,
 html.gemini-dark-mode .nav-tabs .nav-link.active {
   background-color: #334155 !important;
+  background: #334155 !important;
   color: #38bdf8 !important;
   border-color: #38bdf8 !important;
 }
 
-/* Chat Message Area & Bubbles */
-html.gemini-dark-mode .chat-app-window,
-html.gemini-dark-mode .chat-content,
+/* Main Chat Message Workspace Area */
+html.gemini-dark-mode [class*="chat-app"],
+html.gemini-dark-mode [class*="chat-history"],
+html.gemini-dark-mode [class*="chat-container"],
+html.gemini-dark-mode [class*="chat-wrapper"],
+html.gemini-dark-mode [class*="user-chats"],
+html.gemini-dark-mode [class*="chat-content"],
+html.gemini-dark-mode .chats,
 html.gemini-dark-mode .chat-body {
   background-color: #0f172a !important;
+  background: #0f172a !important;
 }
 
-/* Incoming / Customer Messages */
+/* Incoming / Customer Message Bubbles */
 html.gemini-dark-mode .chat-left .chat-content,
 html.gemini-dark-mode .chat-left .chat-body,
-html.gemini-dark-mode .chat-left p {
+html.gemini-dark-mode .chat-left p,
+html.gemini-dark-mode [class*="chat-left"] [class*="content"],
+html.gemini-dark-mode [class*="chat-left"] [class*="body"] {
   background-color: #1e293b !important;
-  color: #f8fafc !important;
+  background: #1e293b !important;
+  color: #ffffff !important;
   border: 1px solid #334155 !important;
 }
 
-/* Outgoing / Agent Messages */
+/* Outgoing / Agent Message Bubbles */
 html.gemini-dark-mode .chat-right .chat-content,
-html.gemini-dark-mode .chat-right .chat-body {
+html.gemini-dark-mode .chat-right .chat-body,
+html.gemini-dark-mode [class*="chat-right"] [class*="content"],
+html.gemini-dark-mode [class*="chat-right"] [class*="body"] {
   background-color: #312e81 !important;
-  color: #e0e7ff !important;
+  background: #312e81 !important;
+  color: #ffffff !important;
   border: 1px solid #4338ca !important;
 }
 
-/* Form Inputs, Textarea & Selects */
+/* Order & Product Cards Inside Chat Bubbles */
+html.gemini-dark-mode [class*="order-card"],
+html.gemini-dark-mode [class*="product-card"],
+html.gemini-dark-mode [class*="card-product"],
+html.gemini-dark-mode div[class*="border"] {
+  background-color: #0f172a !important;
+  background: #0f172a !important;
+  color: #f8fafc !important;
+  border-color: #334155 !important;
+}
+
+/* Form Inputs, Textarea, Selects & Placeholders */
 html.gemini-dark-mode textarea,
 html.gemini-dark-mode input[type="text"],
 html.gemini-dark-mode input[type="search"],
@@ -1409,8 +1468,14 @@ html.gemini-dark-mode select,
 html.gemini-dark-mode #chat-input,
 html.gemini-dark-mode .form-control {
   background-color: #1e293b !important;
-  color: #f8fafc !important;
+  background: #1e293b !important;
+  color: #ffffff !important;
   border-color: #334155 !important;
+}
+
+html.gemini-dark-mode ::placeholder {
+  color: #94a3b8 !important;
+  opacity: 1 !important;
 }
 
 html.gemini-dark-mode textarea:focus,
@@ -1421,7 +1486,7 @@ html.gemini-dark-mode #chat-input:focus {
   color: #ffffff !important;
 }
 
-/* Text & Labels Override */
+/* Text & Labels Overrides */
 html.gemini-dark-mode h1,
 html.gemini-dark-mode h2,
 html.gemini-dark-mode h3,
@@ -1438,13 +1503,32 @@ html.gemini-dark-mode a {
 
 html.gemini-dark-mode .text-muted,
 html.gemini-dark-mode .secondary-text,
-html.gemini-dark-mode time {
+html.gemini-dark-mode time,
+html.gemini-dark-mode small {
   color: #94a3b8 !important;
 }
 
-/* Icons in Dark Mode */
+/* SVG Icons in Dark Mode */
 html.gemini-dark-mode svg:not(.gemini-mascot) {
   color: #cbd5e1 !important;
+}
+
+/* Right Sidebar Tabs (Orders, Product, Ticket) */
+html.gemini-dark-mode .sidebar-right *,
+html.gemini-dark-mode [class*="right-sidebar"] * {
+  border-color: #334155 !important;
+}
+
+html.gemini-dark-mode .sidebar-right .nav-tabs .nav-link:not(.active),
+html.gemini-dark-mode [class*="right-sidebar"] .nav-tabs .nav-link:not(.active) {
+  background-color: #1e293b !important;
+  color: #94a3b8 !important;
+}
+
+html.gemini-dark-mode .sidebar-right .nav-tabs .nav-link.active,
+html.gemini-dark-mode [class*="right-sidebar"] .nav-tabs .nav-link.active {
+  background-color: #334155 !important;
+  color: #38bdf8 !important;
 }
 
 /* Tables, Modals & Dropdowns */
@@ -1454,6 +1538,7 @@ html.gemini-dark-mode td,
 html.gemini-dark-mode th,
 html.gemini-dark-mode .dropdown-menu {
   background-color: #1e293b !important;
+  background: #1e293b !important;
   color: #f8fafc !important;
   border-color: #334155 !important;
 }
@@ -1463,12 +1548,14 @@ html.gemini-dark-mode .gemini-macro-toolbar,
 html.gemini-dark-mode .gemini-macro-search-overlay,
 html.gemini-dark-mode .gemini-macro-preview-overlay {
   background-color: #1e293b !important;
+  background: #1e293b !important;
   border-color: #334155 !important;
   color: #f8fafc !important;
 }
 
 html.gemini-dark-mode .gemini-macro-item {
   background-color: #0f172a !important;
+  background: #0f172a !important;
   border-color: #334155 !important;
   color: #f8fafc !important;
 }
@@ -1476,6 +1563,7 @@ html.gemini-dark-mode .gemini-macro-item {
 html.gemini-dark-mode .gemini-macro-item:hover,
 html.gemini-dark-mode .gemini-macro-item.selected {
   background-color: #312e81 !important;
+  background: #312e81 !important;
   border-color: #6366f1 !important;
 }
 

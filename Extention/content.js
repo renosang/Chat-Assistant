@@ -2515,7 +2515,33 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
     }
 
     applyDimmerFilter(dimmer);
+    applyDynamicDarkModeOverrides();
   }
+
+  function applyDynamicDarkModeOverrides() {
+    if (!document.documentElement.classList.contains("gemini-dark-mode")) return;
+    
+    // Find all elements with white inline backgrounds and override them
+    const allEls = document.querySelectorAll('div[style*="background"], section[style*="background"], aside[style*="background"], header[style*="background"]');
+    allEls.forEach(el => {
+      const bg = el.style.backgroundColor || el.style.background;
+      if (bg && (bg.includes('255') || bg.includes('white') || bg.includes('#fff') || bg.includes('#FFF') || bg.includes('248') || bg.includes('249'))) {
+        el.style.setProperty('background-color', '#1e293b', 'important');
+        el.style.setProperty('background', '#1e293b', 'important');
+        el.style.setProperty('color', '#f8fafc', 'important');
+      }
+    });
+
+    // Ensure all message texts in chat body are visible
+    const chatTexts = document.querySelectorAll('.chat-content p, .chat-body p, .chat-body span, .chat-content span, [class*="chat"] p, [class*="message"] p');
+    chatTexts.forEach(t => {
+      if (!t.classList.contains('gemini-motivation-bubble')) {
+        t.style.setProperty('color', '#ffffff', 'important');
+      }
+    });
+  }
+
+  setInterval(applyDynamicDarkModeOverrides, 1500);
 
   function showThemeToast(msg) {
     let toast = document.querySelector(".gemini-theme-toast");
