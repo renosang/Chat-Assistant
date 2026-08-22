@@ -2601,6 +2601,41 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
         tb.style.setProperty('border-color', '#334155', 'important');
       }
     });
+
+    // 9. Modal Header & Title (.modal-header, .modal-title)
+    const modalHeaders = document.querySelectorAll('.modal-header, .modal-title, [class*="modal-header"]');
+    modalHeaders.forEach(mh => {
+      mh.style.setProperty('background-color', '#0f172a', 'important');
+      mh.style.setProperty('background', '#0f172a', 'important');
+      mh.style.setProperty('color', '#ffffff', 'important');
+    });
+
+    // 10. File Upload Dropzone (.dropzone)
+    const dropzones = document.querySelectorAll('.dropzone, [class*="dropzone"]');
+    dropzones.forEach(dz => {
+      dz.style.setProperty('background-color', '#1e293b', 'important');
+      dz.style.setProperty('background', '#1e293b', 'important');
+      dz.style.setProperty('color', '#cbd5e1', 'important');
+      dz.style.setProperty('border-color', '#475569', 'important');
+    });
+
+    // 11. Pagination sort dropdown (.sort-dropdown, .data-list-rows-dropdown)
+    const sortDropdowns = document.querySelectorAll('.sort-dropdown, .data-list-rows-dropdown button');
+    sortDropdowns.forEach(sd => {
+      sd.style.setProperty('background-color', '#1e293b', 'important');
+      sd.style.setProperty('background', '#1e293b', 'important');
+      sd.style.setProperty('color', '#f8fafc', 'important');
+      sd.style.setProperty('border-color', '#334155', 'important');
+    });
+
+    // 12. Reset button (.btn-light)
+    const lightBtns = document.querySelectorAll('.btn-light, button.btn-light');
+    lightBtns.forEach(lb => {
+      lb.style.setProperty('background-color', '#334155', 'important');
+      lb.style.setProperty('background', '#334155', 'important');
+      lb.style.setProperty('color', '#ffffff', 'important');
+      lb.style.setProperty('border-color', '#475569', 'important');
+    });
   }
 
   setInterval(applyDynamicDarkModeOverrides, 1000);

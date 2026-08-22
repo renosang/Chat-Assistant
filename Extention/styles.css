@@ -1756,6 +1756,134 @@ html.gemini-dark-mode .btn-outline-secondary span {
   color: inherit !important;
 }
 
+/* --- PAGINATION SORT DROPDOWN FIX (.data-list-rows-dropdown) --- */
+html.gemini-dark-mode .sort-dropdown,
+html.gemini-dark-mode .data-list-rows-dropdown button,
+html.gemini-dark-mode [class*="sort-dropdown"] {
+  background-color: #1e293b !important;
+  background: #1e293b !important;
+  color: #f8fafc !important;
+  border: 1px solid #334155 !important;
+}
+
+html.gemini-dark-mode .sort-dropdown span,
+html.gemini-dark-mode .data-list-rows-dropdown span,
+html.gemini-dark-mode .data-list-rows-dropdown svg {
+  color: #f8fafc !important;
+}
+
+html.gemini-dark-mode .data-list-rows-dropdown .dropdown-menu {
+  background-color: #1e293b !important;
+  background: #1e293b !important;
+  border-color: #334155 !important;
+}
+
+html.gemini-dark-mode .data-list-rows-dropdown .dropdown-item {
+  color: #e2e8f0 !important;
+}
+
+html.gemini-dark-mode .data-list-rows-dropdown .dropdown-item:hover {
+  background-color: #334155 !important;
+  color: #38bdf8 !important;
+}
+
+/* --- RESET BUTTON FIX (.btn-light) --- */
+html.gemini-dark-mode .btn-light,
+html.gemini-dark-mode button.btn-light,
+html.gemini-dark-mode [class*="btn-light"] {
+  background-color: #334155 !important;
+  background: #334155 !important;
+  color: #ffffff !important;
+  border: 1px solid #475569 !important;
+}
+
+html.gemini-dark-mode .btn-light:hover {
+  background-color: #475569 !important;
+  color: #ffffff !important;
+}
+
+/* --- MODAL HEADER & TITLE FIX (.modal-header) --- */
+html.gemini-dark-mode .modal-header,
+html.gemini-dark-mode .modal-title,
+html.gemini-dark-mode [class*="modal-header"] {
+  background-color: #0f172a !important;
+  background: #0f172a !important;
+  color: #ffffff !important;
+  border-bottom: 1px solid #1e293b !important;
+}
+
+html.gemini-dark-mode .modal-header .modal-title,
+html.gemini-dark-mode .modal-header h5,
+html.gemini-dark-mode .modal-header h4 {
+  color: #ffffff !important;
+  font-weight: 700 !important;
+}
+
+html.gemini-dark-mode .modal-header .close,
+html.gemini-dark-mode .modal-header button.close,
+html.gemini-dark-mode .modal-header span[aria-hidden="true"] {
+  color: #ffffff !important;
+  opacity: 0.9 !important;
+  text-shadow: none !important;
+}
+
+/* --- FILE UPLOAD DROPZONE FIX (.dropzone) --- */
+html.gemini-dark-mode .dropzone,
+html.gemini-dark-mode [class*="dropzone"] {
+  background-color: #1e293b !important;
+  background: #1e293b !important;
+  color: #cbd5e1 !important;
+  border: 2px dashed #475569 !important;
+}
+
+html.gemini-dark-mode .dropzone p,
+html.gemini-dark-mode .dropzone span,
+html.gemini-dark-mode [class*="dropzone"] p {
+  color: #94a3b8 !important;
+}
+
+/* --- HIGH CONTRAST BUTTONS & STATUS BADGES --- */
+html.gemini-dark-mode .badge,
+html.gemini-dark-mode [class*="badge"] {
+  font-weight: 700 !important;
+}
+
+html.gemini-dark-mode .badge-success,
+html.gemini-dark-mode [class*="badge-success"],
+html.gemini-dark-mode .solved,
+html.gemini-dark-mode [class*="solved"],
+html.gemini-dark-mode button.Solved {
+  background-color: #065f46 !important;
+  background: #065f46 !important;
+  color: #a7f3d0 !important;
+  border: 1px solid #10b981 !important;
+}
+
+html.gemini-dark-mode .badge-pending,
+html.gemini-dark-mode [class*="badge-warning"],
+html.gemini-dark-mode [class*="pending"] {
+  background-color: #78350f !important;
+  background: #78350f !important;
+  color: #fde68a !important;
+  border: 1px solid #f59e0b !important;
+}
+
+html.gemini-dark-mode .btn-primary,
+html.gemini-dark-mode [class*="btn-primary"] {
+  background-color: #4338ca !important;
+  background: #4338ca !important;
+  color: #ffffff !important;
+  border-color: #6366f1 !important;
+}
+
+html.gemini-dark-mode .btn-secondary,
+html.gemini-dark-mode [class*="btn-secondary"] {
+  background-color: #334155 !important;
+  background: #334155 !important;
+  color: #ffffff !important;
+  border-color: #475569 !important;
+}
+
 /* Toast Notification for Hotkey */
 .gemini-theme-toast {
   position: fixed;
