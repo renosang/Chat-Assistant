@@ -401,4 +401,51 @@ document.addEventListener('DOMContentLoaded', () => {
       if (targetPane) targetPane.classList.add('active');
     });
   });
+
+  // --- ACCENT COLOR & FONT SIZE HANDLERS ---
+  const accentDots = document.querySelectorAll('.accent-dot');
+  const fontSizeBtns = document.querySelectorAll('.font-size-btn');
+
+  chrome.storage.sync.get(['themeAccent', 'chatFontSize'], (data) => {
+    if (data.themeAccent) {
+      accentDots.forEach(dot => {
+        dot.classList.toggle('active', dot.dataset.accent === data.themeAccent);
+      });
+    }
+    if (data.chatFontSize) {
+      fontSizeBtns.forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.size === data.chatFontSize);
+      });
+    }
+  });
+
+  accentDots.forEach(dot => {
+    dot.addEventListener('click', () => {
+      const selectedAccent = dot.dataset.accent;
+      accentDots.forEach(d => d.classList.toggle('active', d.dataset.accent === selectedAccent));
+      chrome.storage.sync.set({ themeAccent: selectedAccent }, () => {
+        notifyTabsSettingChange('ACCENT_CHANGED', { accent: selectedAccent });
+      });
+    });
+  });
+
+  fontSizeBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const selectedSize = btn.dataset.size;
+      fontSizeBtns.forEach(b => b.classList.toggle('active', b.dataset.size === selectedSize));
+      chrome.storage.sync.set({ chatFontSize: selectedSize }, () => {
+        notifyTabsSettingChange('FONT_SIZE_CHANGED', { fontSize: selectedSize });
+      });
+    });
+  });
+
+  function notifyTabsSettingChange(action, data) {
+    chrome.tabs.query({}, (tabs) => {
+      tabs.forEach(tab => {
+        if (tab.id) {
+          chrome.tabs.sendMessage(tab.id, { action, ...data }).catch(() => {});
+        }
+      });
+    });
+  }
 });

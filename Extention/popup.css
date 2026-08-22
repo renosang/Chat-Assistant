@@ -18,20 +18,20 @@
 }
 
 body {
-  width: 360px;
+  width: 340px;
   background-color: #f1f5f9;
   color: var(--text);
   overflow: hidden;
-  padding: 8px;
+  padding: 6px;
 }
 
 .main-card {
   background: var(--bg);
-  border-radius: var(--radius-main);
-  padding: 24px 20px;
+  border-radius: 28px;
+  padding: 16px 14px;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 15px 30px -10px rgba(0, 0, 0, 0.1);
   border: 1px solid rgba(0, 0, 0, 0.02);
   position: relative;
 }
@@ -40,7 +40,7 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 24px;
+  margin-bottom: 12px;
 }
 
 .logo-group {
@@ -704,10 +704,10 @@ body {
   display: flex;
   background: var(--sub);
   border: 1px solid #edf2f7;
-  border-radius: 20px;
-  padding: 4px;
-  margin-bottom: 14px;
-  gap: 4px;
+  border-radius: 16px;
+  padding: 3px;
+  margin-bottom: 10px;
+  gap: 3px;
 }
 
 .popup-tab-btn {
@@ -716,14 +716,16 @@ body {
   align-items: center;
   justify-content: center;
   gap: 6px;
-  padding: 8px 10px;
-  border-radius: 16px;
-  border: none;
-  background: transparent;
+  padding: 6px 8px;
+  border-radius: 12px;
+  border: 1px solid transparent !important;
+  background: transparent !important;
   color: var(--muted);
   font-size: 11px;
   font-weight: 700;
   cursor: pointer;
+  outline: none !important;
+  box-shadow: none !important;
   transition: all 0.2s ease;
 }
 
@@ -734,9 +736,10 @@ body {
 }
 
 .popup-tab-btn.active {
-  background: white;
-  color: var(--p);
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+  background: white !important;
+  color: var(--p) !important;
+  border: 1px solid #e2e8f0 !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05) !important;
   font-weight: 800;
 }
 

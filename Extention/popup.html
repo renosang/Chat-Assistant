@@ -172,7 +172,7 @@
               <svg class="label-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
               </svg>
-              <label>BẢO VỆ MẮT & CHẾ ĐỘ ĐÊM</label>
+              <label>CHẾ ĐỘ MÀN HÌNH & TÙY CHỈNH</label>
             </div>
 
             <div class="theme-mode-grid">
@@ -215,12 +215,12 @@
               </button>
             </div>
 
-            <!-- Dimmer Slider -->
+            <!-- Dimmer Slider (Allows down to 20%) -->
             <div class="dimmer-box">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="dimmer-icon-sm">
                 <circle cx="12" cy="12" r="3"></circle>
               </svg>
-              <input type="range" id="dimmerRange" min="50" max="100" value="100" step="5" title="Độ sáng màn hình">
+              <input type="range" id="dimmerRange" min="20" max="100" value="100" step="5" title="Độ sáng màn hình (20% - 100%)">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="dimmer-icon-lg">
                 <circle cx="12" cy="12" r="5"></circle>
                 <line x1="12" y1="1" x2="12" y2="3"></line>
@@ -231,6 +231,32 @@
                 <line x1="21" y1="12" x2="23" y2="12"></line>
               </svg>
               <span id="dimmerVal" class="dimmer-val">100%</span>
+            </div>
+
+            <!-- Accent Color Selection -->
+            <div class="setting-group-section" style="margin-top: 10px; border-top: 1px solid #edf2f7; padding-top: 8px;">
+              <label class="setting-sublabel" style="font-size: 9px; font-weight: 800; color: #64748b; display: block; margin-bottom: 6px;">MÀU NHẤN DARK MODE</label>
+              <div class="accent-picker-row">
+                <button class="accent-dot active" data-accent="indigo" style="background: #6366f1;" title="Tím Chàm Indigo"></button>
+                <button class="accent-dot" data-accent="emerald" style="background: #10b981;" title="Xanh Lá Emerald"></button>
+                <button class="accent-dot" data-accent="cyan" style="background: #06b6d4;" title="Xanh Ngọc Cyan"></button>
+                <button class="accent-dot" data-accent="amber" style="background: #f59e0b;" title="Vàng Cam Amber"></button>
+              </div>
+            </div>
+
+            <!-- Font Size Selection -->
+            <div class="setting-group-section" style="margin-top: 10px; border-top: 1px solid #edf2f7; padding-top: 8px;">
+              <label class="setting-sublabel" style="font-size: 9px; font-weight: 800; color: #64748b; display: block; margin-bottom: 6px;">CỠ CHỮ TIN NHẮN CHAT</label>
+              <div class="font-size-grid">
+                <button class="font-size-btn" data-size="13">13px (Nhỏ)</button>
+                <button class="font-size-btn active" data-size="15">15px (Vừa)</button>
+                <button class="font-size-btn" data-size="17">17px (Lớn)</button>
+              </div>
+            </div>
+
+            <!-- Hotkey & Scrollbar Info -->
+            <div style="margin-top: 10px; text-align: center; background: #f8fafc; border-radius: 12px; padding: 6px; font-size: 10px; color: #64748b; font-weight: 700;">
+              ⌨️ Phím tắt: <strong style="color: #6366f1;">Alt + Shift + D</strong>
             </div>
           </div>
         </div>

@@ -2710,9 +2710,45 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
     setTimeout(() => { if (toast) toast.remove(); }, 2500);
   }
 
-  // Read initial theme mode & dimmer
-  chrome.storage.sync.get(['themeMode', 'dimmerValue'], (data) => {
+  const ACCENT_COLORS = {
+    indigo: '#6366f1',
+    emerald: '#10b981',
+    cyan: '#06b6d4',
+    amber: '#f59e0b'
+  };
+
+  let cachedAccent = 'indigo';
+  let cachedFontSize = '15';
+
+  function applyThemeAccent(accent) {
+    if (accent) cachedAccent = accent;
+    const hex = ACCENT_COLORS[cachedAccent] || '#6366f1';
+    document.documentElement.style.setProperty('--gemini-accent-color', hex);
+    
+    if (document.documentElement.classList.contains("gemini-dark-mode")) {
+      const primaryBtns = document.querySelectorAll('.btn-primary, button.btn-primary, .customer-info .btn-group .btn-outline-secondary.active');
+      primaryBtns.forEach(btn => {
+        btn.style.setProperty('background-color', hex, 'important');
+        btn.style.setProperty('background', hex, 'important');
+        btn.style.setProperty('border-color', hex, 'important');
+      });
+    }
+  }
+
+  function applyChatFontSize(fontSize) {
+    if (fontSize) cachedFontSize = fontSize;
+    const size = `${cachedFontSize}px`;
+    const chatTexts = document.querySelectorAll('.chat-content p, .chat-body p, .chat-item__content p, textarea#chat-input');
+    chatTexts.forEach(t => {
+      t.style.setProperty('font-size', size, 'important');
+    });
+  }
+
+  // Read initial theme mode, dimmer, accent & font size
+  chrome.storage.sync.get(['themeMode', 'dimmerValue', 'themeAccent', 'chatFontSize'], (data) => {
     applyDisplayMode(data.themeMode || 'light', data.dimmerValue || 100);
+    if (data.themeAccent) applyThemeAccent(data.themeAccent);
+    if (data.chatFontSize) applyChatFontSize(data.chatFontSize);
   });
 
   // Hotkey Alt + Shift + D to toggle Day / Night Mode
@@ -2746,6 +2782,14 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
     }
     if (request.action === "THEME_MODE_CHANGED") {
       applyDisplayMode(request.mode, request.dimmer);
+      return;
+    }
+    if (request.action === "ACCENT_CHANGED") {
+      applyThemeAccent(request.accent);
+      return;
+    }
+    if (request.action === "FONT_SIZE_CHANGED") {
+      applyChatFontSize(request.fontSize);
       return;
     }
   });

@@ -2079,6 +2079,29 @@ html.gemini-dark-mode [class*="auto-reply"] [class*="time"] {
   color: #a5b4fc !important;
 }
 
+/* --- CUSTOM 6PX DARK MODE SCROLLBAR --- */
+html.gemini-dark-mode ::-webkit-scrollbar,
+html.gemini-dark-mode *::-webkit-scrollbar {
+  width: 6px !important;
+  height: 6px !important;
+}
+
+html.gemini-dark-mode ::-webkit-scrollbar-track,
+html.gemini-dark-mode *::-webkit-scrollbar-track {
+  background: #0f172a !important;
+}
+
+html.gemini-dark-mode ::-webkit-scrollbar-thumb,
+html.gemini-dark-mode *::-webkit-scrollbar-thumb {
+  background: #334155 !important;
+  border-radius: 100px !important;
+}
+
+html.gemini-dark-mode ::-webkit-scrollbar-thumb:hover,
+html.gemini-dark-mode *::-webkit-scrollbar-thumb:hover {
+  background: #475569 !important;
+}
+
 /* Toast Notification for Hotkey */
 .gemini-theme-toast {
   position: fixed;
