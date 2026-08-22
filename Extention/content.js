@@ -2521,19 +2521,40 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
   function applyDynamicDarkModeOverrides() {
     if (!document.documentElement.classList.contains("gemini-dark-mode")) return;
     
-    // Find all elements with white inline backgrounds and override them
-    const allEls = document.querySelectorAll('div[style*="background"], section[style*="background"], aside[style*="background"], header[style*="background"]');
+    // 1. Find all elements with white inline backgrounds or borders and override them
+    const allEls = document.querySelectorAll('div[style*="background"], section[style*="background"], aside[style*="background"], header[style*="background"], ul[style*="background"], li[style*="background"], div[style*="border"]');
     allEls.forEach(el => {
       const bg = el.style.backgroundColor || el.style.background;
-      if (bg && (bg.includes('255') || bg.includes('white') || bg.includes('#fff') || bg.includes('#FFF') || bg.includes('248') || bg.includes('249'))) {
+      if (bg && (bg.includes('255') || bg.includes('white') || bg.includes('#fff') || bg.includes('#FFF') || bg.includes('248') || bg.includes('249') || bg.includes('228') || bg.includes('231'))) {
         el.style.setProperty('background-color', '#1e293b', 'important');
         el.style.setProperty('background', '#1e293b', 'important');
         el.style.setProperty('color', '#f8fafc', 'important');
+        el.style.setProperty('border-color', '#334155', 'important');
       }
     });
 
-    // Ensure all message texts in chat body are visible
-    const chatTexts = document.querySelectorAll('.chat-content p, .chat-body p, .chat-body span, .chat-content span, [class*="chat"] p, [class*="message"] p');
+    // 2. Active Customer Chat Item (.chat-users__room.active)
+    const activeRooms = document.querySelectorAll('.chat-users__room.active, .chat-users__item.active');
+    activeRooms.forEach(rm => {
+      rm.style.setProperty('background-color', '#334155', 'important');
+      rm.style.setProperty('background', '#334155', 'important');
+      rm.style.setProperty('border-color', '#475569', 'important');
+    });
+
+    // 3. Pronoun buttons (.gemini-pronoun-quick-btn)
+    const pronounBtns = document.querySelectorAll('.gemini-pronoun-quick-btn');
+    pronounBtns.forEach(btn => {
+      if (btn.classList.contains('active')) {
+        btn.style.setProperty('background-color', '#4338ca', 'important');
+        btn.style.setProperty('color', '#ffffff', 'important');
+      } else {
+        btn.style.setProperty('background-color', '#1e293b', 'important');
+        btn.style.setProperty('color', '#e2e8f0', 'important');
+      }
+    });
+
+    // 4. Ensure all message texts in chat body are visible
+    const chatTexts = document.querySelectorAll('.chat-content p, .chat-body p, .chat-body span, .chat-content span, [class*="chat"] p, [class*="message"] p, .contact-name');
     chatTexts.forEach(t => {
       if (!t.classList.contains('gemini-motivation-bubble')) {
         t.style.setProperty('color', '#ffffff', 'important');
@@ -2541,7 +2562,7 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
     });
   }
 
-  setInterval(applyDynamicDarkModeOverrides, 1500);
+  setInterval(applyDynamicDarkModeOverrides, 1000);
 
   function showThemeToast(msg) {
     let toast = document.querySelector(".gemini-theme-toast");

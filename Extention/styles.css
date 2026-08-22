@@ -1573,6 +1573,124 @@ html.gemini-sepia-mode {
   transition: filter 0.3s ease;
 }
 
+/* --- LEFT SIDEBAR (MAIN MENU / OPALLO) --- */
+html.gemini-dark-mode .main-menu,
+html.gemini-dark-mode .main-menu.menu-light,
+html.gemini-dark-mode .main-menu-content,
+html.gemini-dark-mode .main-menu .navbar-header,
+html.gemini-dark-mode .navigation,
+html.gemini-dark-mode .navigation-main {
+  background-color: #0f172a !important;
+  background: #0f172a !important;
+  color: #f8fafc !important;
+  border-color: #1e293b !important;
+}
+
+html.gemini-dark-mode .main-menu .navigation li a {
+  background-color: transparent !important;
+  color: #cbd5e1 !important;
+}
+
+html.gemini-dark-mode .main-menu .navigation li.active a,
+html.gemini-dark-mode .main-menu .navigation li a:hover,
+html.gemini-dark-mode .main-menu .navigation li.sidebar-group-active a {
+  background-color: #1e293b !important;
+  background: #1e293b !important;
+  color: #38bdf8 !important;
+}
+
+html.gemini-dark-mode .navigation-header span {
+  color: #64748b !important;
+}
+
+/* --- RIGHT SIDEBAR (CUSTOMER DETAIL & ORDERS/PRODUCT/TICKET) --- */
+html.gemini-dark-mode .customer-detail,
+html.gemini-dark-mode .customer-info,
+html.gemini-dark-mode .customer-info__explorer-collapse,
+html.gemini-dark-mode .customer-info__section,
+html.gemini-dark-mode .customer-info__section-body,
+html.gemini-dark-mode .tab-detail-wrapper,
+html.gemini-dark-mode .tab-detail,
+html.gemini-dark-mode .tab-detail__search-bar,
+html.gemini-dark-mode .tab-detail__list,
+html.gemini-dark-mode .tab-detail__item,
+html.gemini-dark-mode .tab-detail__item--order,
+html.gemini-dark-mode .order,
+html.gemini-dark-mode .order.black,
+html.gemini-dark-mode [class*="css-"] {
+  background-color: #1e293b !important;
+  background: #1e293b !important;
+  color: #f8fafc !important;
+  border-color: #334155 !important;
+}
+
+html.gemini-dark-mode .tab-detail__item-order-info,
+html.gemini-dark-mode .tab-detail__item-product-info-image-wrapper {
+  background-color: #0f172a !important;
+  background: #0f172a !important;
+  color: #f8fafc !important;
+  border-color: #334155 !important;
+}
+
+html.gemini-dark-mode .btn-outline-secondary {
+  background-color: #0f172a !important;
+  color: #94a3b8 !important;
+  border-color: #334155 !important;
+}
+
+html.gemini-dark-mode .btn-outline-secondary.active {
+  background-color: #312e81 !important;
+  color: #ffffff !important;
+  border-color: #6366f1 !important;
+}
+
+html.gemini-dark-mode .text-black-50 {
+  color: #94a3b8 !important;
+}
+
+html.gemini-dark-mode .tab-detail__item-product-info-name,
+html.gemini-dark-mode .tab-detail__item-id {
+  color: #38bdf8 !important;
+}
+
+/* --- CUSTOMER ROOM LIST & ACTIVE USER ITEM --- */
+html.gemini-dark-mode .chat-users__room,
+html.gemini-dark-mode .chat-users__room.active,
+html.gemini-dark-mode .chat-users__item,
+html.gemini-dark-mode .chat-users__item.active {
+  background-color: #1e293b !important;
+  background: #1e293b !important;
+  border-color: #334155 !important;
+  color: #f8fafc !important;
+}
+
+html.gemini-dark-mode .chat-users__room.active,
+html.gemini-dark-mode .chat-users__item.active {
+  background-color: #334155 !important;
+  background: #334155 !important;
+  border-color: #475569 !important;
+}
+
+html.gemini-dark-mode .contact-name {
+  color: #ffffff !important;
+}
+
+/* --- PRONOUN QUICK BUTTONS (Anh / Chị) --- */
+html.gemini-dark-mode .gemini-pronoun-quick-btn {
+  background-color: #1e293b !important;
+  background: #1e293b !important;
+  color: #e2e8f0 !important;
+  border: 1px solid #334155 !important;
+}
+
+html.gemini-dark-mode .gemini-pronoun-quick-btn:hover,
+html.gemini-dark-mode .gemini-pronoun-quick-btn.active {
+  background-color: #4338ca !important;
+  background: #4338ca !important;
+  color: #ffffff !important;
+  border-color: #6366f1 !important;
+}
+
 /* Toast Notification for Hotkey */
 .gemini-theme-toast {
   position: fixed;
