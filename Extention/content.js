@@ -2814,37 +2814,6 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
 
       const previewText = macroFullPreview.querySelector('.m-content');
       if (previewText) previewText.style.setProperty('color', '#e2e8f0', 'important');
-    }'background-color', pPanel, 'important');
-      macroOverlay.style.setProperty('background', pPanel, 'important');
-      macroOverlay.style.setProperty('border', '1px solid rgba(255, 255, 255, 0.15)', 'important');
-      macroOverlay.style.setProperty('color', '#f8fafc', 'important');
-
-      const items = macroOverlay.querySelectorAll('.macro-search-item');
-      items.forEach(it => {
-        if (!it.classList.contains('selected')) {
-          it.style.setProperty('background-color', 'rgba(15, 23, 42, 0.65)', 'important');
-          it.style.setProperty('background', 'rgba(15, 23, 42, 0.65)', 'important');
-          it.style.setProperty('border', '1px solid rgba(255, 255, 255, 0.1)', 'important');
-        }
-        const st = it.querySelector('strong');
-        if (st) st.style.setProperty('color', '#38bdf8', 'important');
-        const p = it.querySelector('p');
-        if (p) p.style.setProperty('color', '#cbd5e1', 'important');
-      });
-    }
-
-    const macroFullPreview = document.getElementById("gemini-macro-full-preview");
-    if (macroFullPreview) {
-      macroFullPreview.style.setProperty('background-color', pPanel, 'important');
-      macroFullPreview.style.setProperty('background', pPanel, 'important');
-      macroFullPreview.style.setProperty('border', '1px solid rgba(255, 255, 255, 0.15)', 'important');
-      macroFullPreview.style.setProperty('color', '#f8fafc', 'important');
-
-      const previewHeader = macroFullPreview.querySelector('strong, h4, h3');
-      if (previewHeader) previewHeader.style.setProperty('color', '#38bdf8', 'important');
-
-      const previewText = macroFullPreview.querySelector('.m-content');
-      if (previewText) previewText.style.setProperty('color', '#e2e8f0', 'important');
     }
   }
 
