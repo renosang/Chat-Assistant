@@ -343,6 +343,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
+  const darkModeCustomSection = document.getElementById('darkModeCustomSection');
+
   function updateThemeModeUI(mode) {
     themeButtons.forEach(btn => {
       if (btn.dataset.mode === mode) {
@@ -351,6 +353,14 @@ document.addEventListener('DOMContentLoaded', () => {
         btn.classList.remove('active');
       }
     });
+
+    if (darkModeCustomSection) {
+      if (mode === 'dark' || mode === 'auto') {
+        darkModeCustomSection.style.display = 'block';
+      } else {
+        darkModeCustomSection.style.display = 'none';
+      }
+    }
   }
 
   function notifyTabsThemeChange(mode, dimmer) {
@@ -402,27 +412,33 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // --- ACCENT, BG, TEXT COLOR & FONT SIZE HANDLERS ---
+  // --- PRESET, ACCENT & FONT SIZE HANDLERS ---
+  const presetCards = document.querySelectorAll('.preset-card');
   const accentDots = document.querySelectorAll('.accent-dot');
-  const bgDots = document.querySelectorAll('.bg-dot');
-  const textColorDots = document.querySelectorAll('.textColor-dot');
   const fontSizeRange = document.getElementById('fontSizeRange');
   const fontSizeVal = document.getElementById('fontSizeVal');
 
-  chrome.storage.sync.get(['themeAccent', 'customBgColor', 'customTextColor', 'chatFontSize'], (data) => {
+  chrome.storage.sync.get(['darkModePreset', 'themeAccent', 'chatFontSize'], (data) => {
+    if (data.darkModePreset) {
+      presetCards.forEach(card => card.classList.toggle('active', card.dataset.preset === data.darkModePreset));
+    }
     if (data.themeAccent) {
       accentDots.forEach(dot => dot.classList.toggle('active', dot.dataset.accent === data.themeAccent));
-    }
-    if (data.customBgColor) {
-      bgDots.forEach(dot => dot.classList.toggle('active', dot.dataset.bg === data.customBgColor));
-    }
-    if (data.customTextColor) {
-      textColorDots.forEach(dot => dot.classList.toggle('active', dot.dataset.color === data.customTextColor));
     }
     if (data.chatFontSize && fontSizeRange && fontSizeVal) {
       fontSizeRange.value = data.chatFontSize;
       fontSizeVal.textContent = data.chatFontSize + 'px';
     }
+  });
+
+  presetCards.forEach(card => {
+    card.addEventListener('click', () => {
+      const selectedPreset = card.dataset.preset;
+      presetCards.forEach(c => c.classList.toggle('active', c.dataset.preset === selectedPreset));
+      chrome.storage.sync.set({ darkModePreset: selectedPreset }, () => {
+        notifyTabsSettingChange('PRESET_CHANGED', { preset: selectedPreset });
+      });
+    });
   });
 
   accentDots.forEach(dot => {
@@ -431,26 +447,6 @@ document.addEventListener('DOMContentLoaded', () => {
       accentDots.forEach(d => d.classList.toggle('active', d.dataset.accent === selectedAccent));
       chrome.storage.sync.set({ themeAccent: selectedAccent }, () => {
         notifyTabsSettingChange('ACCENT_CHANGED', { accent: selectedAccent });
-      });
-    });
-  });
-
-  bgDots.forEach(dot => {
-    dot.addEventListener('click', () => {
-      const selectedBg = dot.dataset.bg;
-      bgDots.forEach(d => d.classList.toggle('active', d.dataset.bg === selectedBg));
-      chrome.storage.sync.set({ customBgColor: selectedBg }, () => {
-        notifyTabsSettingChange('CUSTOM_BG_CHANGED', { bgColor: selectedBg });
-      });
-    });
-  });
-
-  textColorDots.forEach(dot => {
-    dot.addEventListener('click', () => {
-      const selectedColor = dot.dataset.color;
-      textColorDots.forEach(d => d.classList.toggle('active', d.dataset.color === selectedColor));
-      chrome.storage.sync.set({ customTextColor: selectedColor }, () => {
-        notifyTabsSettingChange('CUSTOM_TEXT_COLOR_CHANGED', { textColor: selectedColor });
       });
     });
   });

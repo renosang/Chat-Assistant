@@ -2710,6 +2710,13 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
     setTimeout(() => { if (toast) toast.remove(); }, 2500);
   }
 
+  const DARK_PRESETS = {
+    midnight: { bg: '#0b0f19', panel: '#1e293b', sidebar: '#0f172a', accent: '#6366f1' },
+    oled: { bg: '#000000', panel: '#121212', sidebar: '#080808', accent: '#10b981' },
+    cyber: { bg: '#050b14', panel: '#111a2e', sidebar: '#0a1220', accent: '#06b6d4' },
+    bronze: { bg: '#181311', panel: '#26201c', sidebar: '#1e1815', accent: '#f59e0b' }
+  };
+
   const ACCENT_COLORS = {
     indigo: '#6366f1',
     emerald: '#10b981',
@@ -2717,10 +2724,38 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
     amber: '#f59e0b'
   };
 
+  let cachedPreset = 'midnight';
   let cachedAccent = 'indigo';
   let cachedFontSize = '15';
-  let cachedBgColor = '#0f172a';
-  let cachedTextColor = '#ffffff';
+
+  function applyDarkModePreset(presetKey) {
+    if (presetKey) cachedPreset = presetKey;
+    const preset = DARK_PRESETS[cachedPreset] || DARK_PRESETS.midnight;
+    if (!document.documentElement.classList.contains("gemini-dark-mode")) return;
+
+    document.documentElement.style.setProperty('--gemini-bg-color', preset.bg);
+    document.documentElement.style.setProperty('--gemini-panel-color', preset.panel);
+    document.documentElement.style.setProperty('--gemini-sidebar-color', preset.sidebar);
+
+    const body = document.body;
+    const html = document.documentElement;
+    html.style.setProperty('background-color', preset.bg, 'important');
+    if (body) body.style.setProperty('background-color', preset.bg, 'important');
+
+    const panels = document.querySelectorAll('.chat-application, .chat-users__room, .modal-content, .card, .chat-app-input--utils, .sort-dropdown');
+    panels.forEach(p => {
+      p.style.setProperty('background-color', preset.panel, 'important');
+      p.style.setProperty('background', preset.panel, 'important');
+    });
+
+    const sidebars = document.querySelectorAll('.main-menu, .chat-sidebar, .customer-detail, .sidebar-content');
+    sidebars.forEach(s => {
+      s.style.setProperty('background-color', preset.sidebar, 'important');
+      s.style.setProperty('background', preset.sidebar, 'important');
+    });
+
+    applyThemeAccent(preset.accent);
+  }
 
   function applyThemeAccent(accent) {
     if (accent) cachedAccent = accent;
@@ -2737,29 +2772,6 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
     }
   }
 
-  function applyCustomBgColor(bgColor) {
-    if (bgColor) cachedBgColor = bgColor;
-    if (!document.documentElement.classList.contains("gemini-dark-mode")) return;
-    
-    document.documentElement.style.setProperty('--gemini-custom-bg', cachedBgColor);
-    const darkContainers = document.querySelectorAll('.chat-application, .main-menu, .chat-sidebar, .customer-detail, .chat-users__room, .modal-content, .card');
-    darkContainers.forEach(c => {
-      c.style.setProperty('background-color', cachedBgColor, 'important');
-      c.style.setProperty('background', cachedBgColor, 'important');
-    });
-  }
-
-  function applyCustomTextColor(textColor) {
-    if (textColor) cachedTextColor = textColor;
-    if (!document.documentElement.classList.contains("gemini-dark-mode")) return;
-    
-    document.documentElement.style.setProperty('--gemini-custom-text', cachedTextColor);
-    const darkTexts = document.querySelectorAll('.chat-content p, .chat-body p, .contact-name, .hermes-title, .hermes-message__title-order');
-    darkTexts.forEach(t => {
-      t.style.setProperty('color', cachedTextColor, 'important');
-    });
-  }
-
   function applyChatFontSize(fontSize) {
     if (fontSize) cachedFontSize = fontSize;
     const size = `${cachedFontSize}px`;
@@ -2771,12 +2783,11 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
     });
   }
 
-  // Read initial theme mode, dimmer, accent, bg, textColor & font size
-  chrome.storage.sync.get(['themeMode', 'dimmerValue', 'themeAccent', 'customBgColor', 'customTextColor', 'chatFontSize'], (data) => {
+  // Read initial theme mode, dimmer, preset, accent & font size
+  chrome.storage.sync.get(['themeMode', 'dimmerValue', 'darkModePreset', 'themeAccent', 'chatFontSize'], (data) => {
     applyDisplayMode(data.themeMode || 'light', data.dimmerValue || 100);
+    if (data.darkModePreset) applyDarkModePreset(data.darkModePreset);
     if (data.themeAccent) applyThemeAccent(data.themeAccent);
-    if (data.customBgColor) applyCustomBgColor(data.customBgColor);
-    if (data.customTextColor) applyCustomTextColor(data.customTextColor);
     if (data.chatFontSize) applyChatFontSize(data.chatFontSize);
   });
 
@@ -2813,16 +2824,12 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
       applyDisplayMode(request.mode, request.dimmer);
       return;
     }
+    if (request.action === "PRESET_CHANGED") {
+      applyDarkModePreset(request.preset);
+      return;
+    }
     if (request.action === "ACCENT_CHANGED") {
       applyThemeAccent(request.accent);
-      return;
-    }
-    if (request.action === "CUSTOM_BG_CHANGED") {
-      applyCustomBgColor(request.bgColor);
-      return;
-    }
-    if (request.action === "CUSTOM_TEXT_COLOR_CHANGED") {
-      applyCustomTextColor(request.textColor);
       return;
     }
     if (request.action === "FONT_SIZE_CHANGED") {

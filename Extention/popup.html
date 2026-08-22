@@ -233,36 +233,55 @@
               <span id="dimmerVal" class="dimmer-val">100%</span>
             </div>
 
-            <!-- Accent Color Selection -->
-            <div class="setting-group-section" style="margin-top: 8px; border-top: 1px solid #edf2f7; padding-top: 6px;">
-              <label class="setting-sublabel" style="font-size: 9px; font-weight: 800; color: #64748b; display: block; margin-bottom: 4px;">MÀU NHẤN (ACCENT)</label>
-              <div class="accent-picker-row">
-                <button class="accent-dot active" data-accent="indigo" style="background: #6366f1;" title="Tím Chàm Indigo"></button>
-                <button class="accent-dot" data-accent="emerald" style="background: #10b981;" title="Xanh Lá Emerald"></button>
-                <button class="accent-dot" data-accent="cyan" style="background: #06b6d4;" title="Xanh Ngọc Cyan"></button>
-                <button class="accent-dot" data-accent="amber" style="background: #f59e0b;" title="Vàng Cam Amber"></button>
-              </div>
-            </div>
+            <!-- DARK MODE CUSTOMIZATION SECTION (Only visible when Dark or Auto mode) -->
+            <div id="darkModeCustomSection">
+              <!-- Dark Mode Theme Presets -->
+              <div class="setting-group-section" style="margin-top: 8px; border-top: 1px solid #edf2f7; padding-top: 6px;">
+                <label class="setting-sublabel" style="font-size: 9px; font-weight: 800; color: #64748b; display: block; margin-bottom: 4px;">PRESET THEME GIAO DIỆN ĐÊM</label>
+                <div class="preset-grid">
+                  <button class="preset-card active" data-preset="midnight" title="Midnight Slate 🌌">
+                    <div class="preset-dots">
+                      <span class="preset-dot" style="background: #0b0f19;"></span>
+                      <span class="preset-dot" style="background: #6366f1;"></span>
+                    </div>
+                    <span class="preset-title">Midnight 🌌</span>
+                  </button>
 
-            <!-- Custom Background Color Selection -->
-            <div class="setting-group-section" style="margin-top: 8px; border-top: 1px solid #edf2f7; padding-top: 6px;">
-              <label class="setting-sublabel" style="font-size: 9px; font-weight: 800; color: #64748b; display: block; margin-bottom: 4px;">MÀU NỀN DARK MODE</label>
-              <div class="accent-picker-row">
-                <button class="bg-dot active" data-bg="#0f172a" style="background: #0f172a;" title="Midnight Slate"></button>
-                <button class="bg-dot" data-bg="#090d16" style="background: #090d16;" title="Pitch Black"></button>
-                <button class="bg-dot" data-bg="#182234" style="background: #182234;" title="Slate Blue"></button>
-                <button class="bg-dot" data-bg="#121212" style="background: #121212;" title="Charcoal Dark"></button>
-              </div>
-            </div>
+                  <button class="preset-card" data-preset="oled" title="OLED Pitch Black ⬛">
+                    <div class="preset-dots">
+                      <span class="preset-dot" style="background: #000000;"></span>
+                      <span class="preset-dot" style="background: #10b981;"></span>
+                    </div>
+                    <span class="preset-title">OLED Black ⬛</span>
+                  </button>
 
-            <!-- Custom Text Color Selection -->
-            <div class="setting-group-section" style="margin-top: 8px; border-top: 1px solid #edf2f7; padding-top: 6px;">
-              <label class="setting-sublabel" style="font-size: 9px; font-weight: 800; color: #64748b; display: block; margin-bottom: 4px;">MÀU CHỮ DARK MODE</label>
-              <div class="accent-picker-row">
-                <button class="textColor-dot active" data-color="#ffffff" style="background: #ffffff;" title="Trắng Tinh"></button>
-                <button class="textColor-dot" data-color="#e2e8f0" style="background: #e2e8f0;" title="Bạc Sáng"></button>
-                <button class="textColor-dot" data-color="#fef08a" style="background: #fef08a;" title="Vàng Ấm"></button>
-                <button class="textColor-dot" data-color="#e0f2fe" style="background: #e0f2fe;" title="Xanh Ngọc"></button>
+                  <button class="preset-card" data-preset="cyber" title="Cyber Cyan ⚡">
+                    <div class="preset-dots">
+                      <span class="preset-dot" style="background: #050b14;"></span>
+                      <span class="preset-dot" style="background: #06b6d4;"></span>
+                    </div>
+                    <span class="preset-title">Cyber Cyan ⚡</span>
+                  </button>
+
+                  <button class="preset-card" data-preset="bronze" title="Warm Bronze 🌅">
+                    <div class="preset-dots">
+                      <span class="preset-dot" style="background: #181311;"></span>
+                      <span class="preset-dot" style="background: #f59e0b;"></span>
+                    </div>
+                    <span class="preset-title">Warm Bronze 🌅</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Accent Color Selection -->
+              <div class="setting-group-section" style="margin-top: 8px; border-top: 1px solid #edf2f7; padding-top: 6px;">
+                <label class="setting-sublabel" style="font-size: 9px; font-weight: 800; color: #64748b; display: block; margin-bottom: 4px;">MÀU NHẤN (ACCENT)</label>
+                <div class="accent-picker-row">
+                  <button class="accent-dot active" data-accent="indigo" style="background: #6366f1;" title="Tím Chàm Indigo"></button>
+                  <button class="accent-dot" data-accent="emerald" style="background: #10b981;" title="Xanh Lá Emerald"></button>
+                  <button class="accent-dot" data-accent="cyan" style="background: #06b6d4;" title="Xanh Ngọc Cyan"></button>
+                  <button class="accent-dot" data-accent="amber" style="background: #f59e0b;" title="Vàng Cam Amber"></button>
+                </div>
               </div>
             </div>
 
