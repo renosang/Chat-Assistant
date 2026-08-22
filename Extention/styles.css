@@ -2057,6 +2057,28 @@ html.gemini-dark-mode .chat-suggestions .nav-link.active {
   color: #ffffff !important;
 }
 
+/* --- AUTO REPLY BUBBLE DARK MODE CONTRAST FIX --- */
+html.gemini-dark-mode .auto-reply,
+html.gemini-dark-mode [class*="auto-reply"],
+html.gemini-dark-mode div[class*="auto-reply"] {
+  background-color: #1e1b4b !important;
+  background: #1e1b4b !important;
+  color: #fbbf24 !important;
+  border: 1px solid #4338ca !important;
+}
+
+html.gemini-dark-mode .auto-reply p,
+html.gemini-dark-mode .auto-reply span,
+html.gemini-dark-mode [class*="auto-reply"] p,
+html.gemini-dark-mode [class*="auto-reply"] span {
+  color: #ffffff !important;
+}
+
+html.gemini-dark-mode .auto-reply [class*="time"],
+html.gemini-dark-mode [class*="auto-reply"] [class*="time"] {
+  color: #a5b4fc !important;
+}
+
 /* Toast Notification for Hotkey */
 .gemini-theme-toast {
   position: fixed;

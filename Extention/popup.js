@@ -384,4 +384,21 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     });
   }
+
+  // --- POPUP TAB NAVIGATION LOGIC ---
+  const popupTabBtns = document.querySelectorAll('.popup-nav-btn');
+  const popupTabPanes = document.querySelectorAll('.popup-tab-pane');
+
+  popupTabBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const targetId = btn.dataset.tab;
+      
+      popupTabBtns.forEach(b => b.classList.remove('active'));
+      popupTabPanes.forEach(p => p.classList.remove('active'));
+
+      btn.classList.add('active');
+      const targetPane = document.getElementById(targetId);
+      if (targetPane) targetPane.classList.add('active');
+    });
+  });
 });

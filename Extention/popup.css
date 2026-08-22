@@ -698,3 +698,111 @@ body {
   min-width: 32px;
   text-align: right;
 }
+
+/* --- POPUP NAVIGATION TABS --- */
+.popup-nav-tabs {
+  display: flex;
+  background: var(--sub);
+  border: 1px solid #edf2f7;
+  border-radius: 20px;
+  padding: 4px;
+  margin-bottom: 14px;
+  gap: 4px;
+}
+
+.popup-tab-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 10px;
+  border-radius: 16px;
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.popup-tab-btn svg {
+  width: 14px;
+  height: 14px;
+  stroke: currentColor;
+}
+
+.popup-tab-btn.active {
+  background: white;
+  color: var(--p);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+  font-weight: 800;
+}
+
+.popup-tab-pane {
+  display: none;
+}
+
+.popup-tab-pane.active {
+  display: block;
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* Accent color picker */
+.accent-picker-row {
+  display: flex;
+  gap: 8px;
+  justify-content: space-between;
+  margin-top: 8px;
+}
+
+.accent-dot {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.accent-dot:hover {
+  transform: scale(1.15);
+}
+
+.accent-dot.active {
+  border-color: var(--text);
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+}
+
+/* Font size selector */
+.font-size-grid {
+  display: flex;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.font-size-btn {
+  flex: 1;
+  padding: 6px;
+  background: white;
+  border: 1px solid #edf2f7;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--muted);
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.2s;
+}
+
+.font-size-btn:hover {
+  border-color: var(--p);
+  color: var(--p);
+}
+
+.font-size-btn.active {
+  background: var(--p);
+  color: white;
+  border-color: var(--p);
+}
