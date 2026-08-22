@@ -1884,6 +1884,123 @@ html.gemini-dark-mode [class*="btn-secondary"] {
   border-color: #475569 !important;
 }
 
+/* --- MODAL CLOSE BUTTON FIX (.close) --- */
+html.gemini-dark-mode button.close,
+html.gemini-dark-mode .modal-header .close,
+html.gemini-dark-mode [class*="modal-header"] button.close,
+html.gemini-dark-mode [class*="modal-header"] .close {
+  background-color: transparent !important;
+  background: transparent !important;
+  color: #94a3b8 !important;
+  border: none !important;
+  font-size: 24px !important;
+  opacity: 0.9 !important;
+  box-shadow: none !important;
+}
+
+html.gemini-dark-mode button.close:hover,
+html.gemini-dark-mode .modal-header .close:hover {
+  color: #ef4444 !important;
+}
+
+/* --- QUILL RICH TEXT EDITOR FIX (.ql-container, .ql-editor) --- */
+html.gemini-dark-mode .ql-toolbar,
+html.gemini-dark-mode .ql-container,
+html.gemini-dark-mode .ql-editor,
+html.gemini-dark-mode [class*="ql-"] {
+  background-color: #1e293b !important;
+  background: #1e293b !important;
+  color: #f8fafc !important;
+  border-color: #334155 !important;
+}
+
+html.gemini-dark-mode .ql-editor::before,
+html.gemini-dark-mode .ql-editor[data-placeholder]::before {
+  color: #94a3b8 !important;
+}
+
+html.gemini-dark-mode .ql-stroke {
+  stroke: #cbd5e1 !important;
+}
+
+html.gemini-dark-mode .ql-fill {
+  fill: #cbd5e1 !important;
+}
+
+/* --- MORE BUTTON FIX (.btn-more) --- */
+html.gemini-dark-mode .btn-more,
+html.gemini-dark-mode .btn.btn-more,
+html.gemini-dark-mode [class*="btn-more"] {
+  background-color: #1e293b !important;
+  background: #1e293b !important;
+  color: #cbd5e1 !important;
+  border: 1px solid #334155 !important;
+}
+
+html.gemini-dark-mode .btn-more svg,
+html.gemini-dark-mode .btn-more .more-icon,
+html.gemini-dark-mode [class*="btn-more"] svg {
+  color: #cbd5e1 !important;
+  stroke: #cbd5e1 !important;
+  fill: #cbd5e1 !important;
+}
+
+html.gemini-dark-mode .btn-more:hover {
+  background-color: #334155 !important;
+  color: #ffffff !important;
+}
+
+/* --- ORDER STATUS CHIPS FIX (.chip, .chip-pl_processing) --- */
+html.gemini-dark-mode .chip,
+html.gemini-dark-mode .chip-body,
+html.gemini-dark-mode .chip-text,
+html.gemini-dark-mode [class*="chip"] {
+  background-color: #1e293b !important;
+  background: #1e293b !important;
+  color: #38bdf8 !important;
+  border: 1px solid #334155 !important;
+}
+
+html.gemini-dark-mode .chip-pl_processing,
+html.gemini-dark-mode [class*="chip-pl_processing"] {
+  background-color: #1e1b4b !important;
+  background: #1e1b4b !important;
+  color: #818cf8 !important;
+  border: 1px solid #4338ca !important;
+}
+
+html.gemini-dark-mode .chip-pl_processing .chip-text {
+  color: #a5b4fc !important;
+}
+
+/* --- STRUCTURAL BOUNDARIES & PANEL DIVIDERS (BỐ CỤC PHÂN CHIA RÕ RÀNG) --- */
+html.gemini-dark-mode .main-menu {
+  border-right: 1px solid #1e293b !important;
+}
+
+html.gemini-dark-mode .sidebar-content,
+html.gemini-dark-mode .chat-sidebar {
+  border-right: 1px solid #1e293b !important;
+}
+
+html.gemini-dark-mode .sidebar-right,
+html.gemini-dark-mode .customer-detail {
+  border-left: 1px solid #1e293b !important;
+}
+
+html.gemini-dark-mode #navbar-mobile,
+html.gemini-dark-mode .header-navbar {
+  border-bottom: 1px solid #1e293b !important;
+}
+
+html.gemini-dark-mode .card,
+html.gemini-dark-mode .modal-content,
+html.gemini-dark-mode .chat-application,
+html.gemini-dark-mode .chat-users__room {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35) !important;
+  border: 1px solid #334155 !important;
+}
+
 /* Toast Notification for Hotkey */
 .gemini-theme-toast {
   position: fixed;

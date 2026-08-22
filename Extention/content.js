@@ -2636,6 +2636,42 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
       lb.style.setProperty('color', '#ffffff', 'important');
       lb.style.setProperty('border-color', '#475569', 'important');
     });
+
+    // 13. Modal Close button (.close)
+    const closeBtns = document.querySelectorAll('button.close, .modal-header .close');
+    closeBtns.forEach(cb => {
+      cb.style.setProperty('background-color', 'transparent', 'important');
+      cb.style.setProperty('color', '#94a3b8', 'important');
+      cb.style.setProperty('border', 'none', 'important');
+      cb.style.setProperty('box-shadow', 'none', 'important');
+    });
+
+    // 14. Quill Editor (.ql-container, .ql-editor)
+    const qlContainers = document.querySelectorAll('.ql-container, .ql-editor, [class*="ql-"]');
+    qlContainers.forEach(ql => {
+      ql.style.setProperty('background-color', '#1e293b', 'important');
+      ql.style.setProperty('background', '#1e293b', 'important');
+      ql.style.setProperty('color', '#ffffff', 'important');
+      ql.style.setProperty('border-color', '#334155', 'important');
+    });
+
+    // 15. More button (.btn-more)
+    const moreBtns = document.querySelectorAll('.btn-more, [class*="btn-more"]');
+    moreBtns.forEach(mb => {
+      mb.style.setProperty('background-color', '#1e293b', 'important');
+      mb.style.setProperty('background', '#1e293b', 'important');
+      mb.style.setProperty('color', '#cbd5e1', 'important');
+      mb.style.setProperty('border-color', '#334155', 'important');
+    });
+
+    // 16. Order status chips (.chip, .chip-pl_processing)
+    const chips = document.querySelectorAll('.chip, [class*="chip"]');
+    chips.forEach(cp => {
+      cp.style.setProperty('background-color', '#1e1b4b', 'important');
+      cp.style.setProperty('background', '#1e1b4b', 'important');
+      cp.style.setProperty('color', '#a5b4fc', 'important');
+      cp.style.setProperty('border-color', '#4338ca', 'important');
+    });
   }
 
   setInterval(applyDynamicDarkModeOverrides, 1000);
