@@ -1584,19 +1584,19 @@ html.gemini-dark-mode svg:not(.gemini-mascot) {
 /* Right Sidebar Tabs (Orders, Product, Ticket) */
 html.gemini-dark-mode .sidebar-right *,
 html.gemini-dark-mode [class*="right-sidebar"] * {
-  border-color: #334155 !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
 }
 
 html.gemini-dark-mode .sidebar-right .nav-tabs .nav-link:not(.active),
 html.gemini-dark-mode [class*="right-sidebar"] .nav-tabs .nav-link:not(.active) {
-  background-color: #1e293b !important;
+  background-color: var(--gemini-sidebar) !important;
   color: #94a3b8 !important;
 }
 
 html.gemini-dark-mode .sidebar-right .nav-tabs .nav-link.active,
 html.gemini-dark-mode [class*="right-sidebar"] .nav-tabs .nav-link.active {
-  background-color: #334155 !important;
-  color: #38bdf8 !important;
+  background-color: var(--gemini-accent) !important;
+  color: #ffffff !important;
 }
 
 /* Tables, Modals & Dropdowns */
@@ -1605,34 +1605,34 @@ html.gemini-dark-mode tr,
 html.gemini-dark-mode td,
 html.gemini-dark-mode th,
 html.gemini-dark-mode .dropdown-menu {
-  background-color: #1e293b !important;
-  background: #1e293b !important;
+  background-color: var(--gemini-panel) !important;
+  background: var(--gemini-panel) !important;
   color: #f8fafc !important;
-  border-color: #334155 !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
 }
 
 /* Gemini Macro System in Dark Mode */
 html.gemini-dark-mode .gemini-macro-toolbar,
 html.gemini-dark-mode .gemini-macro-search-overlay,
 html.gemini-dark-mode .gemini-macro-preview-overlay {
-  background-color: #1e293b !important;
-  background: #1e293b !important;
-  border-color: #334155 !important;
+  background-color: var(--gemini-panel) !important;
+  background: var(--gemini-panel) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
   color: #f8fafc !important;
 }
 
 html.gemini-dark-mode .gemini-macro-item {
-  background-color: #0f172a !important;
-  background: #0f172a !important;
-  border-color: #334155 !important;
+  background-color: var(--gemini-sidebar) !important;
+  background: var(--gemini-sidebar) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
   color: #f8fafc !important;
 }
 
 html.gemini-dark-mode .gemini-macro-item:hover,
 html.gemini-dark-mode .gemini-macro-item.selected {
-  background-color: #312e81 !important;
-  background: #312e81 !important;
-  border-color: #6366f1 !important;
+  background-color: var(--gemini-accent) !important;
+  background: var(--gemini-accent) !important;
+  border-color: var(--gemini-accent) !important;
 }
 
 /* --- WARM SEPIA EYE CARE MODE --- */
@@ -1648,10 +1648,10 @@ html.gemini-dark-mode .main-menu-content,
 html.gemini-dark-mode .main-menu .navbar-header,
 html.gemini-dark-mode .navigation,
 html.gemini-dark-mode .navigation-main {
-  background-color: #0f172a !important;
-  background: #0f172a !important;
+  background-color: var(--gemini-sidebar) !important;
+  background: var(--gemini-sidebar) !important;
   color: #f8fafc !important;
-  border-color: #1e293b !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
 }
 
 html.gemini-dark-mode .main-menu .navigation li a {
@@ -1662,8 +1662,8 @@ html.gemini-dark-mode .main-menu .navigation li a {
 html.gemini-dark-mode .main-menu .navigation li.active a,
 html.gemini-dark-mode .main-menu .navigation li a:hover,
 html.gemini-dark-mode .main-menu .navigation li.sidebar-group-active a {
-  background-color: #1e293b !important;
-  background: #1e293b !important;
+  background-color: var(--gemini-panel) !important;
+  background: var(--gemini-panel) !important;
   color: #38bdf8 !important;
 }
 
@@ -1686,30 +1686,30 @@ html.gemini-dark-mode .tab-detail__item--order,
 html.gemini-dark-mode .order,
 html.gemini-dark-mode .order.black,
 html.gemini-dark-mode [class*="css-"] {
-  background-color: #1e293b !important;
-  background: #1e293b !important;
+  background-color: var(--gemini-sidebar) !important;
+  background: var(--gemini-sidebar) !important;
   color: #f8fafc !important;
-  border-color: #334155 !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
 }
 
 html.gemini-dark-mode .tab-detail__item-order-info,
 html.gemini-dark-mode .tab-detail__item-product-info-image-wrapper {
-  background-color: #0f172a !important;
-  background: #0f172a !important;
+  background-color: var(--gemini-panel) !important;
+  background: var(--gemini-panel) !important;
   color: #f8fafc !important;
-  border-color: #334155 !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
 }
 
 html.gemini-dark-mode .btn-outline-secondary {
-  background-color: #0f172a !important;
+  background-color: var(--gemini-panel) !important;
   color: #94a3b8 !important;
-  border-color: #334155 !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
 }
 
 html.gemini-dark-mode .btn-outline-secondary.active {
-  background-color: #312e81 !important;
+  background-color: var(--gemini-accent) !important;
   color: #ffffff !important;
-  border-color: #6366f1 !important;
+  border-color: var(--gemini-accent) !important;
 }
 
 html.gemini-dark-mode .text-black-50 {
@@ -1726,17 +1726,18 @@ html.gemini-dark-mode .chat-users__room,
 html.gemini-dark-mode .chat-users__room.active,
 html.gemini-dark-mode .chat-users__item,
 html.gemini-dark-mode .chat-users__item.active {
-  background-color: #1e293b !important;
-  background: #1e293b !important;
-  border-color: #334155 !important;
+  background-color: var(--gemini-panel) !important;
+  background: var(--gemini-panel) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
   color: #f8fafc !important;
 }
 
 html.gemini-dark-mode .chat-users__room.active,
 html.gemini-dark-mode .chat-users__item.active {
-  background-color: #334155 !important;
-  background: #334155 !important;
-  border-color: #475569 !important;
+  background-color: var(--gemini-accent) !important;
+  background: var(--gemini-accent) !important;
+  border-color: var(--gemini-accent) !important;
+  color: #ffffff !important;
 }
 
 html.gemini-dark-mode .contact-name {
@@ -1745,18 +1746,18 @@ html.gemini-dark-mode .contact-name {
 
 /* --- PRONOUN QUICK BUTTONS (Anh / Chị) --- */
 html.gemini-dark-mode .gemini-pronoun-quick-btn {
-  background-color: #1e293b !important;
-  background: #1e293b !important;
+  background-color: var(--gemini-panel) !important;
+  background: var(--gemini-panel) !important;
   color: #e2e8f0 !important;
-  border: 1px solid #334155 !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
 }
 
 html.gemini-dark-mode .gemini-pronoun-quick-btn:hover,
 html.gemini-dark-mode .gemini-pronoun-quick-btn.active {
-  background-color: #4338ca !important;
-  background: #4338ca !important;
+  background-color: var(--gemini-accent) !important;
+  background: var(--gemini-accent) !important;
   color: #ffffff !important;
-  border-color: #6366f1 !important;
+  border-color: var(--gemini-accent) !important;
 }
 
 /* --- SYSTEM MESSAGES TEXT COLOR FIX --- */
@@ -1774,9 +1775,9 @@ html.gemini-dark-mode [class*="message-system"] {
 html.gemini-dark-mode .channel-items__el,
 html.gemini-dark-mode .channel-items__el.active,
 html.gemini-dark-mode [class*="channel-items"] .active {
-  background-color: #334155 !important;
-  background: #334155 !important;
-  border-color: #475569 !important;
+  background-color: var(--gemini-panel) !important;
+  background: var(--gemini-panel) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
 }
 
 html.gemini-dark-mode .channel-items__el.active .channel-name,
@@ -1789,8 +1790,8 @@ html.gemini-dark-mode .nav-item.side-menu-item.active,
 html.gemini-dark-mode .nav-item.side-menu-item.active a,
 html.gemini-dark-mode li.side-menu-item.active,
 html.gemini-dark-mode li.side-menu-item.active a {
-  background-color: #312e81 !important;
-  background: #312e81 !important;
+  background-color: var(--gemini-accent) !important;
+  background: var(--gemini-accent) !important;
   color: #ffffff !important;
   border-radius: 8px !important;
 }
@@ -1805,19 +1806,19 @@ html.gemini-dark-mode .side-menu-item.active .menu-item {
 html.gemini-dark-mode .customer-info .btn-group .btn,
 html.gemini-dark-mode .customer-info .btn-group .btn-outline-secondary,
 html.gemini-dark-mode .btn-group .btn-outline-secondary {
-  background-color: #0f172a !important;
-  background: #0f172a !important;
+  background-color: var(--gemini-sidebar) !important;
+  background: var(--gemini-sidebar) !important;
   color: #94a3b8 !important;
-  border-color: #334155 !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
 }
 
 html.gemini-dark-mode .customer-info .btn-group .btn.active,
 html.gemini-dark-mode .customer-info .btn-group .btn-outline-secondary.active,
 html.gemini-dark-mode .btn-group .btn-outline-secondary.active {
-  background-color: #6366f1 !important;
-  background: #6366f1 !important;
+  background-color: var(--gemini-accent) !important;
+  background: var(--gemini-accent) !important;
   color: #ffffff !important;
-  border-color: #6366f1 !important;
+  border-color: var(--gemini-accent) !important;
 }
 
 html.gemini-dark-mode .btn-outline-secondary span {
@@ -1828,10 +1829,10 @@ html.gemini-dark-mode .btn-outline-secondary span {
 html.gemini-dark-mode .sort-dropdown,
 html.gemini-dark-mode .data-list-rows-dropdown button,
 html.gemini-dark-mode [class*="sort-dropdown"] {
-  background-color: #1e293b !important;
-  background: #1e293b !important;
+  background-color: var(--gemini-panel) !important;
+  background: var(--gemini-panel) !important;
   color: #f8fafc !important;
-  border: 1px solid #334155 !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
 }
 
 html.gemini-dark-mode .sort-dropdown span,
@@ -1841,9 +1842,9 @@ html.gemini-dark-mode .data-list-rows-dropdown svg {
 }
 
 html.gemini-dark-mode .data-list-rows-dropdown .dropdown-menu {
-  background-color: #1e293b !important;
-  background: #1e293b !important;
-  border-color: #334155 !important;
+  background-color: var(--gemini-panel) !important;
+  background: var(--gemini-panel) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
 }
 
 html.gemini-dark-mode .data-list-rows-dropdown .dropdown-item {
@@ -1851,22 +1852,22 @@ html.gemini-dark-mode .data-list-rows-dropdown .dropdown-item {
 }
 
 html.gemini-dark-mode .data-list-rows-dropdown .dropdown-item:hover {
-  background-color: #334155 !important;
-  color: #38bdf8 !important;
+  background-color: var(--gemini-accent) !important;
+  color: #ffffff !important;
 }
 
 /* --- RESET BUTTON FIX (.btn-light) --- */
 html.gemini-dark-mode .btn-light,
 html.gemini-dark-mode button.btn-light,
 html.gemini-dark-mode [class*="btn-light"] {
-  background-color: #334155 !important;
-  background: #334155 !important;
+  background-color: var(--gemini-panel) !important;
+  background: var(--gemini-panel) !important;
   color: #ffffff !important;
-  border: 1px solid #475569 !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
 }
 
 html.gemini-dark-mode .btn-light:hover {
-  background-color: #475569 !important;
+  background-color: var(--gemini-accent) !important;
   color: #ffffff !important;
 }
 
@@ -1874,10 +1875,10 @@ html.gemini-dark-mode .btn-light:hover {
 html.gemini-dark-mode .modal-header,
 html.gemini-dark-mode .modal-title,
 html.gemini-dark-mode [class*="modal-header"] {
-  background-color: #0f172a !important;
-  background: #0f172a !important;
+  background-color: var(--gemini-sidebar) !important;
+  background: var(--gemini-sidebar) !important;
   color: #ffffff !important;
-  border-bottom: 1px solid #1e293b !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
 }
 
 html.gemini-dark-mode .modal-header .modal-title,
@@ -1898,10 +1899,10 @@ html.gemini-dark-mode .modal-header span[aria-hidden="true"] {
 /* --- FILE UPLOAD DROPZONE FIX (.dropzone) --- */
 html.gemini-dark-mode .dropzone,
 html.gemini-dark-mode [class*="dropzone"] {
-  background-color: #1e293b !important;
-  background: #1e293b !important;
+  background-color: var(--gemini-panel) !important;
+  background: var(--gemini-panel) !important;
   color: #cbd5e1 !important;
-  border: 2px dashed #475569 !important;
+  border: 2px dashed rgba(255, 255, 255, 0.2) !important;
 }
 
 html.gemini-dark-mode .dropzone p,
@@ -1938,18 +1939,18 @@ html.gemini-dark-mode [class*="pending"] {
 
 html.gemini-dark-mode .btn-primary,
 html.gemini-dark-mode [class*="btn-primary"] {
-  background-color: #4338ca !important;
-  background: #4338ca !important;
+  background-color: var(--gemini-accent) !important;
+  background: var(--gemini-accent) !important;
   color: #ffffff !important;
-  border-color: #6366f1 !important;
+  border-color: var(--gemini-accent) !important;
 }
 
 html.gemini-dark-mode .btn-secondary,
 html.gemini-dark-mode [class*="btn-secondary"] {
-  background-color: #334155 !important;
-  background: #334155 !important;
+  background-color: var(--gemini-panel) !important;
+  background: var(--gemini-panel) !important;
   color: #ffffff !important;
-  border-color: #475569 !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
 }
 
 /* --- MODAL CLOSE BUTTON FIX (.close) --- */
@@ -1976,10 +1977,10 @@ html.gemini-dark-mode .ql-toolbar,
 html.gemini-dark-mode .ql-container,
 html.gemini-dark-mode .ql-editor,
 html.gemini-dark-mode [class*="ql-"] {
-  background-color: #1e293b !important;
-  background: #1e293b !important;
+  background-color: var(--gemini-panel) !important;
+  background: var(--gemini-panel) !important;
   color: #f8fafc !important;
-  border-color: #334155 !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
 }
 
 html.gemini-dark-mode .ql-editor::before,
@@ -1999,10 +2000,10 @@ html.gemini-dark-mode .ql-fill {
 html.gemini-dark-mode .btn-more,
 html.gemini-dark-mode .btn.btn-more,
 html.gemini-dark-mode [class*="btn-more"] {
-  background-color: #1e293b !important;
-  background: #1e293b !important;
+  background-color: var(--gemini-panel) !important;
+  background: var(--gemini-panel) !important;
   color: #cbd5e1 !important;
-  border: 1px solid #334155 !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
 }
 
 html.gemini-dark-mode .btn-more svg,
@@ -2014,7 +2015,7 @@ html.gemini-dark-mode [class*="btn-more"] svg {
 }
 
 html.gemini-dark-mode .btn-more:hover {
-  background-color: #334155 !important;
+  background-color: var(--gemini-accent) !important;
   color: #ffffff !important;
 }
 
@@ -2023,18 +2024,18 @@ html.gemini-dark-mode .chip,
 html.gemini-dark-mode .chip-body,
 html.gemini-dark-mode .chip-text,
 html.gemini-dark-mode [class*="chip"] {
-  background-color: #1e293b !important;
-  background: #1e293b !important;
+  background-color: var(--gemini-panel) !important;
+  background: var(--gemini-panel) !important;
   color: #38bdf8 !important;
-  border: 1px solid #334155 !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
 }
 
 html.gemini-dark-mode .chip-pl_processing,
 html.gemini-dark-mode [class*="chip-pl_processing"] {
-  background-color: #1e1b4b !important;
-  background: #1e1b4b !important;
+  background-color: var(--gemini-sidebar) !important;
+  background: var(--gemini-sidebar) !important;
   color: #818cf8 !important;
-  border: 1px solid #4338ca !important;
+  border: 1px solid var(--gemini-accent) !important;
 }
 
 html.gemini-dark-mode .chip-pl_processing .chip-text {
@@ -2043,22 +2044,22 @@ html.gemini-dark-mode .chip-pl_processing .chip-text {
 
 /* --- STRUCTURAL BOUNDARIES & PANEL DIVIDERS (BỐ CỤC PHÂN CHIA RÕ RÀNG) --- */
 html.gemini-dark-mode .main-menu {
-  border-right: 1px solid #1e293b !important;
+  border-right: 1px solid rgba(255, 255, 255, 0.1) !important;
 }
 
 html.gemini-dark-mode .sidebar-content,
 html.gemini-dark-mode .chat-sidebar {
-  border-right: 1px solid #1e293b !important;
+  border-right: 1px solid rgba(255, 255, 255, 0.1) !important;
 }
 
 html.gemini-dark-mode .sidebar-right,
 html.gemini-dark-mode .customer-detail {
-  border-left: 1px solid #1e293b !important;
+  border-left: 1px solid rgba(255, 255, 255, 0.1) !important;
 }
 
 html.gemini-dark-mode #navbar-mobile,
 html.gemini-dark-mode .header-navbar {
-  border-bottom: 1px solid #1e293b !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
 }
 
 html.gemini-dark-mode .card,
@@ -2066,18 +2067,18 @@ html.gemini-dark-mode .modal-content,
 html.gemini-dark-mode .chat-application,
 html.gemini-dark-mode .chat-users__room {
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35) !important;
-  border: 1px solid #334155 !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
 }
 
 /* --- CHAT INPUT UTILS TOOLBAR FIX (.chat-app-input--utils) --- */
 html.gemini-dark-mode .chat-app-input--utils,
 html.gemini-dark-mode [class*="chat-app-input--utils"] {
-  background-color: #1e293b !important;
-  background: #1e293b !important;
+  background-color: var(--gemini-panel) !important;
+  background: var(--gemini-panel) !important;
   border-top-left-radius: 8px !important;
   border-top-right-radius: 8px !important;
   padding: 8px 12px !important;
-  border: 1px solid #334155 !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
   border-bottom: none !important;
 }
 
@@ -2097,7 +2098,7 @@ html.gemini-dark-mode #chat-input,
 html.gemini-dark-mode textarea.message {
   border-top-left-radius: 0 !important;
   border-top-right-radius: 0 !important;
-  border-color: #334155 !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
 }
 
 /* --- QUICK ANSWER & EMOJI SUGGESTIONS PANEL FIX (.chat-suggestions) --- */
@@ -2107,21 +2108,21 @@ html.gemini-dark-mode .footer-quickanswer,
 html.gemini-dark-mode .header-quickanswer,
 html.gemini-dark-mode .emoji-panel,
 html.gemini-dark-mode [class*="quickanswer"] {
-  background-color: #1e293b !important;
-  background: #1e293b !important;
+  background-color: var(--gemini-panel) !important;
+  background: var(--gemini-panel) !important;
   color: #f8fafc !important;
-  border-color: #334155 !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
 }
 
 html.gemini-dark-mode .chat-suggestions .nav-tabs,
 html.gemini-dark-mode .chat-suggestions .nav-link {
-  background-color: #0f172a !important;
+  background-color: var(--gemini-sidebar) !important;
   color: #cbd5e1 !important;
-  border-color: #334155 !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
 }
 
 html.gemini-dark-mode .chat-suggestions .nav-link.active {
-  background-color: #312e81 !important;
+  background-color: var(--gemini-accent) !important;
   color: #ffffff !important;
 }
 
@@ -2129,10 +2130,10 @@ html.gemini-dark-mode .chat-suggestions .nav-link.active {
 html.gemini-dark-mode .auto-reply,
 html.gemini-dark-mode [class*="auto-reply"],
 html.gemini-dark-mode div[class*="auto-reply"] {
-  background-color: #1e1b4b !important;
-  background: #1e1b4b !important;
+  background-color: var(--gemini-sidebar) !important;
+  background: var(--gemini-sidebar) !important;
   color: #fbbf24 !important;
-  border: 1px solid #4338ca !important;
+  border: 1px solid var(--gemini-accent) !important;
 }
 
 html.gemini-dark-mode .auto-reply p,
@@ -2156,7 +2157,7 @@ html.gemini-dark-mode *::-webkit-scrollbar {
 
 html.gemini-dark-mode ::-webkit-scrollbar-track,
 html.gemini-dark-mode *::-webkit-scrollbar-track {
-  background: #0f172a !important;
+  background: var(--gemini-sidebar) !important;
 }
 
 html.gemini-dark-mode ::-webkit-scrollbar-thumb,

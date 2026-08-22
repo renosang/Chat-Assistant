@@ -2527,6 +2527,25 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
     const pBg = preset.bg;
     const pAccent = ACCENT_COLORS[cachedAccent] || preset.accent;
 
+    // 0. Force primary layout columns to active preset colors
+    const sidebars = document.querySelectorAll('.main-menu, .sidebar-content, .chat-sidebar, .customer-detail, .customer-info, .sidebar-right');
+    sidebars.forEach(sb => {
+      sb.style.setProperty('background-color', pSidebar, 'important');
+      sb.style.setProperty('background', pSidebar, 'important');
+    });
+
+    const panels = document.querySelectorAll('.card, .modal-content, .chat-application, .chat-users__room, .chat-app-input--utils, .chat-suggestions, .sort-dropdown, .store-list, .customer-list-item, .nav-tabs, .tab-content, .tab-detail, .tab-detail__item');
+    panels.forEach(pn => {
+      pn.style.setProperty('background-color', pPanel, 'important');
+      pn.style.setProperty('background', pPanel, 'important');
+    });
+
+    const bodyWorkspaces = document.querySelectorAll('#app, .app-content, .content-wrapper, .chat-app-window, .chat-wrapper, .user-chats, .chats, .chat-body');
+    bodyWorkspaces.forEach(bw => {
+      bw.style.setProperty('background-color', pBg, 'important');
+      bw.style.setProperty('background', pBg, 'important');
+    });
+
     // 1. Find all elements with white inline backgrounds or borders and override them
     const allEls = document.querySelectorAll('div[style*="background"], section[style*="background"], aside[style*="background"], header[style*="background"], ul[style*="background"], li[style*="background"], div[style*="border"]');
     allEls.forEach(el => {
@@ -2535,16 +2554,17 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
         el.style.setProperty('background-color', pPanel, 'important');
         el.style.setProperty('background', pPanel, 'important');
         el.style.setProperty('color', '#f8fafc', 'important');
-        el.style.setProperty('border-color', '#334155', 'important');
+        el.style.setProperty('border-color', 'rgba(255, 255, 255, 0.1)', 'important');
       }
     });
 
     // 2. Active Customer Chat Item (.chat-users__room.active)
     const activeRooms = document.querySelectorAll('.chat-users__room.active, .chat-users__item.active');
     activeRooms.forEach(rm => {
-      rm.style.setProperty('background-color', pPanel, 'important');
-      rm.style.setProperty('background', pPanel, 'important');
-      rm.style.setProperty('border-color', '#475569', 'important');
+      rm.style.setProperty('background-color', pAccent, 'important');
+      rm.style.setProperty('background', pAccent, 'important');
+      rm.style.setProperty('color', '#ffffff', 'important');
+      rm.style.setProperty('border-color', pAccent, 'important');
     });
 
     // 3. Pronoun buttons (.gemini-pronoun-quick-btn)
@@ -2579,7 +2599,7 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
     activeChannels.forEach(ch => {
       ch.style.setProperty('background-color', pPanel, 'important');
       ch.style.setProperty('background', pPanel, 'important');
-      ch.style.setProperty('border-color', '#475569', 'important');
+      ch.style.setProperty('border-color', 'rgba(255, 255, 255, 0.1)', 'important');
       const nameEl = ch.querySelector('.channel-name');
       if (nameEl) nameEl.style.setProperty('color', '#ffffff', 'important');
     });
@@ -2604,7 +2624,7 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
         tb.style.setProperty('background-color', pSidebar, 'important');
         tb.style.setProperty('background', pSidebar, 'important');
         tb.style.setProperty('color', '#94a3b8', 'important');
-        tb.style.setProperty('border-color', '#334155', 'important');
+        tb.style.setProperty('border-color', 'rgba(255, 255, 255, 0.1)', 'important');
       }
     });
 
@@ -2622,7 +2642,7 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
       dz.style.setProperty('background-color', pPanel, 'important');
       dz.style.setProperty('background', pPanel, 'important');
       dz.style.setProperty('color', '#cbd5e1', 'important');
-      dz.style.setProperty('border-color', '#475569', 'important');
+      dz.style.setProperty('border-color', 'rgba(255, 255, 255, 0.1)', 'important');
     });
 
     // 11. Pagination sort dropdown (.sort-dropdown, .data-list-rows-dropdown)
@@ -2631,7 +2651,7 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
       sd.style.setProperty('background-color', pPanel, 'important');
       sd.style.setProperty('background', pPanel, 'important');
       sd.style.setProperty('color', '#f8fafc', 'important');
-      sd.style.setProperty('border-color', '#334155', 'important');
+      sd.style.setProperty('border-color', 'rgba(255, 255, 255, 0.1)', 'important');
     });
 
     // 12. Reset button (.btn-light)
@@ -2640,7 +2660,7 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
       lb.style.setProperty('background-color', pPanel, 'important');
       lb.style.setProperty('background', pPanel, 'important');
       lb.style.setProperty('color', '#ffffff', 'important');
-      lb.style.setProperty('border-color', '#475569', 'important');
+      lb.style.setProperty('border-color', 'rgba(255, 255, 255, 0.1)', 'important');
     });
 
     // 13. Modal Close button (.close)
@@ -2658,7 +2678,7 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
       ql.style.setProperty('background-color', pPanel, 'important');
       ql.style.setProperty('background', pPanel, 'important');
       ql.style.setProperty('color', '#ffffff', 'important');
-      ql.style.setProperty('border-color', '#334155', 'important');
+      ql.style.setProperty('border-color', 'rgba(255, 255, 255, 0.1)', 'important');
     });
 
     // 15. More button (.btn-more)
@@ -2667,7 +2687,7 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
       mb.style.setProperty('background-color', pPanel, 'important');
       mb.style.setProperty('background', pPanel, 'important');
       mb.style.setProperty('color', '#cbd5e1', 'important');
-      mb.style.setProperty('border-color', '#334155', 'important');
+      mb.style.setProperty('border-color', 'rgba(255, 255, 255, 0.1)', 'important');
     });
 
     // 16. Order status chips (.chip, .chip-pl_processing)
@@ -2675,7 +2695,7 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
     chips.forEach(cp => {
       cp.style.setProperty('background-color', pPanel, 'important');
       cp.style.setProperty('background', pPanel, 'important');
-      cp.style.setProperty('color', '#a5b4fc', 'important');
+      cp.style.setProperty('color', '#38bdf8', 'important');
       cp.style.setProperty('border-color', pAccent, 'important');
     });
 
@@ -2684,7 +2704,7 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
     utilsToolbars.forEach(ut => {
       ut.style.setProperty('background-color', pPanel, 'important');
       ut.style.setProperty('background', pPanel, 'important');
-      ut.style.setProperty('border-color', '#334155', 'important');
+      ut.style.setProperty('border-color', 'rgba(255, 255, 255, 0.1)', 'important');
     });
 
     // 18. Toolbar icons (.text-black-50)
@@ -2700,7 +2720,7 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
       sp.style.setProperty('background-color', pPanel, 'important');
       sp.style.setProperty('background', pPanel, 'important');
       sp.style.setProperty('color', '#f8fafc', 'important');
-      sp.style.setProperty('border-color', '#334155', 'important');
+      sp.style.setProperty('border-color', 'rgba(255, 255, 255, 0.1)', 'important');
     });
 
     // 20. Customer Order Card & Product Information Card (.message-customer-order, .message-product-info, .chat-item__content--link)
@@ -2764,6 +2784,37 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
     const macroOverlay = document.getElementById("gemini-macro-overlay");
     if (macroOverlay) {
       macroOverlay.style.setProperty('background-color', pPanel, 'important');
+      macroOverlay.style.setProperty('background', pPanel, 'important');
+      macroOverlay.style.setProperty('border', '1px solid rgba(255, 255, 255, 0.15)', 'important');
+      macroOverlay.style.setProperty('color', '#f8fafc', 'important');
+
+      const items = macroOverlay.querySelectorAll('.macro-search-item');
+      items.forEach(it => {
+        if (!it.classList.contains('selected')) {
+          it.style.setProperty('background-color', pSidebar, 'important');
+          it.style.setProperty('background', pSidebar, 'important');
+          it.style.setProperty('border', '1px solid rgba(255, 255, 255, 0.1)', 'important');
+        }
+        const st = it.querySelector('strong');
+        if (st) st.style.setProperty('color', '#38bdf8', 'important');
+        const p = it.querySelector('p');
+        if (p) p.style.setProperty('color', '#cbd5e1', 'important');
+      });
+    }
+
+    const macroFullPreview = document.getElementById("gemini-macro-full-preview");
+    if (macroFullPreview) {
+      macroFullPreview.style.setProperty('background-color', pPanel, 'important');
+      macroFullPreview.style.setProperty('background', pPanel, 'important');
+      macroFullPreview.style.setProperty('border', '1px solid rgba(255, 255, 255, 0.15)', 'important');
+      macroFullPreview.style.setProperty('color', '#f8fafc', 'important');
+
+      const previewHeader = macroFullPreview.querySelector('strong, h4, h3');
+      if (previewHeader) previewHeader.style.setProperty('color', '#38bdf8', 'important');
+
+      const previewText = macroFullPreview.querySelector('.m-content');
+      if (previewText) previewText.style.setProperty('color', '#e2e8f0', 'important');
+    }'background-color', pPanel, 'important');
       macroOverlay.style.setProperty('background', pPanel, 'important');
       macroOverlay.style.setProperty('border', '1px solid rgba(255, 255, 255, 0.15)', 'important');
       macroOverlay.style.setProperty('color', '#f8fafc', 'important');
