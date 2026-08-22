@@ -2521,13 +2521,19 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
   function applyDynamicDarkModeOverrides() {
     if (!document.documentElement.classList.contains("gemini-dark-mode")) return;
     
+    const preset = DARK_PRESETS[cachedPreset] || DARK_PRESETS.midnight;
+    const pPanel = preset.panel;
+    const pSidebar = preset.sidebar;
+    const pBg = preset.bg;
+    const pAccent = ACCENT_COLORS[cachedAccent] || preset.accent;
+
     // 1. Find all elements with white inline backgrounds or borders and override them
     const allEls = document.querySelectorAll('div[style*="background"], section[style*="background"], aside[style*="background"], header[style*="background"], ul[style*="background"], li[style*="background"], div[style*="border"]');
     allEls.forEach(el => {
       const bg = el.style.backgroundColor || el.style.background;
       if (bg && (bg.includes('255') || bg.includes('white') || bg.includes('#fff') || bg.includes('#FFF') || bg.includes('248') || bg.includes('249') || bg.includes('228') || bg.includes('231'))) {
-        el.style.setProperty('background-color', '#1e293b', 'important');
-        el.style.setProperty('background', '#1e293b', 'important');
+        el.style.setProperty('background-color', pPanel, 'important');
+        el.style.setProperty('background', pPanel, 'important');
         el.style.setProperty('color', '#f8fafc', 'important');
         el.style.setProperty('border-color', '#334155', 'important');
       }
@@ -2536,8 +2542,8 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
     // 2. Active Customer Chat Item (.chat-users__room.active)
     const activeRooms = document.querySelectorAll('.chat-users__room.active, .chat-users__item.active');
     activeRooms.forEach(rm => {
-      rm.style.setProperty('background-color', '#334155', 'important');
-      rm.style.setProperty('background', '#334155', 'important');
+      rm.style.setProperty('background-color', pPanel, 'important');
+      rm.style.setProperty('background', pPanel, 'important');
       rm.style.setProperty('border-color', '#475569', 'important');
     });
 
@@ -2545,10 +2551,10 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
     const pronounBtns = document.querySelectorAll('.gemini-pronoun-quick-btn');
     pronounBtns.forEach(btn => {
       if (btn.classList.contains('active')) {
-        btn.style.setProperty('background-color', '#4338ca', 'important');
+        btn.style.setProperty('background-color', pAccent, 'important');
         btn.style.setProperty('color', '#ffffff', 'important');
       } else {
-        btn.style.setProperty('background-color', '#1e293b', 'important');
+        btn.style.setProperty('background-color', pPanel, 'important');
         btn.style.setProperty('color', '#e2e8f0', 'important');
       }
     });
@@ -2571,8 +2577,8 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
     // 6. Active Channel item (.channel-items__el.active)
     const activeChannels = document.querySelectorAll('.channel-items__el.active, [class*="channel-items"] .active');
     activeChannels.forEach(ch => {
-      ch.style.setProperty('background-color', '#334155', 'important');
-      ch.style.setProperty('background', '#334155', 'important');
+      ch.style.setProperty('background-color', pPanel, 'important');
+      ch.style.setProperty('background', pPanel, 'important');
       ch.style.setProperty('border-color', '#475569', 'important');
       const nameEl = ch.querySelector('.channel-name');
       if (nameEl) nameEl.style.setProperty('color', '#ffffff', 'important');
@@ -2581,8 +2587,8 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
     // 7. Active Side Menu Item (.side-menu-item.active)
     const activeSideMenus = document.querySelectorAll('.side-menu-item.active, .nav-item.side-menu-item.active a');
     activeSideMenus.forEach(sm => {
-      sm.style.setProperty('background-color', '#312e81', 'important');
-      sm.style.setProperty('background', '#312e81', 'important');
+      sm.style.setProperty('background-color', pAccent, 'important');
+      sm.style.setProperty('background', pAccent, 'important');
       sm.style.setProperty('color', '#ffffff', 'important');
     });
 
@@ -2590,13 +2596,13 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
     const tabBtns = document.querySelectorAll('.customer-info .btn-group .btn, .btn-outline-secondary');
     tabBtns.forEach(tb => {
       if (tb.classList.contains('active')) {
-        tb.style.setProperty('background-color', '#6366f1', 'important');
-        tb.style.setProperty('background', '#6366f1', 'important');
+        tb.style.setProperty('background-color', pAccent, 'important');
+        tb.style.setProperty('background', pAccent, 'important');
         tb.style.setProperty('color', '#ffffff', 'important');
-        tb.style.setProperty('border-color', '#6366f1', 'important');
+        tb.style.setProperty('border-color', pAccent, 'important');
       } else {
-        tb.style.setProperty('background-color', '#0f172a', 'important');
-        tb.style.setProperty('background', '#0f172a', 'important');
+        tb.style.setProperty('background-color', pSidebar, 'important');
+        tb.style.setProperty('background', pSidebar, 'important');
         tb.style.setProperty('color', '#94a3b8', 'important');
         tb.style.setProperty('border-color', '#334155', 'important');
       }
@@ -2605,16 +2611,16 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
     // 9. Modal Header & Title (.modal-header, .modal-title)
     const modalHeaders = document.querySelectorAll('.modal-header, .modal-title, [class*="modal-header"]');
     modalHeaders.forEach(mh => {
-      mh.style.setProperty('background-color', '#0f172a', 'important');
-      mh.style.setProperty('background', '#0f172a', 'important');
+      mh.style.setProperty('background-color', pSidebar, 'important');
+      mh.style.setProperty('background', pSidebar, 'important');
       mh.style.setProperty('color', '#ffffff', 'important');
     });
 
     // 10. File Upload Dropzone (.dropzone)
     const dropzones = document.querySelectorAll('.dropzone, [class*="dropzone"]');
     dropzones.forEach(dz => {
-      dz.style.setProperty('background-color', '#1e293b', 'important');
-      dz.style.setProperty('background', '#1e293b', 'important');
+      dz.style.setProperty('background-color', pPanel, 'important');
+      dz.style.setProperty('background', pPanel, 'important');
       dz.style.setProperty('color', '#cbd5e1', 'important');
       dz.style.setProperty('border-color', '#475569', 'important');
     });
@@ -2622,8 +2628,8 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
     // 11. Pagination sort dropdown (.sort-dropdown, .data-list-rows-dropdown)
     const sortDropdowns = document.querySelectorAll('.sort-dropdown, .data-list-rows-dropdown button');
     sortDropdowns.forEach(sd => {
-      sd.style.setProperty('background-color', '#1e293b', 'important');
-      sd.style.setProperty('background', '#1e293b', 'important');
+      sd.style.setProperty('background-color', pPanel, 'important');
+      sd.style.setProperty('background', pPanel, 'important');
       sd.style.setProperty('color', '#f8fafc', 'important');
       sd.style.setProperty('border-color', '#334155', 'important');
     });
@@ -2631,8 +2637,8 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
     // 12. Reset button (.btn-light)
     const lightBtns = document.querySelectorAll('.btn-light, button.btn-light');
     lightBtns.forEach(lb => {
-      lb.style.setProperty('background-color', '#334155', 'important');
-      lb.style.setProperty('background', '#334155', 'important');
+      lb.style.setProperty('background-color', pPanel, 'important');
+      lb.style.setProperty('background', pPanel, 'important');
       lb.style.setProperty('color', '#ffffff', 'important');
       lb.style.setProperty('border-color', '#475569', 'important');
     });
@@ -2649,8 +2655,8 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
     // 14. Quill Editor (.ql-container, .ql-editor)
     const qlContainers = document.querySelectorAll('.ql-container, .ql-editor, [class*="ql-"]');
     qlContainers.forEach(ql => {
-      ql.style.setProperty('background-color', '#1e293b', 'important');
-      ql.style.setProperty('background', '#1e293b', 'important');
+      ql.style.setProperty('background-color', pPanel, 'important');
+      ql.style.setProperty('background', pPanel, 'important');
       ql.style.setProperty('color', '#ffffff', 'important');
       ql.style.setProperty('border-color', '#334155', 'important');
     });
@@ -2658,8 +2664,8 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
     // 15. More button (.btn-more)
     const moreBtns = document.querySelectorAll('.btn-more, [class*="btn-more"]');
     moreBtns.forEach(mb => {
-      mb.style.setProperty('background-color', '#1e293b', 'important');
-      mb.style.setProperty('background', '#1e293b', 'important');
+      mb.style.setProperty('background-color', pPanel, 'important');
+      mb.style.setProperty('background', pPanel, 'important');
       mb.style.setProperty('color', '#cbd5e1', 'important');
       mb.style.setProperty('border-color', '#334155', 'important');
     });
@@ -2667,17 +2673,17 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
     // 16. Order status chips (.chip, .chip-pl_processing)
     const chips = document.querySelectorAll('.chip, [class*="chip"]');
     chips.forEach(cp => {
-      cp.style.setProperty('background-color', '#1e1b4b', 'important');
-      cp.style.setProperty('background', '#1e1b4b', 'important');
+      cp.style.setProperty('background-color', pPanel, 'important');
+      cp.style.setProperty('background', pPanel, 'important');
       cp.style.setProperty('color', '#a5b4fc', 'important');
-      cp.style.setProperty('border-color', '#4338ca', 'important');
+      cp.style.setProperty('border-color', pAccent, 'important');
     });
 
     // 17. Chat input utils toolbar (.chat-app-input--utils)
     const utilsToolbars = document.querySelectorAll('.chat-app-input--utils, [class*="chat-app-input--utils"]');
     utilsToolbars.forEach(ut => {
-      ut.style.setProperty('background-color', '#1e293b', 'important');
-      ut.style.setProperty('background', '#1e293b', 'important');
+      ut.style.setProperty('background-color', pPanel, 'important');
+      ut.style.setProperty('background', pPanel, 'important');
       ut.style.setProperty('border-color', '#334155', 'important');
     });
 
@@ -2691,8 +2697,8 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
     // 19. Quick Answer & Emoji suggestions panel (.chat-suggestions, .holder, .emoji-panel)
     const suggestPanels = document.querySelectorAll('.chat-suggestions, .chat-suggestions .holder, .footer-quickanswer, .header-quickanswer, .emoji-panel, [class*="quickanswer"]');
     suggestPanels.forEach(sp => {
-      sp.style.setProperty('background-color', '#1e293b', 'important');
-      sp.style.setProperty('background', '#1e293b', 'important');
+      sp.style.setProperty('background-color', pPanel, 'important');
+      sp.style.setProperty('background', pPanel, 'important');
       sp.style.setProperty('color', '#f8fafc', 'important');
       sp.style.setProperty('border-color', '#334155', 'important');
     });
