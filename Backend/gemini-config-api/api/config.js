@@ -36,14 +36,22 @@ module.exports = async (req, res) => {
           ]
     };
 
-    const publicConfig = {
+    const baseConfig = {
       minVersion: settings?.minVersion || "4.1",
       downloadUrl: settings?.downloadUrl || "",
+      isEnabled: settings?.isEnabled ?? true,
+      allBrands: settings?.allBrands || [],
+      allMarketplaces: settings?.allMarketplaces || [],
+      brandGroups: settings?.brandGroups || [],
+      brandMappings: settings?.brandMappings || [],
+      typoDictionary: settings?.typoDictionary || [],
+      forbiddenRules: settings?.forbiddenRules || { VI: [], EN: [] },
+      categoryChannelMappings: settings?.categoryChannelMappings || [],
       motivationConfig
     };
 
     const authHeader = req.headers.authorization;
-    if (!authHeader) return res.status(200).json(publicConfig);
+    if (!authHeader) return res.status(200).json(baseConfig);
 
     const token = authHeader.split(' ')[1];
     try {
@@ -61,18 +69,11 @@ module.exports = async (req, res) => {
       await updateDevice(user._id, req.headers['user-agent'], ip, user.extVersion);
 
       return res.status(200).json({
-        ...publicConfig,
-        isEnabled: settings?.isEnabled ?? true,
-        allBrands: settings?.allBrands || [],
-        allMarketplaces: settings?.allMarketplaces || [],
-        brandGroups: settings?.brandGroups || [],
-        typoDictionary: settings?.typoDictionary || [],
-        forbiddenRules: settings?.forbiddenRules || { VI: [], EN: [] },
-        categoryChannelMappings: settings?.categoryChannelMappings || [],
+        ...baseConfig,
         blockComplaintTicket: user.blockComplaintTicket ?? false // Tính năng chặn tạo ticket
       });
     } catch (err) {
-      return res.status(200).json(publicConfig);
+      return res.status(200).json(baseConfig);
     }
   } catch (error) {
     return res.status(500).json({ error: 'Server Error' });

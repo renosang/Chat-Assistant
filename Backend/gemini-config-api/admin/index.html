@@ -829,7 +829,7 @@
             const [data, setData] = React.useState(null);
             const [saving, setSaving] = React.useState(false);
             const [activeTab, setActiveTab] = React.useState('categories');
-            const [buffers, setBuffers] = React.useState({ allBrands: '', allMarketplaces: '', brandGroups: '', forbiddenRules: '', typoDictionary: '' });
+            const [buffers, setBuffers] = React.useState({ allBrands: '', allMarketplaces: '', brandGroups: '', forbiddenRules: '', typoDictionary: '', brandMappings: '' });
             const [motivationConfig, setMotivationConfig] = React.useState({
                 isEnabled: true,
                 intervalSeconds: 12,
@@ -883,7 +883,8 @@
                         allMarketplaces: (d.allMarketplaces || []).join('\n'),
                         brandGroups: (d.brandGroups || []).map(g => Array.isArray(g) ? g.join(', ') : g).join('\n'),
                         forbiddenRules: (d.forbiddenRules?.VI || []).map(r => r.word + (r.exception ? ` | ${r.exception}` : '')).join('\n'),
-                        typoDictionary: (d.typoDictionary || []).map(r => `${r.error} | ${r.fix}`).join('\n')
+                        typoDictionary: (d.typoDictionary || []).map(r => `${r.error} | ${r.fix}`).join('\n'),
+                        brandMappings: (d.brandMappings || []).map(r => `${r.brand} | ${r.platform}`).join('\n')
                     });
 
                     // Build initial category mapping dictionary & raw input state
@@ -922,6 +923,7 @@
                 updatedData.brandGroups = buffers.brandGroups.split('\n').map(line => line.split(',').map(item => item.trim()).filter(Boolean)).filter(group => group.length > 0);
                 updatedData.forbiddenRules = { VI: buffers.forbiddenRules.split('\n').map(l => { const [w, ex] = l.split('|'); return { word: w?.trim(), exception: ex?.trim() }; }).filter(r => r.word) };
                 updatedData.typoDictionary = buffers.typoDictionary.split('\n').map(l => { const [err, fix] = l.split('|'); return { error: err?.trim(), fix: fix?.trim() }; }).filter(r => r.error && r.fix);
+                updatedData.brandMappings = buffers.brandMappings.split('\n').map(l => { const [b, p] = l.split('|'); return { brand: b?.trim(), platform: p?.trim() }; }).filter(r => r.brand && r.platform);
                 updatedData.motivationConfig = motivationConfig;
 
                 // Build category channel mappings array (only for parent categories)
@@ -1009,10 +1011,10 @@
                             <span>{saving ? 'Đang lưu...' : 'Lưu tất cả'}</span>
                         </button>
                     </header>
-                    <div className="bg-white p-1.5 rounded-2xl flex gap-1 w-fit shadow-sm border border-slate-100">
-                        {['categories', 'motivation', 'brands', 'groups', 'forbidden', 'typo'].map(t => (
-                            <button key={t} onClick={() => setActiveTab(t)} className={`px-7 py-3 rounded-xl text-xs font-bold transition-all ${activeTab === t ? 'bg-slate-900 text-white shadow-md' : 'text-slate-400 hover:text-slate-600'}`}>
-                                {t === 'categories' ? 'DANH MỤC & CHANNEL' : t === 'motivation' ? '☀️ MOTIVATION & NHẮC NHỞ' : t.toUpperCase()}
+                    <div className="bg-white p-1.5 rounded-2xl flex gap-1 w-fit shadow-sm border border-slate-100 flex-wrap">
+                        {['categories', 'mappings', 'motivation', 'brands', 'groups', 'forbidden', 'typo'].map(t => (
+                            <button key={t} onClick={() => setActiveTab(t)} className={`px-6 py-3 rounded-xl text-xs font-extrabold transition-all ${activeTab === t ? 'bg-slate-900 text-white shadow-md' : 'text-slate-500 hover:text-slate-800'}`}>
+                                {t === 'categories' ? 'DANH MỤC & CHANNEL' : t === 'mappings' ? '🏷️ ÁNH XẠ BRAND ↔ SÀN' : t === 'motivation' ? '☀️ MOTIVATION & NHẮC NHỞ' : t.toUpperCase()}
                             </button>
                         ))}
                     </div>
@@ -1563,6 +1565,24 @@
                                     <label className="text-xs font-black text-slate-400 uppercase tracking-widest">Danh sách Sàn</label>
                                     <textarea className="w-full h-[400px] bg-slate-50 border rounded-2xl p-6 font-mono text-sm" value={buffers.allMarketplaces} onChange={e => setBuffers({ ...buffers, allMarketplaces: e.target.value })} />
                                 </div>
+                            </div>
+                        )}
+                        {activeTab === 'mappings' && (
+                            <div className="space-y-4">
+                                <div>
+                                    <h3 className="text-xl font-black text-slate-900 flex items-center gap-2">
+                                        <span>🏷️ Bảng Ánh Xạ Brand ↔ Sàn Chỉ Định</span>
+                                    </h3>
+                                    <p className="text-sm text-slate-500 font-medium mt-1">
+                                        Giải quyết các Brand không có dấu gạch ngang (như <b>Matrix Việt Nam</b>). Cấu hình theo cú pháp: <code>Tên Brand | Mã Sàn (tiktok / shopee / lazada / tiki)</code>
+                                    </p>
+                                </div>
+                                <textarea 
+                                    className="w-full h-[420px] bg-slate-50 border border-slate-200 rounded-2xl p-6 font-mono text-sm leading-relaxed focus:bg-white focus:border-indigo-500 focus:outline-none transition-all shadow-inner" 
+                                    value={buffers.brandMappings} 
+                                    onChange={e => setBuffers({ ...buffers, brandMappings: e.target.value })} 
+                                    placeholder="Matrix Việt Nam | tiktok&#10;Growplus | tiktok&#10;Nutricia | shopee" 
+                                />
                             </div>
                         )}
                         {activeTab === 'forbidden' && (

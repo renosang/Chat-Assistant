@@ -34,6 +34,7 @@ module.exports = async (req, res) => {
             typoDictionary: data.typoDictionary || [],
             forbiddenRules: data.forbiddenRules || { VI: [], EN: [] },
             categoryChannelMappings: data.categoryChannelMappings || [],
+            brandMappings: data.brandMappings || [],
             motivationConfig: data.motivationConfig || undefined,
             minVersion: data.minVersion || '4.1',
             downloadUrl: data.downloadUrl || '',

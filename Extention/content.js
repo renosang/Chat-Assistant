@@ -1979,10 +1979,19 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
 
     if (!mappedPlatform && cachedConfig?.brandMappings && Array.isArray(cachedConfig.brandMappings)) {
       const match = cachedConfig.brandMappings.find(item => {
-        const b = (item.brand || item.name || "").toLowerCase();
-        return b && (cleanLower === b || cleanSuper === superClean(b) || cleanLower.includes(b));
+        if (!item || (!item.brand && !item.name)) return false;
+        const b = (item.brand || item.name || "").toLowerCase().trim();
+        const bSuper = superClean(b);
+        if (!b) return false;
+        return (
+          cleanLower === b ||
+          cleanSuper === bSuper ||
+          cleanLower.includes(b) ||
+          b.includes(cleanLower) ||
+          (bSuper.length >= 3 && (cleanSuper.includes(bSuper) || bSuper.includes(cleanSuper)))
+        );
       });
-      if (match && match.platform) mappedPlatform = match.platform.toLowerCase();
+      if (match && match.platform) mappedPlatform = match.platform.toLowerCase().trim();
     }
 
     if (mappedPlatform) {

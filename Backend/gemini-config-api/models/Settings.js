@@ -25,6 +25,10 @@ const SettingsSchema = new mongoose.Schema({
     appliedChannels: [String],
     isAllChannels: Boolean
   }],
+  brandMappings: [{
+    brand: String,
+    platform: String
+  }],
   motivationConfig: {
     isEnabled: { type: Boolean, default: true },
     intervalSeconds: { type: Number, default: 12 },
