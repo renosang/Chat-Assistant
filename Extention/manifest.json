@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Trợ Lý Chat",
-  "version": "4.2.8",
+  "version": "4.2.9",
   "description": "Hệ thống kiểm duyệt Onpoint - Tích hợp nhận diện Brand & Sàn đa nền tảng.",
   "permissions": [
     "storage",

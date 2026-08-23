@@ -3078,10 +3078,14 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
     }
   }
 
-  // Auto Copy on Text Selection (Copy-on-Select)
+  // Auto Copy on Text Selection (Copy-on-Select) - Strictly constrained to TikTok Shop domain
   let lastCopiedText = "";
   document.addEventListener("mouseup", function(e) {
     if (!cachedAllowCopy) return;
+
+    // Strict Domain Guard: Only allow text selection auto-copy on TikTok Shop domain (shop.tiktok / tiktok.com)
+    const isTikTokShop = window.location.hostname.includes("tiktok.com") || window.location.hostname.includes("shop.tiktok");
+    if (!isTikTokShop) return;
 
     setTimeout(() => {
       const selection = window.getSelection();
