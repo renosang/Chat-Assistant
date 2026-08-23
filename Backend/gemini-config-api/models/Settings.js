@@ -4,7 +4,7 @@ const mongoose = require('mongoose');
 const SettingsSchema = new mongoose.Schema({
   type: { type: String, default: 'global', unique: true },
   isEnabled: { type: Boolean, default: true },
-  promptTemplate: { type: String, required: true },
+  promptTemplate: { type: String, default: '' },
   allBrands: [{ type: String }],
   allMarketplaces: [{ type: String }],
   brandGroups: { type: mongoose.Schema.Types.Mixed },

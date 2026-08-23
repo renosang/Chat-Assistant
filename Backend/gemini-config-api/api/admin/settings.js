@@ -15,7 +15,8 @@ module.exports = async (req, res) => {
 
   if (req.method === 'GET') {
     let settings = await Settings.findOne({ type: 'global' }).lean();
-    if (!settings) return res.json({ brandGroups: [], typoDictionary: [] });
+    if (!settings) settings = { type: 'global', brandMappings: [] };
+    if (!settings.brandMappings) settings.brandMappings = [];
     return res.json(settings);
   }
 

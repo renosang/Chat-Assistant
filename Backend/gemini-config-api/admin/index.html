@@ -877,14 +877,16 @@
 
             React.useEffect(() => {
                 fetch(`${API_BASE}/settings`).then(r => r.json()).then(d => {
-                    setData(d);
+                    const initialMappings = Array.isArray(d.brandMappings) ? d.brandMappings : [];
+
+                    setData({ ...d, brandMappings: initialMappings });
                     setBuffers({
                         allBrands: (d.allBrands || []).join('\n'),
                         allMarketplaces: (d.allMarketplaces || []).join('\n'),
                         brandGroups: (d.brandGroups || []).map(g => Array.isArray(g) ? g.join(', ') : g).join('\n'),
                         forbiddenRules: (d.forbiddenRules?.VI || []).map(r => r.word + (r.exception ? ` | ${r.exception}` : '')).join('\n'),
                         typoDictionary: (d.typoDictionary || []).map(r => `${r.error} | ${r.fix}`).join('\n'),
-                        brandMappings: (d.brandMappings || []).map(r => `${r.brand} | ${r.platform}`).join('\n')
+                        brandMappings: initialMappings.map(r => `${r.brand} | ${r.platform}`).join('\n')
                     });
 
                     // Build initial category mapping dictionary & raw input state
@@ -940,7 +942,11 @@
                 });
 
                 const res = await fetch(`${API_BASE}/settings`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(updatedData) });
-                if (res.ok) alert("Đã lưu cấu hình thành công!");
+                if (res.ok) {
+                    const saved = await res.json();
+                    setData(saved);
+                    alert("Đã lưu cấu hình thành công!");
+                }
                 setSaving(false);
             };
 
