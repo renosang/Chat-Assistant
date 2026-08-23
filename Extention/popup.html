@@ -390,8 +390,20 @@
 
             <!-- Hotkey & Scrollbar Info -->
             <div
-              style="margin-top: 8px; text-align: center; background: #f8fafc; border-radius: 12px; padding: 5px; font-size: 10px; color: #64748b; font-weight: 700;">
-              ⌨️ Phím tắt: <strong style="color: #6366f1;">Alt + Shift + D</strong>
+              style="margin-top: 8px; text-align: center; background: #f8fafc; border-radius: 12px; padding: 6px; font-size: 11px; color: #64748b; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 4px;">
+              <svg viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="2" style="width: 15px; height: 15px; flex-shrink: 0;">
+                <rect x="2" y="4" width="20" height="16" rx="2" ry="2"></rect>
+                <line x1="6" y1="8" x2="6" y2="8.01"></line>
+                <line x1="10" y1="8" x2="10" y2="8.01"></line>
+                <line x1="14" y1="8" x2="14" y2="8.01"></line>
+                <line x1="18" y1="8" x2="18" y2="8.01"></line>
+                <line x1="6" y1="12" x2="6" y2="12.01"></line>
+                <line x1="10" y1="12" x2="10" y2="12.01"></line>
+                <line x1="14" y1="12" x2="14" y2="12.01"></line>
+                <line x1="18" y1="12" x2="18" y2="12.01"></line>
+                <line x1="8" y1="16" x2="16" y2="16"></line>
+              </svg>
+              <span>Phím tắt: <strong style="color: #6366f1;">Alt + Shift + D</strong></span>
             </div>
           </div>
         </div>
@@ -443,7 +455,12 @@
 
         <!-- Macro Status (If authenticated) -->
         <div id="macroContentSection" style="display: none; padding: 20px 5px; text-align: center;">
-          <div class="macro-ready-icon">✔️</div>
+          <div class="macro-ready-icon" style="display: flex; align-items: center; justify-content: center; width: 56px; height: 56px; background: #ecfdf5; border-radius: 50%; margin: 0 auto 12px; border: 2px solid #bbf7d0;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5" style="width: 28px; height: 28px;">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+              <polyline points="22 4 12 14.01 9 11.01"></polyline>
+            </svg>
+          </div>
           <h3 style="color: #10b981; margin-bottom: 8px;">Cấu hình sẵn sàng</h3>
           <p style="font-size: 0.85rem; color: #64748b; margin-bottom: 20px;">Hệ thống Macro đã được kết nối. Bạn có thể
             sử dụng tìm kiếm nhanh ngay tại ô chat.</p>
@@ -467,7 +484,13 @@
     <!-- Redesigned Modal Inside Dashboard -->
     <div id="confirmModal" class="modal-overlay">
       <div class="modal-content">
-        <div class="modal-icon">⚠️</div>
+        <div class="modal-icon" style="display: flex; align-items: center; justify-content: center; margin: 0 auto 12px;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" style="width: 42px; height: 42px;">
+            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+            <line x1="12" y1="9" x2="12" y2="13"></line>
+            <line x1="12" y1="17" x2="12" y2="17.01"></line>
+          </svg>
+        </div>
         <h3>Cảnh báo rủi ro</h3>
         <p>Hệ thống sẽ ngừng bảo vệ và <strong>bị khóa tài khoản</strong> vĩnh viễn.</p>
         <p class="modal-hint">Vui lòng liên hệ Admin để kích hoạt lại sau khi gỡ.</p>
