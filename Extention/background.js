@@ -119,8 +119,8 @@ async function handleDeactivation(sendResponse) {
 
     console.log("[Gemini BG] Deactivating account for:", settings.username);
 
-    // Call backend to lock account
-    const response = await fetch(`${API_BASE_URL}/deactivate`, {
+    const baseUrl = await getActiveApiUrl();
+    const response = await fetch(`${baseUrl}/deactivate`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -155,7 +155,8 @@ async function sendHeartbeat() {
     const settings = await chrome.storage.sync.get(['authToken']);
     if (!settings.authToken) return;
 
-    await fetch(HEARTBEAT_URL, {
+    const baseUrl = await getActiveApiUrl();
+    const response = await fetch(`${baseUrl}/user/heartbeat`, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${settings.authToken}`,
@@ -165,9 +166,11 @@ async function sendHeartbeat() {
         version: chrome.runtime.getManifest().version
       })
     });
-    console.log("[Gemini BG] Heartbeat sent.");
+    if (response.ok) {
+      console.log("[Gemini BG] Heartbeat sent.");
+    }
   } catch (error) {
-    console.error("[Gemini BG] Heartbeat failed:", error);
+    // Silently ignore network failures (offline / local dev mode)
   }
 }
 
@@ -179,7 +182,8 @@ async function saveQualityLogToServer(logData, sendResponse) {
       headers['Authorization'] = `Bearer ${settings.authToken}`;
     }
 
-    const response = await fetch(`${API_BASE_URL}/report/save`, {
+    const baseUrl = await getActiveApiUrl();
+    const response = await fetch(`${baseUrl}/report/save`, {
       method: 'POST',
       headers: headers,
       body: JSON.stringify(logData)
@@ -189,11 +193,9 @@ async function saveQualityLogToServer(logData, sendResponse) {
       const res = await response.json();
       sendResponse({ success: true, id: res.id });
     } else {
-      console.error("[Gemini BG] Failed to save log to server:", response.status);
       sendResponse({ success: false, error: response.status });
     }
   } catch (err) {
-    console.error("[Gemini BG] Error saving log to server:", err);
     sendResponse({ success: false, error: err.message });
   }
 }
