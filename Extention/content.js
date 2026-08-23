@@ -130,7 +130,8 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
     typoLookup: {},
     macroExclusions: {}, // [Removed or Decoupled]
     allBrandsSet: new Set(), // Set of superCleaned brand names
-    categoryMap: {}      // Mapping: categoryId -> { name, parentId }
+    categoryMap: {},      // Mapping: categoryId -> { name, parentId }
+    brandPlatformMap: {}  // Admin Brand-to-Platform Mapping lookup dictionary
   };
 
   const MACRO_API_BASE_URL = "https://macro.beegadget.net/api";
@@ -1695,9 +1696,54 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
 
     console.log("[Gemini Content] Updated Static Config.");
 
+    // Build Admin Brand-to-Platform Lookup Dictionary
+    compiledData.brandPlatformMap = {};
+
+    // 1. Process brandMappings array from Admin API
+    if (config.brandMappings && Array.isArray(config.brandMappings)) {
+      config.brandMappings.forEach(item => {
+        if (item && item.brand && item.platform) {
+          const cleanB = String(item.brand).trim().toLowerCase();
+          const cleanP = String(item.platform).trim().toLowerCase();
+          compiledData.brandPlatformMap[cleanB] = cleanP;
+          compiledData.brandPlatformMap[superClean(cleanB)] = cleanP;
+        }
+      });
+    }
+
+    // 2. Process brandPlatformMap object dictionary if provided
+    if (config.brandPlatformMap && typeof config.brandPlatformMap === 'object') {
+      Object.keys(config.brandPlatformMap).forEach(key => {
+        const cleanB = key.trim().toLowerCase();
+        const cleanP = String(config.brandPlatformMap[key]).trim().toLowerCase();
+        compiledData.brandPlatformMap[cleanB] = cleanP;
+        compiledData.brandPlatformMap[superClean(cleanB)] = cleanP;
+      });
+    }
+
+    // 3. Fallback: Parse hyphens from allBrands list if available
+    if (config.allBrands && Array.isArray(config.allBrands)) {
+      config.allBrands.forEach(b => {
+        if (b && typeof b === 'string') {
+          const dashRegex = /\s*[-–—|:]\s*/;
+          if (dashRegex.test(b)) {
+            const parts = b.split(dashRegex);
+            const brandPart = parts[0].trim().toLowerCase();
+            const platformPart = parts[parts.length - 1].trim().toLowerCase();
+            if (["shopee", "lazada", "tiktok", "tiki"].includes(platformPart)) {
+              if (!compiledData.brandPlatformMap[brandPart]) {
+                compiledData.brandPlatformMap[brandPart] = platformPart;
+                compiledData.brandPlatformMap[superClean(brandPart)] = platformPart;
+              }
+            }
+          }
+        }
+      });
+    }
+
     // Process Automatic Brand Exclusion
     compiledData.allBrandsSet = new Set((config.allBrands || []).map(b => superClean(b)));
-    console.log("[Gemini Content] Automated Brand Exclusion set initialized with", compiledData.allBrandsSet.size, "brands.");
+    console.log("[Gemini Content] Automated Brand Exclusion set initialized with", compiledData.allBrandsSet.size, "brands, Admin Brand Mappings:", Object.keys(compiledData.brandPlatformMap).length);
 
     // Trigger category hierarchy fetch if not yet loaded
     if (Object.keys(compiledData.categoryMap).length === 0) {
@@ -1912,6 +1958,71 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
     }
   }
 
+  /**
+   * 3-TIER BRAND & MARKETPLACE RESOLUTION ENGINE:
+   * Tier 1: Look up in Admin Brand-to-Platform Mapping Table (exact/superClean match)
+   * Tier 2: Split by hyphen/separator delimiter (-, –, —, |, :)
+   * Tier 3: Direct Keyword Matching (shopee, lazada, tiktok, tiki, spe, lzd, tts)
+   */
+  function resolveBrandAndMarketplace(fullName) {
+    let currentBrand = "general";
+    let currentMarketplace = "general";
+    if (!fullName) return { currentBrand, currentMarketplace };
+
+    const rawName = fullName.trim();
+    const cleanLower = rawName.toLowerCase();
+    const cleanSuper = superClean(rawName);
+
+    // TẦNG 1: Tra cứu từ Admin Brand-to-Platform Mapping Table
+    const map = compiledData.brandPlatformMap || {};
+    let mappedPlatform = map[cleanLower] || map[cleanSuper];
+
+    if (!mappedPlatform && cachedConfig?.brandMappings && Array.isArray(cachedConfig.brandMappings)) {
+      const match = cachedConfig.brandMappings.find(item => {
+        const b = (item.brand || item.name || "").toLowerCase();
+        return b && (cleanLower === b || cleanSuper === superClean(b) || cleanLower.includes(b));
+      });
+      if (match && match.platform) mappedPlatform = match.platform.toLowerCase();
+    }
+
+    if (mappedPlatform) {
+      return {
+        currentBrand: rawName,
+        currentMarketplace: mappedPlatform
+      };
+    }
+
+    // TẦNG 2: Tách theo ký tự phân cách (Dấu gạch ngang -, –, —, | hoặc :)
+    const dashRegex = /\s*[-–—|:]\s*/;
+    if (dashRegex.test(rawName)) {
+      const parts = rawName.split(dashRegex);
+      currentBrand = parts[0].trim();
+      if (parts.length >= 2) {
+        const marketPart = parts[parts.length - 1].trim().toLowerCase();
+        if (marketPart.includes("shopee")) currentMarketplace = "shopee";
+        else if (marketPart.includes("lazada")) currentMarketplace = "lazada";
+        else if (marketPart.includes("tiktok")) currentMarketplace = "tiktok";
+        else if (marketPart.includes("tiki")) currentMarketplace = "tiki";
+        else currentMarketplace = marketPart;
+      }
+      return { currentBrand, currentMarketplace };
+    }
+
+    // TẦNG 3: Nhận diện từ khóa Sàn nằm trực tiếp trong tên Channel/Brand (Tiktok, Shopee, Lazada)
+    currentBrand = rawName;
+    if (cleanLower.includes("shopee") || cleanLower.includes("spe")) {
+      currentMarketplace = "shopee";
+    } else if (cleanLower.includes("lazada") || cleanLower.includes("lzd")) {
+      currentMarketplace = "lazada";
+    } else if (cleanLower.includes("tiktok") || cleanLower.includes("tts")) {
+      currentMarketplace = "tiktok";
+    } else if (cleanLower.includes("tiki")) {
+      currentMarketplace = "tiki";
+    }
+
+    return { currentBrand, currentMarketplace };
+  }
+
   function getCurrentContext() {
     const host = window.location.hostname.toLowerCase();
     let currentMarketplace = "general",
@@ -1963,20 +2074,10 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
           }
         }
 
-        const dashRegex = /\s*[-–—|]\s*/;
-        if (fullName && dashRegex.test(fullName)) {
-          const parts = fullName.split(dashRegex);
-          currentBrand = parts[0].trim();
-          if (parts.length >= 2) {
-            const marketPart = parts[parts.length - 1].trim().toLowerCase();
-            if (marketPart.includes("shopee")) currentMarketplace = "shopee";
-            else if (marketPart.includes("lazada")) currentMarketplace = "lazada";
-            else if (marketPart.includes("tiktok")) currentMarketplace = "tiktok";
-            else if (marketPart.includes("tiki")) currentMarketplace = "tiki";
-            else currentMarketplace = marketPart;
-          }
-        } else if (fullName) {
-          currentBrand = fullName;
+        if (fullName) {
+          const resolved = resolveBrandAndMarketplace(fullName);
+          currentBrand = resolved.currentBrand;
+          currentMarketplace = resolved.currentMarketplace;
         }
       }
 
