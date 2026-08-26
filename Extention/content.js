@@ -3231,6 +3231,32 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
       si.style.setProperty('border', '1px solid rgba(99, 102, 241, 0.3)', 'important');
       si.style.setProperty('color', '#818cf8', 'important');
     });
+
+    // 29. Create Ticket Top Header Card (.top, .top .card-body, .primary)
+    const ticketTopCards = document.querySelectorAll('.top, .top .card-body, .top .card, [class*="ticket"] .top, [class*="ticket"] .card-body');
+    ticketTopCards.forEach(tc => {
+      tc.style.setProperty('background-color', pPanel, 'important');
+      tc.style.setProperty('background', pPanel, 'important');
+      tc.style.setProperty('border-color', 'rgba(255, 255, 255, 0.1)', 'important');
+      tc.style.setProperty('color', '#f8fafc', 'important');
+    });
+
+    const ticketHeaders = document.querySelectorAll('.top h5, .top .card-body h5, .top .card h5, [class*="ticket"] h5');
+    ticketHeaders.forEach(th => {
+      th.style.setProperty('color', '#ffffff', 'important');
+      th.style.setProperty('font-weight', '700', 'important');
+    });
+
+    const ticketTimestamps = document.querySelectorAll('.top span.primary, .top .primary, .card-body span.primary, [class*="ticket"] span.primary');
+    ticketTimestamps.forEach(ts => {
+      ts.style.setProperty('color', '#818cf8', 'important');
+      ts.style.setProperty('background-color', 'rgba(99, 102, 241, 0.15)', 'important');
+      ts.style.setProperty('border', '1px solid rgba(99, 102, 241, 0.35)', 'important');
+      ts.style.setProperty('padding', '2px 8px', 'important');
+      ts.style.setProperty('border-radius', '6px', 'important');
+      ts.style.setProperty('font-weight', '600', 'important');
+      ts.style.setProperty('display', 'inline-block', 'important');
+    });
   }
 
   setInterval(applyDynamicDarkModeOverrides, 1000);
