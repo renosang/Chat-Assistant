@@ -1,10 +1,14 @@
 
 // --- CONFIGURATION ---
-const API_BASE_URL = "https://macro.beegadget.net/api";
+// 1. Máy chủ Quản trị Luật & Cấu hình Extension (https://api.beegadget.net/admin/)
+const API_BASE_URL = "https://api.beegadget.net/api";
 const API_URL = `${API_BASE_URL}/config`;
 const HEARTBEAT_URL = `${API_BASE_URL}/user/heartbeat`;
 const CONFIG_ALARM = "GEMINI_AUTO_FETCH";
 const HEARTBEAT_ALARM = "GEMINI_HEARTBEAT";
+
+// 2. Máy chủ Macro Assistant & Zalo Alert
+const MACRO_API_BASE_URL = "https://macro.beegadget.net/api";
 
 // 1. SETUP ALARMS & LISTENERS
 chrome.runtime.onInstalled.addListener(() => {
@@ -62,7 +66,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   }
 });
 
-async function getActiveApiUrl() {
+async function getMacroApiUrl() {
   const localPorts = [5000, 3010];
   for (const port of localPorts) {
     try {
@@ -75,7 +79,7 @@ async function getActiveApiUrl() {
       }
     } catch (e) {}
   }
-  return "https://macro.beegadget.net/api";
+  return MACRO_API_BASE_URL;
 }
 
 async function sendViolationAlertToServer(alertData, sendResponse) {
@@ -86,7 +90,7 @@ async function sendViolationAlertToServer(alertData, sendResponse) {
       headers['Authorization'] = `Bearer ${settings.authToken}`;
     }
 
-    const baseUrl = await getActiveApiUrl();
+    const baseUrl = await getMacroApiUrl();
     console.log('[Gemini BG] Sending violation alert to:', `${baseUrl}/utils/violation-alert`);
     const response = await fetch(`${baseUrl}/utils/violation-alert`, {
       method: 'POST',
@@ -117,12 +121,11 @@ async function fetchRemoteConfig() {
       headers['Authorization'] = `Bearer ${settings.authToken}`;
     }
 
-    const baseUrl = await getActiveApiUrl();
-    const apiUrl = `${baseUrl}/config?t=${Date.now()}`;
-    console.log("[Gemini BG] Fetching from:", apiUrl);
+    const apiUrl = `${API_URL}?t=${Date.now()}`;
+    console.log("[Gemini BG] Fetching remote config from:", apiUrl);
 
     const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), 5000);
+    const timer = setTimeout(() => controller.abort(), 8000);
     const response = await fetch(apiUrl, { headers, signal: controller.signal }).catch(e => null);
     clearTimeout(timer);
 
@@ -130,7 +133,7 @@ async function fetchRemoteConfig() {
       const config = await response.json();
       
       const typoCount = config.typoDictionary ? config.typoDictionary.length : 0;
-      console.log(`[Gemini BG] ✅ Config loaded from ${baseUrl}. Theme: ${config.motivationConfig?.theme}`);
+      console.log(`[Gemini BG] ✅ Config loaded from ${API_BASE_URL}. Theme: ${config.motivationConfig?.theme}`);
 
       await chrome.storage.local.set({
         remoteConfig: config
@@ -159,8 +162,7 @@ async function handleDeactivation(sendResponse) {
 
     console.log("[Gemini BG] Deactivating account for:", settings.username);
 
-    const baseUrl = await getActiveApiUrl();
-    const response = await fetch(`${baseUrl}/deactivate`, {
+    const response = await fetch(`${API_BASE_URL}/deactivate`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -182,6 +184,54 @@ async function handleDeactivation(sendResponse) {
   } catch (err) {
     console.error("[Gemini BG] Deactivation error:", err);
     sendResponse({ success: false, message: err.message });
+  }
+}
+
+async function sendHeartbeat() {
+  try {
+    const settings = await chrome.storage.sync.get(['authToken']);
+    if (!settings.authToken) return;
+
+    const response = await fetch(HEARTBEAT_URL, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${settings.authToken}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ 
+        version: chrome.runtime.getManifest().version
+      })
+    });
+    if (response.ok) {
+      console.log("[Gemini BG] Heartbeat sent.");
+    }
+  } catch (error) {
+    // Silently ignore network failures (offline / local dev mode)
+  }
+}
+
+async function saveQualityLogToServer(logData, sendResponse) {
+  try {
+    const settings = await chrome.storage.sync.get(['authToken']);
+    const headers = { 'Content-Type': 'application/json' };
+    if (settings.authToken) {
+      headers['Authorization'] = `Bearer ${settings.authToken}`;
+    }
+
+    const response = await fetch(`${API_BASE_URL}/report/save`, {
+      method: 'POST',
+      headers: headers,
+      body: JSON.stringify(logData)
+    });
+
+    if (response.ok) {
+      const res = await response.json();
+      sendResponse({ success: true, id: res.id });
+    } else {
+      sendResponse({ success: false, error: response.status });
+    }
+  } catch (err) {
+    sendResponse({ success: false, error: err.message });
   }
 }
 
