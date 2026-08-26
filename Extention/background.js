@@ -56,19 +56,56 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     saveQualityLogToServer(request.data, sendResponse);
     return true;
   }
+  if (request.action === "ALERT_VIOLATION_ZALO") {
+    sendViolationAlertToServer(request.data, sendResponse);
+    return true;
+  }
 });
 
 async function getActiveApiUrl() {
-  try {
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), 1000);
-    const res = await fetch(`http://localhost:3010/api/config?t=${Date.now()}`, { signal: controller.signal });
-    clearTimeout(timer);
-    if (res.ok) {
-      return "http://localhost:3010/api";
-    }
-  } catch (e) {}
+  const localPorts = [5000, 3010];
+  for (const port of localPorts) {
+    try {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), 800);
+      const res = await fetch(`http://localhost:${port}/api/utils/proxy-image?url=test&t=${Date.now()}`, { signal: controller.signal });
+      clearTimeout(timer);
+      if (res.status === 400 || res.ok) {
+        return `http://localhost:${port}/api`;
+      }
+    } catch (e) {}
+  }
   return "https://api.beegadget.net/api";
+}
+
+async function sendViolationAlertToServer(alertData, sendResponse) {
+  try {
+    const settings = await chrome.storage.sync.get(['authToken']);
+    const headers = { 'Content-Type': 'application/json' };
+    if (settings.authToken) {
+      headers['Authorization'] = `Bearer ${settings.authToken}`;
+    }
+
+    const baseUrl = await getActiveApiUrl();
+    console.log('[Gemini BG] Sending violation alert to:', `${baseUrl}/utils/violation-alert`);
+    const response = await fetch(`${baseUrl}/utils/violation-alert`, {
+      method: 'POST',
+      headers: headers,
+      body: JSON.stringify(alertData)
+    });
+
+    if (response.ok) {
+      const res = await response.json();
+      console.log('[Gemini BG] ✅ Violation alert sent successfully:', res);
+      sendResponse({ success: true, res });
+    } else {
+      console.warn('[Gemini BG] ❌ Violation alert rejected by server:', response.status);
+      sendResponse({ success: false, status: response.status });
+    }
+  } catch (err) {
+    console.error('[Gemini BG] Error sending violation alert:', err);
+    sendResponse({ success: false, error: err.message });
+  }
 }
 
 // 2. CORE FUNCTIONS

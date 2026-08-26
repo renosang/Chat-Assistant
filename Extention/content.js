@@ -722,6 +722,88 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
     }
   }
 
+  // ---------- ZALO VIOLATION ALERT SYSTEM ----------
+  let lastViolationAlertHash = "";
+  let lastViolationAlertTime = 0;
+
+  function triggerZaloViolationAlert(analysis, actionStatus = "blocked", textContent = "") {
+    if (!analysis) return;
+    const hasViolation = (analysis.forbidden?.length || 0) > 0 ||
+                         (analysis.brands?.length || 0) > 0 ||
+                         (analysis.platforms?.length || 0) > 0;
+    if (!hasViolation) return;
+
+    const currentText = (textContent || getChatText(currentActiveTextarea) || "").trim();
+    if (!currentText) return;
+
+    // Collect all violations
+    const violations = [];
+    (analysis.forbidden || []).forEach(f => {
+      violations.push({ type: "FORBIDDEN", word: f.word || f, msg: f.msg || `TỪ CẤM: ${f.word || f}` });
+    });
+    (analysis.brands || []).forEach(b => {
+      violations.push({ type: "BRAND", word: b.word || b, msg: b.msg || `SAI BRAND: ${b.word || b}` });
+    });
+    (analysis.platforms || []).forEach(p => {
+      violations.push({ type: "PLATFORM", word: p.word || p, msg: p.msg || `SAI SÀN: ${p.word || p}` });
+    });
+
+    if (violations.length === 0) return;
+
+    // Anti-spam debounce: same text & violations within 10 seconds
+    const alertKey = `${currentText}__${violations.map(v => v.word).sort().join('_')}__${actionStatus}`;
+    const now = Date.now();
+    if (lastViolationAlertHash === alertKey && (now - lastViolationAlertTime) < 10000) {
+      console.log("[Gemini Alert] Anti-spam: Duplicate violation alert suppressed within 10s window.");
+      return;
+    }
+    lastViolationAlertHash = alertKey;
+    lastViolationAlertTime = now;
+
+    // Extract context & CS user info
+    const context = getCurrentContext();
+    const csUser = getCurrentCSUser();
+
+    // Additional customerId fallback from active chat card or DOM header
+    let customerId = context.customerId;
+    if (!customerId || customerId === "N/A" || customerId === "") {
+      const activeCardName = document.querySelector(".chat-users__room.active h6, .chat-users__item.active h6, .chat_header h6, .chat_navbar h6, .chat-users__name");
+      if (activeCardName && activeCardName.textContent.trim()) {
+        customerId = activeCardName.textContent.trim().replace(/\s+/g, ' ');
+      }
+    }
+
+    const payload = {
+      csUser: {
+        name: csUser.name,
+        group: csUser.group,
+        account: cachedConfig?.username || "CS"
+      },
+      customerId: customerId || "Chưa xác định",
+      channel: context.channelFullName || document.querySelector(".channel-items__el.active .channel-name")?.textContent?.trim() || "Chưa xác định",
+      brand: context.currentBrand !== "general" ? context.currentBrand : "Chưa xác định",
+      platform: context.currentMarketplace !== "general" ? context.currentMarketplace : "Chưa xác định",
+      violations,
+      messageContent: currentText,
+      actionStatus,
+      timestamp: new Date().toISOString(),
+      url: window.location.href
+    };
+
+    console.log("[Gemini Alert] 🚨 Kích hoạt cảnh báo vi phạm tới Zalo:", payload);
+
+    chrome.runtime.sendMessage({
+      action: "ALERT_VIOLATION_ZALO",
+      data: payload
+    }, (response) => {
+      if (chrome.runtime.lastError) {
+        console.warn("[Gemini Alert] Lỗi khi gửi message tới background:", chrome.runtime.lastError);
+      } else {
+        console.log("[Gemini Alert] ✅ Kết quả gửi cảnh báo Zalo:", response);
+      }
+    });
+  }
+
   // ---------- BLOCKING RULES ----------
 
   function hasBlockingErrors(analysis) {
@@ -777,6 +859,10 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
 
     if (isBlocking) {
       console.log("[Gemini] 🛑 BLOCKING detected. Halting event.");
+
+      // Gửi cảnh báo ngay lập tức về Group Zalo
+      const actionStatus = reasonEvent?.type === "keydown" ? "enter_pressed" : "blocked";
+      triggerZaloViolationAlert(analysis, actionStatus, latestVal);
 
       // Crucial: Stop immediately to prevent page script from running
       if (reasonEvent) {
@@ -961,11 +1047,16 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
       showSuggestionPanel(analysis);
     });
     document.getElementById("gemini-alert-bypass")?.addEventListener("click", () => {
+      const currentChatText = getChatText(currentActiveTextarea).trim();
+      
       // LOG: Bypass action
       reportQualityAction("bypass_block", {
         issue: issue,
-        text: getChatText(currentActiveTextarea).trim()
+        text: currentChatText
       });
+
+      // Gửi cảnh báo Zalo cập nhật trạng thái đã cố tình bypass gửi
+      triggerZaloViolationAlert(analysis, "bypassed", currentChatText);
 
       forceAllowSend = true;
       suggestionPanel.classList.remove("gemini-blocking-active");
