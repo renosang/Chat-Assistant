@@ -3036,6 +3036,32 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
       ot.style.setProperty('color', '#d8b4fe', 'important');
       ot.style.setProperty('border', '1px solid rgba(168, 85, 247, 0.45)', 'important');
     });
+
+    // 26. Tab-detail--select search dropdown transparency
+    const searchSelects = document.querySelectorAll('.tab-detail--select, .tab-detail--select .css-2b097c-container, .tab-detail--select [class*="control"], .tab-detail--select [class*="ValueContainer"], .tab-detail--select [class*="singleValue"], .tab-detail--select input');
+    searchSelects.forEach(el => {
+      if (!el.closest('[class*="-menu"], .select__menu')) {
+        el.style.setProperty('background', 'transparent', 'important');
+        el.style.setProperty('background-color', 'transparent', 'important');
+        el.style.setProperty('box-shadow', 'none', 'important');
+      }
+    });
+
+    // 27. Button group tabs (All, Answered, Not Answered)
+    const btnGroupBtns = document.querySelectorAll('.btn-group button, .btn-group .btn');
+    btnGroupBtns.forEach(btn => {
+      if (btn.classList.contains('active')) {
+        btn.style.setProperty('background-color', pAccent, 'important');
+        btn.style.setProperty('background', pAccent, 'important');
+        btn.style.setProperty('color', '#ffffff', 'important');
+        btn.style.setProperty('border-color', pAccent, 'important');
+      } else {
+        btn.style.setProperty('background-color', pPanel, 'important');
+        btn.style.setProperty('background', pPanel, 'important');
+        btn.style.setProperty('color', '#94a3b8', 'important');
+        btn.style.setProperty('border-color', 'rgba(255, 255, 255, 0.14)', 'important');
+      }
+    });
   }
 
   setInterval(applyDynamicDarkModeOverrides, 1000);

@@ -2913,11 +2913,11 @@ html.gemini-dark-mode .macro-search-item mark {
    ========================================================================== */
 
 /* 1. React-Select Control (Select Header) - Strictly Scoped */
-html.gemini-dark-mode .css-2b097c-container [class*="control"],
-html.gemini-dark-mode .react-select-container [class*="control"],
+html.gemini-dark-mode .css-2b097c-container:not(.tab-detail--select .css-2b097c-container) [class*="control"],
+html.gemini-dark-mode .react-select-container:not(.tab-detail--select .react-select-container) [class*="control"],
 html.gemini-dark-mode .select__control,
 html.gemini-dark-mode .react-select__control,
-html.gemini-dark-mode div.css-yk16xz-control,
+html.gemini-dark-mode div.css-yk16xz-control:not(.tab-detail--select div.css-yk16xz-control),
 html.gemini-dark-mode div.css-1pahdxg-control,
 html.gemini-dark-mode div.css-1s2u09g-control,
 html.gemini-dark-mode div.css-t3ipsp-control {
@@ -2930,8 +2930,8 @@ html.gemini-dark-mode div.css-t3ipsp-control {
   min-height: 38px !important;
 }
 
-html.gemini-dark-mode .css-2b097c-container [class*="control"]:hover,
-html.gemini-dark-mode .css-2b097c-container [class*="control"][class*="is-focused"] {
+html.gemini-dark-mode .css-2b097c-container:not(.tab-detail--select .css-2b097c-container) [class*="control"]:hover,
+html.gemini-dark-mode .css-2b097c-container:not(.tab-detail--select .css-2b097c-container) [class*="control"][class*="is-focused"] {
   border-color: var(--gemini-accent, #6366f1) !important;
   box-shadow: 0 0 0 1px var(--gemini-accent, #6366f1) !important;
 }
@@ -3048,6 +3048,81 @@ html.gemini-dark-mode .dropdown-item:hover,
 html.gemini-dark-mode .dropdown-item:focus {
   background-color: rgba(99, 102, 241, 0.2) !important;
   color: #ffffff !important;
+}
+
+/* ==========================================================================
+   TAB-DETAIL--SELECT EMBEDDED SEARCH FILTER (100% TRANSPARENT, NO GRAY BOX)
+   ========================================================================== */
+
+html.gemini-dark-mode .tab-detail--select,
+html.gemini-dark-mode .tab-detail--select *,
+html.gemini-dark-mode .tab-detail--select .css-2b097c-container,
+html.gemini-dark-mode .tab-detail--select [class*="control"],
+html.gemini-dark-mode .tab-detail--select div[class*="control"],
+html.gemini-dark-mode .tab-detail--select div.css-yk16xz-control,
+html.gemini-dark-mode .tab-detail--select div.css-1fhf3k1-control,
+html.gemini-dark-mode .tab-detail--select div.css-1hwfws3,
+html.gemini-dark-mode .tab-detail--select [class*="singleValue"],
+html.gemini-dark-mode .tab-detail--select div.css-1uccc91-singleValue,
+html.gemini-dark-mode .tab-detail--select div.css-107lb6w-singleValue {
+  background: transparent !important;
+  background-color: transparent !important;
+  box-shadow: none !important;
+  border-top: none !important;
+  border-bottom: none !important;
+  border-left: none !important;
+}
+
+html.gemini-dark-mode .tab-detail--select [class*="control"],
+html.gemini-dark-mode .tab-detail--select div[class*="control"],
+html.gemini-dark-mode .tab-detail--select div.css-yk16xz-control,
+html.gemini-dark-mode .tab-detail--select div.css-1fhf3k1-control {
+  border-right: 1px solid rgba(255, 255, 255, 0.2) !important;
+  border-radius: 0 !important;
+}
+
+/* ==========================================================================
+   BUTTON GROUP TABS (ALL, ANSWERED, NOT ANSWERED) - HIGH CONTRAST ACTIVE
+   ========================================================================== */
+
+/* Inactive tabs */
+html.gemini-dark-mode .btn-group .btn-outline-primary:not(.active),
+html.gemini-dark-mode .btn-group .btn:not(.active),
+html.gemini-dark-mode .btn-group button:not(.active),
+html.gemini-dark-mode .w-100.btn.btn-outline-primary:not(.active) {
+  background-color: #1e293b !important;
+  background: #1e293b !important;
+  color: #94a3b8 !important;
+  border: 1px solid rgba(255, 255, 255, 0.14) !important;
+  font-weight: 600 !important;
+  box-shadow: none !important;
+  opacity: 0.9 !important;
+}
+
+html.gemini-dark-mode .btn-group .btn-outline-primary:not(.active):hover,
+html.gemini-dark-mode .btn-group button:not(.active):hover,
+html.gemini-dark-mode .w-100.btn.btn-outline-primary:not(.active):hover {
+  background-color: rgba(255, 255, 255, 0.08) !important;
+  background: rgba(255, 255, 255, 0.08) !important;
+  color: #ffffff !important;
+  border-color: rgba(255, 255, 255, 0.25) !important;
+  opacity: 1 !important;
+}
+
+/* Active tab - VIBRANT SOLID HIGHLIGHT */
+html.gemini-dark-mode .btn-group .btn-outline-primary.active,
+html.gemini-dark-mode .btn-group .btn.active,
+html.gemini-dark-mode .btn-group button.active,
+html.gemini-dark-mode .w-100.btn.btn-outline-primary.active,
+html.gemini-dark-mode .btn-outline-primary.active {
+  background-color: var(--gemini-accent, #6366f1) !important;
+  background: linear-gradient(135deg, var(--gemini-accent, #6366f1) 0%, #4f46e5 100%) !important;
+  color: #ffffff !important;
+  border-color: var(--gemini-accent, #6366f1) !important;
+  font-weight: 800 !important;
+  box-shadow: 0 2px 10px rgba(99, 102, 241, 0.5) !important;
+  z-index: 2 !important;
+  opacity: 1 !important;
 }
 
 
