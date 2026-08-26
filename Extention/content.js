@@ -2849,13 +2849,24 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
       mb.style.setProperty('border-color', 'rgba(255, 255, 255, 0.1)', 'important');
     });
 
-    // 16. Order status chips (.chip, .chip-pl_processing)
-    const chips = document.querySelectorAll('.chip, [class*="chip"]');
-    chips.forEach(cp => {
-      cp.style.setProperty('background-color', pPanel, 'important');
-      cp.style.setProperty('background', pPanel, 'important');
-      cp.style.setProperty('color', '#38bdf8', 'important');
-      cp.style.setProperty('border-color', pAccent, 'important');
+    // 16. Order status chips & Table text clarity
+    const chipInners = document.querySelectorAll('.chip-body, .chip-text');
+    chipInners.forEach(ci => {
+      ci.style.setProperty('background', 'transparent', 'important');
+      ci.style.setProperty('background-color', 'transparent', 'important');
+      ci.style.setProperty('border', 'none', 'important');
+    });
+
+    const tableHeaders = document.querySelectorAll('.table-header, .header-row .col, th.table-header');
+    tableHeaders.forEach(th => {
+      th.style.setProperty('color', '#cbd5e1', 'important');
+      th.style.setProperty('font-weight', '700', 'important');
+    });
+
+    const summaryHeaders = document.querySelectorAll('.summary-header');
+    summaryHeaders.forEach(sh => {
+      sh.style.setProperty('color', '#cbd5e1', 'important');
+      sh.style.setProperty('font-weight', '600', 'important');
     });
 
     // 17. Chat input utils toolbar (.chat-app-input--utils)

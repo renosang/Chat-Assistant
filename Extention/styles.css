@@ -2079,27 +2079,183 @@ html.gemini-dark-mode .btn-more:hover {
   color: #ffffff !important;
 }
 
-/* --- ORDER STATUS CHIPS FIX (.chip, .chip-pl_processing) --- */
-html.gemini-dark-mode .chip,
-html.gemini-dark-mode .chip-body,
-html.gemini-dark-mode .chip-text,
-html.gemini-dark-mode [class*="chip"] {
-  background-color: var(--gemini-panel) !important;
-  background: var(--gemini-panel) !important;
+/* ==========================================================================
+   ORDER MANAGEMENT: SUMMARY BAR & TABLE HEADERS HIGH CONTRAST FIX
+   ========================================================================== */
+
+/* 1. Summary Statistics Bar */
+html.gemini-dark-mode .summary-row {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  padding: 4px 8px !important;
+  margin-right: 6px !important;
+}
+
+html.gemini-dark-mode .summary-header {
+  color: #cbd5e1 !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.2px !important;
+}
+
+html.gemini-dark-mode .summary-value {
+  color: #ffffff !important;
+  font-size: 13.5px !important;
+  font-weight: 800 !important;
+}
+
+html.gemini-dark-mode .summary-value.clickable {
   color: #38bdf8 !important;
-  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  cursor: pointer !important;
+  transition: color 0.15s ease !important;
 }
 
-html.gemini-dark-mode .chip-pl_processing,
-html.gemini-dark-mode [class*="chip-pl_processing"] {
-  background-color: var(--gemini-sidebar) !important;
-  background: var(--gemini-sidebar) !important;
+html.gemini-dark-mode .summary-value.clickable:hover {
+  color: #7dd3fc !important;
+  text-decoration: underline !important;
+}
+
+/* Distinct Status Metric Highlighting */
+html.gemini-dark-mode #filter-sla-broken {
+  color: #f43f5e !important; /* Vivid Red */
+}
+
+html.gemini-dark-mode #filter-cancelled {
+  color: #fb7185 !important; /* Rose Red */
+}
+
+html.gemini-dark-mode #filter-wh-processing {
+  color: #38bdf8 !important; /* Sky Blue */
+}
+
+html.gemini-dark-mode #filter-pending-warehouse,
+html.gemini-dark-mode #filter-pending-cs-call {
+  color: #fbbf24 !important; /* Amber Yellow */
+}
+
+html.gemini-dark-mode #filter-transform-failed,
+html.gemini-dark-mode #filter-fraud {
+  color: #f87171 !important; /* Warning Red */
+}
+
+html.gemini-dark-mode #filter-overbooked {
+  color: #c084fc !important; /* Purple */
+}
+
+/* 2. Order Table Header Row */
+html.gemini-dark-mode .header-row,
+html.gemini-dark-mode .m-0.align-items-center.header-row,
+html.gemini-dark-mode div.table-header,
+html.gemini-dark-mode .table-header,
+html.gemini-dark-mode th.table-header,
+html.gemini-dark-mode thead th {
+  color: #cbd5e1 !important;
+  font-size: 12.5px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.5px !important;
+  text-transform: uppercase !important;
+}
+
+html.gemini-dark-mode .header-row {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12) !important;
+  padding: 10px 0 !important;
+}
+
+/* ==========================================================================
+   ORDER STATUS CHIPS / BADGES (MODERN PILL BADGE DESIGN)
+   ========================================================================== */
+
+html.gemini-dark-mode .chip,
+html.gemini-dark-mode [class*="chip-"] {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 4px 12px !important;
+  border-radius: 9999px !important; /* Beautiful rounded pill */
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.4px !important;
+  text-transform: uppercase !important;
+  line-height: 1.4 !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  background: rgba(15, 23, 42, 0.6) !important;
+  background-color: rgba(15, 23, 42, 0.6) !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2) !important;
+  transition: all 0.2s ease !important;
+  height: auto !important;
+}
+
+/* Inner chip body & text should be completely transparent without extra borders */
+html.gemini-dark-mode .chip .chip-body,
+html.gemini-dark-mode .chip .chip-text,
+html.gemini-dark-mode [class*="chip-"] .chip-body,
+html.gemini-dark-mode [class*="chip-"] .chip-text {
+  background: transparent !important;
+  background-color: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  color: inherit !important;
+  font-weight: inherit !important;
+  font-size: inherit !important;
+}
+
+/* NEW STATUS (Cyan/Indigo) */
+html.gemini-dark-mode .chip.chip-new,
+html.gemini-dark-mode .chip.chip-primary,
+html.gemini-dark-mode [class*="chip-new"] {
+  background-color: rgba(99, 102, 241, 0.18) !important;
+  background: rgba(99, 102, 241, 0.18) !important;
   color: #818cf8 !important;
-  border: 1px solid var(--gemini-accent) !important;
+  border: 1px solid rgba(99, 102, 241, 0.35) !important;
 }
 
-html.gemini-dark-mode .chip-pl_processing .chip-text {
-  color: #a5b4fc !important;
+/* PROCESSING STATUS (Sky Blue / Cyan) */
+html.gemini-dark-mode .chip.chip-processing,
+html.gemini-dark-mode .chip.chip-pl_processing,
+html.gemini-dark-mode [class*="chip-pl_processing"],
+html.gemini-dark-mode [class*="chip-processing"] {
+  background-color: rgba(6, 182, 212, 0.18) !important;
+  background: rgba(6, 182, 212, 0.18) !important;
+  color: #38bdf8 !important;
+  border: 1px solid rgba(6, 182, 212, 0.35) !important;
+}
+
+/* SUCCESS / COMPLETED / DELIVERED (Emerald Green) */
+html.gemini-dark-mode .chip.chip-success,
+html.gemini-dark-mode .chip.chip-delivered,
+html.gemini-dark-mode .chip.chip-completed,
+html.gemini-dark-mode [class*="chip-success"],
+html.gemini-dark-mode [class*="chip-delivered"] {
+  background-color: rgba(16, 185, 129, 0.18) !important;
+  background: rgba(16, 185, 129, 0.18) !important;
+  color: #34d399 !important;
+  border: 1px solid rgba(16, 185, 129, 0.35) !important;
+}
+
+/* CANCELLED / FAILED / DANGER (Rose Red) */
+html.gemini-dark-mode .chip.chip-danger,
+html.gemini-dark-mode .chip.chip-cancelled,
+html.gemini-dark-mode .chip.chip-failed,
+html.gemini-dark-mode [class*="chip-danger"],
+html.gemini-dark-mode [class*="chip-cancelled"] {
+  background-color: rgba(244, 63, 94, 0.18) !important;
+  background: rgba(244, 63, 94, 0.18) !important;
+  color: #fb7185 !important;
+  border: 1px solid rgba(244, 63, 94, 0.35) !important;
+}
+
+/* PENDING / WARNING / ON-HOLD (Amber Yellow) */
+html.gemini-dark-mode .chip.chip-warning,
+html.gemini-dark-mode .chip.chip-pending,
+html.gemini-dark-mode [class*="chip-warning"],
+html.gemini-dark-mode [class*="chip-pending"] {
+  background-color: rgba(245, 158, 11, 0.18) !important;
+  background: rgba(245, 158, 11, 0.18) !important;
+  color: #fbbf24 !important;
+  border: 1px solid rgba(245, 158, 11, 0.35) !important;
 }
 
 /* --- STRUCTURAL BOUNDARIES & PANEL DIVIDERS (BỐ CỤC PHÂN CHIA RÕ RÀNG) --- */
