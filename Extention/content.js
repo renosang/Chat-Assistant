@@ -2975,9 +2975,10 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
       if (previewText) previewText.style.setProperty('color', '#e2e8f0', 'important');
     }
 
-    // 22. React-Select Menus & Form Dropdowns ([class*="-menu"], [class*="-control"], [class*="-option"])
-    const selectMenus = document.querySelectorAll('[class*="-menu"], .select__menu, .react-select__menu, [class*="-MenuList"], .select__menu-list');
+    // 22. React-Select Floating Menus (Scattered exclusively inside react select containers)
+    const selectMenus = document.querySelectorAll('.css-2b097c-container [class*="menu"], .react-select-container [class*="menu"], .select__menu, .react-select__menu, div.css-26l3qy-menu');
     selectMenus.forEach(sm => {
+      if (sm.closest('.main-menu, .navigation, .menu-content, .side-menu-item')) return;
       sm.style.setProperty('background-color', pSidebar, 'important');
       sm.style.setProperty('background', pSidebar, 'important');
       sm.style.setProperty('border', '1px solid rgba(255, 255, 255, 0.18)', 'important');
@@ -2986,16 +2987,13 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
       sm.style.setProperty('z-index', '99999', 'important');
     });
 
-    const selectOptions = document.querySelectorAll('[class*="-option"], .select__option');
-    selectOptions.forEach(opt => {
-      opt.style.setProperty('color', '#f8fafc', 'important');
-    });
-
-    const selectControls = document.querySelectorAll('[class*="-control"], .select__control');
-    selectControls.forEach(sc => {
-      sc.style.setProperty('background-color', pPanel, 'important');
-      sc.style.setProperty('background', pPanel, 'important');
-      sc.style.setProperty('border-color', 'rgba(255, 255, 255, 0.15)', 'important');
+    // 23. Ensure positioned form icons (Calendar, search) inside inputs stay 100% transparent
+    const formIcons = document.querySelectorAll('.form-control-position');
+    formIcons.forEach(fi => {
+      fi.style.setProperty('background', 'transparent', 'important');
+      fi.style.setProperty('background-color', 'transparent', 'important');
+      fi.style.setProperty('border', 'none', 'important');
+      fi.style.setProperty('box-shadow', 'none', 'important');
     });
   }
 
