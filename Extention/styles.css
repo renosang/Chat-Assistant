@@ -1518,8 +1518,7 @@ html.gemini-dark-mode [class*="chat-right"] [class*="body"] {
 /* Order & Product Cards Inside Chat Bubbles */
 html.gemini-dark-mode [class*="order-card"],
 html.gemini-dark-mode [class*="product-card"],
-html.gemini-dark-mode [class*="card-product"],
-html.gemini-dark-mode div[class*="border"] {
+html.gemini-dark-mode [class*="card-product"] {
   background-color: var(--gemini-sidebar) !important;
   background: var(--gemini-sidebar) !important;
   color: #f8fafc !important;
@@ -1639,9 +1638,10 @@ html.gemini-sepia-mode {
   transition: filter 0.3s ease;
 }
 
-/* --- LEFT SIDEBAR (MAIN MENU / OPALLO) - CLEAN NO-BORDER DESIGN --- */
+/* --- LEFT SIDEBAR (MAIN MENU / NAVIGATION) - CLEAN ORIGINAL LOOK --- */
 html.gemini-dark-mode .main-menu,
 html.gemini-dark-mode .main-menu.menu-light,
+html.gemini-dark-mode .main-menu.menu-collapsed,
 html.gemini-dark-mode .main-menu-content,
 html.gemini-dark-mode .main-menu .navbar-header {
   background-color: var(--gemini-sidebar, #0f172a) !important;
@@ -1649,6 +1649,7 @@ html.gemini-dark-mode .main-menu .navbar-header {
   color: #f8fafc !important;
   border: none !important;
   border-right: 1px solid rgba(255, 255, 255, 0.08) !important;
+  box-shadow: none !important;
 }
 
 html.gemini-dark-mode .main-menu .navigation,
@@ -1663,6 +1664,9 @@ html.gemini-dark-mode .main-menu .menu-content {
 html.gemini-dark-mode .main-menu .navigation li,
 html.gemini-dark-mode .main-menu .navigation li a,
 html.gemini-dark-mode .main-menu .navigation li div,
+html.gemini-dark-mode .main-menu .navigation li i,
+html.gemini-dark-mode .main-menu .navigation li svg,
+html.gemini-dark-mode .main-menu .navigation li span,
 html.gemini-dark-mode .main-menu .menu-content li,
 html.gemini-dark-mode .main-menu .menu-content li a,
 html.gemini-dark-mode .navigation-main li,
@@ -1676,15 +1680,13 @@ html.gemini-dark-mode .navigation-main li a {
 html.gemini-dark-mode .main-menu .navigation li a {
   background-color: transparent !important;
   color: #cbd5e1 !important;
-  border-radius: 6px !important;
-  transition: all 0.2s ease !important;
+  border-radius: 4px !important;
 }
 
 html.gemini-dark-mode .main-menu .navigation li.active > a,
 html.gemini-dark-mode .main-menu .navigation li a:hover,
 html.gemini-dark-mode .main-menu .navigation li.sidebar-group-active > a {
-  background-color: rgba(99, 102, 241, 0.18) !important;
-  background: rgba(99, 102, 241, 0.18) !important;
+  background-color: rgba(99, 102, 241, 0.2) !important;
   color: #38bdf8 !important;
   border: none !important;
 }
@@ -1693,18 +1695,24 @@ html.gemini-dark-mode .navigation-header span {
   color: #64748b !important;
 }
 
-/* --- INPUT GROUPS & ADDONS (VND, ICONS, PREPEND/APPEND) --- */
-html.gemini-dark-mode .input-group {
-  display: flex !important;
-  flex-wrap: nowrap !important;
-  align-items: stretch !important;
-  border-radius: 8px !important;
+/* --- FORM POSITIONED ICONS (CALENDAR, SEARCH ICONS INSIDE INPUTS) --- */
+html.gemini-dark-mode .form-control-position,
+html.gemini-dark-mode .form-control-position *,
+html.gemini-dark-mode .has-icon-left .form-control-position,
+html.gemini-dark-mode .has-icon-right .form-control-position,
+html.gemini-dark-mode .position-relative .form-control-position {
+  background: transparent !important;
   background-color: transparent !important;
+  border: none !important;
+  border-color: transparent !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  color: #94a3b8 !important;
 }
 
+/* --- INPUT GROUPS & ADDONS (VND, PREPEND/APPEND) --- */
 html.gemini-dark-mode .input-group-prepend,
 html.gemini-dark-mode .input-group-append {
-  display: flex !important;
   margin: 0 !important;
 }
 
@@ -1712,49 +1720,16 @@ html.gemini-dark-mode .input-group-text {
   background-color: var(--gemini-sidebar, #0f172a) !important;
   background: var(--gemini-sidebar, #0f172a) !important;
   color: #94a3b8 !important;
-  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
   font-size: 13px !important;
-  font-weight: 600 !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  padding: 0.375rem 0.75rem !important;
 }
 
-/* Prepend (VND ở bên trái input): Bo góc bên trái, thẳng góc bên phải và không viền phải */
-html.gemini-dark-mode .input-group-prepend > .input-group-text,
-html.gemini-dark-mode .input-group > .input-group-prepend:first-child > * {
-  border-top-left-radius: 8px !important;
-  border-bottom-left-radius: 8px !important;
-  border-top-right-radius: 0 !important;
-  border-bottom-right-radius: 0 !important;
+html.gemini-dark-mode .input-group-prepend .input-group-text {
   border-right: none !important;
 }
 
-/* Input sau Prepend: Bo góc bên phải, thẳng góc bên trái */
-html.gemini-dark-mode .input-group > .form-control:not(:first-child),
-html.gemini-dark-mode .input-group > .custom-select:not(:first-child) {
-  border-top-left-radius: 0 !important;
-  border-bottom-left-radius: 0 !important;
-  border-top-right-radius: 8px !important;
-  border-bottom-right-radius: 8px !important;
-}
-
-/* Append: Bo góc bên phải, thẳng góc bên trái và không viền trái */
-html.gemini-dark-mode .input-group-append > .input-group-text,
-html.gemini-dark-mode .input-group > .input-group-append:last-child > * {
-  border-top-left-radius: 0 !important;
-  border-bottom-left-radius: 0 !important;
-  border-top-right-radius: 8px !important;
-  border-bottom-right-radius: 8px !important;
+html.gemini-dark-mode .input-group-append .input-group-text {
   border-left: none !important;
-}
-
-/* Input trước Append: Bo góc bên trái, thẳng góc bên phải */
-html.gemini-dark-mode .input-group > .form-control:not(:last-child),
-html.gemini-dark-mode .input-group > .custom-select:not(:last-child) {
-  border-top-right-radius: 0 !important;
-  border-bottom-right-radius: 0 !important;
 }
 
 /* --- RIGHT SIDEBAR (CUSTOMER DETAIL & ORDERS/PRODUCT/TICKET) --- */
@@ -1770,8 +1745,7 @@ html.gemini-dark-mode .tab-detail__list,
 html.gemini-dark-mode .tab-detail__item,
 html.gemini-dark-mode .tab-detail__item--order,
 html.gemini-dark-mode .order,
-html.gemini-dark-mode .order.black,
-html.gemini-dark-mode [class*="css-"] {
+html.gemini-dark-mode .order.black {
   background-color: var(--gemini-sidebar) !important;
   background: var(--gemini-sidebar) !important;
   color: #f8fafc !important;
