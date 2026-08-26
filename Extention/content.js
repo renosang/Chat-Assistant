@@ -2753,14 +2753,34 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
       sm.style.setProperty('font-weight', '600', 'important');
     });
 
-    // 6. Active Channel item (.channel-items__el.active)
+    // 6. Channel items: Highlight Active and clean Inactive
+    const inactiveChannels = document.querySelectorAll('.channel-items__el:not(.active), [class*="channel-items"] li:not(.active)');
+    inactiveChannels.forEach(ch => {
+      ch.style.setProperty('background', 'rgba(255, 255, 255, 0.02)', 'important');
+      ch.style.setProperty('background-color', 'rgba(255, 255, 255, 0.02)', 'important');
+      ch.style.setProperty('border', '1px solid rgba(255, 255, 255, 0.08)', 'important');
+      const nameEl = ch.querySelector('.channel-name');
+      if (nameEl) nameEl.style.setProperty('color', '#cbd5e1', 'important');
+    });
+
     const activeChannels = document.querySelectorAll('.channel-items__el.active, [class*="channel-items"] .active');
     activeChannels.forEach(ch => {
-      ch.style.setProperty('background-color', pPanel, 'important');
-      ch.style.setProperty('background', pPanel, 'important');
-      ch.style.setProperty('border-color', 'rgba(255, 255, 255, 0.1)', 'important');
+      ch.style.setProperty('background', `linear-gradient(135deg, rgba(99, 102, 241, 0.28) 0%, rgba(79, 70, 229, 0.18) 100%)`, 'important');
+      ch.style.setProperty('background-color', 'rgba(99, 102, 241, 0.22)', 'important');
+      ch.style.setProperty('border', '1px solid rgba(99, 102, 241, 0.55)', 'important');
+      ch.style.setProperty('border-left', `4px solid ${pAccent}`, 'important');
+      ch.style.setProperty('box-shadow', '0 4px 14px rgba(99, 102, 241, 0.3)', 'important');
       const nameEl = ch.querySelector('.channel-name');
-      if (nameEl) nameEl.style.setProperty('color', '#ffffff', 'important');
+      if (nameEl) {
+        nameEl.style.setProperty('color', '#ffffff', 'important');
+        nameEl.style.setProperty('font-weight', '800', 'important');
+      }
+      const badgeEl = ch.querySelector('.unseen-msg, .badge');
+      if (badgeEl) {
+        badgeEl.style.setProperty('background-color', '#ef4444', 'important');
+        badgeEl.style.setProperty('color', '#ffffff', 'important');
+        badgeEl.style.setProperty('font-weight', '800', 'important');
+      }
     });
 
     // 7. Active Side Menu Item (.side-menu-item.active)

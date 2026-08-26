@@ -2072,18 +2072,55 @@ html.gemini-dark-mode [class*="message-system"] {
   font-weight: 600 !important;
 }
 
-/* --- CHANNEL ACTIVE ITEM FIX (.channel-items__el.active) --- */
-html.gemini-dark-mode .channel-items__el,
+/* --- CHANNEL LIST ITEM HIGHLIGHT (.channel-items__el) --- */
+html.gemini-dark-mode .channel-items__el:not(.active),
+html.gemini-dark-mode [class*="channel-items"] li:not(.active) {
+  background-color: rgba(255, 255, 255, 0.02) !important;
+  background: rgba(255, 255, 255, 0.02) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-radius: 8px !important;
+  transition: all 0.2s ease !important;
+}
+
+html.gemini-dark-mode .channel-items__el:not(.active):hover,
+html.gemini-dark-mode [class*="channel-items"] li:not(.active):hover {
+  background-color: rgba(255, 255, 255, 0.07) !important;
+  background: rgba(255, 255, 255, 0.07) !important;
+  border-color: rgba(255, 255, 255, 0.18) !important;
+}
+
+html.gemini-dark-mode .channel-items__el:not(.active) .channel-name {
+  color: #cbd5e1 !important;
+  font-weight: 600 !important;
+}
+
+/* ACTIVE CHANNEL - VIBRANT HIGHLIGHT WITH GLOW & LEFT INDICATOR BAR */
 html.gemini-dark-mode .channel-items__el.active,
-html.gemini-dark-mode [class*="channel-items"] .active {
-  background-color: var(--gemini-panel) !important;
-  background: var(--gemini-panel) !important;
-  border-color: rgba(255, 255, 255, 0.1) !important;
+html.gemini-dark-mode [class*="channel-items"] .active,
+html.gemini-dark-mode li.channel-items__el.active {
+  background-color: rgba(99, 102, 241, 0.22) !important;
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.28) 0%, rgba(79, 70, 229, 0.18) 100%) !important;
+  border: 1px solid rgba(99, 102, 241, 0.55) !important;
+  border-left: 4px solid var(--gemini-accent, #6366f1) !important;
+  border-radius: 8px !important;
+  box-shadow: 0 4px 14px rgba(99, 102, 241, 0.3), inset 0 0 14px rgba(99, 102, 241, 0.12) !important;
+  transform: translateX(2px) !important;
 }
 
 html.gemini-dark-mode .channel-items__el.active .channel-name,
-html.gemini-dark-mode .channel-items__el .channel-name {
+html.gemini-dark-mode li.channel-items__el.active .channel-name {
   color: #ffffff !important;
+  font-weight: 800 !important;
+  font-size: 13.5px !important;
+}
+
+html.gemini-dark-mode .channel-items__el .unseen-msg,
+html.gemini-dark-mode .channel-items__el [class*="unseen"] {
+  background-color: #ef4444 !important;
+  background: #ef4444 !important;
+  color: #ffffff !important;
+  font-weight: 800 !important;
+  box-shadow: 0 2px 6px rgba(239, 68, 68, 0.5) !important;
 }
 
 /* --- MAIN MENU ACTIVE ITEM FIX (.side-menu-item.active) --- */
