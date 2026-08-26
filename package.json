@@ -1,0 +1,10 @@
+{
+  "name": "chat-assistant",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "start": "cd Backend/gemini-config-api && npm start",
+    "dev": "cd Backend/gemini-config-api && npm start",
+    "install:backend": "cd Backend/gemini-config-api && npm install"
+  }
+}

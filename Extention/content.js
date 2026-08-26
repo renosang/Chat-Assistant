@@ -1967,7 +1967,7 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
   function resolveBrandAndMarketplace(fullName) {
     let currentBrand = "general";
     let currentMarketplace = "general";
-    if (!fullName) return { currentBrand, currentMarketplace };
+    if (!fullName) return { currentBrand, currentMarketplace, channelFullName: "" };
 
     const rawName = fullName.trim();
     const cleanLower = rawName.toLowerCase();
@@ -1995,10 +1995,7 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
     }
 
     if (mappedPlatform) {
-      return {
-        currentBrand: rawName,
-        currentMarketplace: mappedPlatform
-      };
+      currentMarketplace = mappedPlatform;
     }
 
     // TẦNG 2: Tách theo ký tự phân cách (Dấu gạch ngang -, –, —, | hoặc :)
@@ -2012,24 +2009,27 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
         else if (marketPart.includes("lazada")) currentMarketplace = "lazada";
         else if (marketPart.includes("tiktok")) currentMarketplace = "tiktok";
         else if (marketPart.includes("tiki")) currentMarketplace = "tiki";
-        else currentMarketplace = marketPart;
+        else if (!mappedPlatform) currentMarketplace = marketPart;
       }
-      return { currentBrand, currentMarketplace };
+      if (mappedPlatform) currentMarketplace = mappedPlatform;
+      return { currentBrand, currentMarketplace, channelFullName: rawName };
     }
 
     // TẦNG 3: Nhận diện từ khóa Sàn nằm trực tiếp trong tên Channel/Brand (Tiktok, Shopee, Lazada)
     currentBrand = rawName;
-    if (cleanLower.includes("shopee") || cleanLower.includes("spe")) {
-      currentMarketplace = "shopee";
-    } else if (cleanLower.includes("lazada") || cleanLower.includes("lzd")) {
-      currentMarketplace = "lazada";
-    } else if (cleanLower.includes("tiktok") || cleanLower.includes("tts")) {
-      currentMarketplace = "tiktok";
-    } else if (cleanLower.includes("tiki")) {
-      currentMarketplace = "tiki";
+    if (!mappedPlatform) {
+      if (cleanLower.includes("shopee") || cleanLower.includes("spe")) {
+        currentMarketplace = "shopee";
+      } else if (cleanLower.includes("lazada") || cleanLower.includes("lzd")) {
+        currentMarketplace = "lazada";
+      } else if (cleanLower.includes("tiktok") || cleanLower.includes("tts")) {
+        currentMarketplace = "tiktok";
+      } else if (cleanLower.includes("tiki")) {
+        currentMarketplace = "tiki";
+      }
     }
 
-    return { currentBrand, currentMarketplace };
+    return { currentBrand, currentMarketplace, channelFullName: rawName };
   }
 
   function getCurrentContext() {
@@ -2037,7 +2037,8 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
     let currentMarketplace = "general",
       currentBrand = "general",
       customerId = "N/A",
-      isExternal = true;
+      isExternal = true,
+      channelFullName = "";
 
     const isManagement = CONFIG.MANAGEMENT_DOMAINS.some((d) => host.includes(d)) ||
       window.location.href.includes("test_area.html") ||
@@ -2084,6 +2085,7 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
         }
 
         if (fullName) {
+          channelFullName = fullName;
           const resolved = resolveBrandAndMarketplace(fullName);
           currentBrand = resolved.currentBrand;
           currentMarketplace = resolved.currentMarketplace;
@@ -2102,7 +2104,7 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
       }
     }
 
-    return { currentBrand, currentMarketplace, customerId, isExternal };
+    return { currentBrand, currentMarketplace, customerId, isExternal, channelFullName };
   }
 
   // ---------- CATEGORY HIERARCHY ----------
@@ -2150,17 +2152,58 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
    * 1. It is a "General" category (Macro Chung, General, etc.)
    * 2. It is related to the current brand context.
    */
-  function isCategoryAllowedForBrand(categoryId, currentBrandClean, categoryName = null) {
+  function isCategoryAllowedForBrand(categoryId, currentBrandClean, categoryName = null, context = null) {
     const targetName = categoryName || (compiledData.categoryMap[categoryId] ? compiledData.categoryMap[categoryId].name : null);
 
     if (targetName) {
       const cn = superClean(targetName);
-      // Check if General
+      // 1. Check if General / Chung
       if (cn.includes("chung") || cn.includes("general") || cn === "tatca") return true;
 
-      // Check if related to current brand
-      if (currentBrandClean !== "general" && areBrandsRelated(cn, currentBrandClean, cachedConfig?.brandGroups)) {
+      // 2. Check if related to current brand
+      if (currentBrandClean && currentBrandClean !== "general" && areBrandsRelated(cn, currentBrandClean, cachedConfig?.brandGroups)) {
         return true;
+      }
+
+      // 3. Check if explicitly allowed via Category Channel Mappings (Phân quyền Danh mục <-> Channel)
+      if (cachedConfig?.categoryChannelMappings && Array.isArray(cachedConfig.categoryChannelMappings)) {
+        const catIdStr = categoryId ? categoryId.toString() : '';
+        const channelFullName = context?.channelFullName || context?.fullName || '';
+        const curBrand = context?.currentBrand || '';
+
+        const mapping = cachedConfig.categoryChannelMappings.find(m => {
+          if (catIdStr && m.categoryId && m.categoryId.toString() === catIdStr) return true;
+          if (m.categoryName && superClean(m.categoryName) === cn) return true;
+          return false;
+        });
+
+        if (mapping) {
+          if (mapping.isAllChannels) return true;
+          if (Array.isArray(mapping.appliedChannels) && mapping.appliedChannels.length > 0) {
+            const isMatch = mapping.appliedChannels.some(ch => {
+              if (!ch) return false;
+              const cleanCh = ch.toLowerCase().trim();
+              const cleanChSuper = superClean(ch);
+              const cleanFull = channelFullName.toLowerCase().trim();
+              const cleanFullSuper = superClean(channelFullName);
+              const cleanCurBrand = curBrand.toLowerCase().trim();
+              const cleanCurBrandSuper = superClean(curBrand);
+
+              return (
+                cleanFull === cleanCh ||
+                cleanFullSuper === cleanChSuper ||
+                cleanFull.includes(cleanCh) ||
+                cleanCh.includes(cleanFull) ||
+                cleanCurBrand === cleanCh ||
+                cleanCurBrandSuper === cleanChSuper ||
+                cleanCurBrand.includes(cleanCh) ||
+                cleanCh.includes(cleanCurBrand) ||
+                (cleanChSuper.length >= 3 && (cleanFullSuper.includes(cleanChSuper) || cleanChSuper.includes(cleanFullSuper)))
+              );
+            });
+            if (isMatch) return true;
+          }
+        }
       }
     }
 
@@ -2168,7 +2211,7 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
     if (categoryId && compiledData.categoryMap[categoryId]) {
       const parentId = compiledData.categoryMap[categoryId].parentId;
       if (parentId) {
-        return isCategoryAllowedForBrand(parentId, currentBrandClean);
+        return isCategoryAllowedForBrand(parentId, currentBrandClean, null, context);
       }
     }
 
@@ -3116,20 +3159,63 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
   // Global event interceptor for Clean Paste
   document.addEventListener('paste', function(e) {
     if (!cachedCleanPaste) return;
-    const active = document.activeElement;
-    if (active && (active.tagName === 'TEXTAREA' || active.tagName === 'INPUT' || active.isContentEditable || active.closest('.ql-editor'))) {
-      const pasteText = (e.clipboardData || window.clipboardData).getData('text');
+    const target = e.target || document.activeElement;
+    const isChatInput = target && (
+      target.tagName === 'TEXTAREA' ||
+      target.tagName === 'INPUT' ||
+      target.isContentEditable ||
+      target.getAttribute('contenteditable') === 'true' ||
+      target.closest('[contenteditable="true"]') ||
+      target.closest('.ql-editor') ||
+      target.closest('.chat-input') ||
+      target.closest('.shopee-text-area__content') ||
+      target.closest('.chat-app-window')
+    );
+
+    if (isChatInput) {
+      const pasteText = (e.clipboardData || window.clipboardData)?.getData('text');
       if (pasteText) {
-        // Normalize newlines, collapse consecutive empty lines, trim trailing line spaces, and trim overall end of text
-        let cleaned = pasteText.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
-        cleaned = cleaned.replace(/[ \t]+$/gm, ''); // Trim spaces at end of each line
-        cleaned = cleaned.replace(/\n{3,}/g, '\n\n'); // Max 2 newlines between paragraphs
-        cleaned = cleaned.replace(/[ \t]{2,}/g, ' '); // Collapse double spaces
-        cleaned = cleaned.trim(); // Trim all leading and trailing empty lines/spaces
+        // 1. Chuẩn hóa xuống dòng (\r\n -> \n)
+        const normalized = pasteText.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+        
+        // 2. Tách từng dòng, xóa khoảng trắng thừa ở mỗi dòng và loại bỏ toàn bộ các dòng trống thừa
+        const cleaned = normalized
+          .split('\n')
+          .map(line => line.replace(/[ \t]{2,}/g, ' ').trim())
+          .filter(line => line.length > 0)
+          .join('\n');
 
         if (cleaned !== pasteText) {
           e.preventDefault();
-          document.execCommand('insertText', false, cleaned);
+          let success = false;
+          try {
+            success = document.execCommand && document.execCommand('insertText', false, cleaned);
+          } catch (err) {}
+
+          if (!success) {
+            if (target.tagName === 'TEXTAREA' || (target.tagName === 'INPUT' && target.type === 'text')) {
+              const start = target.selectionStart || 0;
+              const end = target.selectionEnd || 0;
+              const val = target.value || "";
+              target.value = val.substring(0, start) + cleaned + val.substring(end);
+              target.selectionStart = target.selectionEnd = start + cleaned.length;
+              target.dispatchEvent(new Event('input', { bubbles: true }));
+            } else if (target.isContentEditable || target.closest('[contenteditable="true"]')) {
+              const editable = target.isContentEditable ? target : target.closest('[contenteditable="true"]');
+              const selection = window.getSelection();
+              if (selection && selection.rangeCount > 0) {
+                const range = selection.getRangeAt(0);
+                range.deleteContents();
+                const textNode = document.createTextNode(cleaned);
+                range.insertNode(textNode);
+                range.setStartAfter(textNode);
+                range.setEndAfter(textNode);
+                selection.removeAllRanges();
+                selection.addRange(range);
+                editable.dispatchEvent(new Event('input', { bubbles: true }));
+              }
+            }
+          }
         }
       }
     }
@@ -3849,8 +3935,9 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
   async function fetchAndInitLiveSearch(initialQuery = "") {
     const resultsDiv = macroSearchOverlay.querySelector("#macro-search-results");
     const context = getCurrentContext();
+    const channelIdentifier = context.channelFullName || context.currentBrand || 'general';
 
-    if (!cachedMacrosList || cachedBrandContext !== context.currentBrand) {
+    if (!cachedMacrosList || cachedBrandContext !== channelIdentifier) {
       resultsDiv.innerHTML = '<div class="macro-loading">Đang tải...</div>';
       chrome.storage.sync.get(['macroAuthToken', 'starredMacroIds'], async (data) => {
         if (!data.macroAuthToken) {
@@ -3862,9 +3949,8 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
         const localStarredSet = new Set(starredArray);
 
         try {
-          const brandQuery = context.currentBrand && context.currentBrand !== 'general'
-            ? `?brand=${encodeURIComponent(context.currentBrand)}`
-            : '';
+          const brandParam = context.channelFullName || (context.currentBrand && context.currentBrand !== 'general' ? context.currentBrand : '');
+          const brandQuery = brandParam ? `?brand=${encodeURIComponent(brandParam)}` : '';
           const response = await fetch(`${MACRO_API_BASE_URL}/macros/search${brandQuery}`, {
             headers: { 'Authorization': `Bearer ${data.macroAuthToken}` }
           });
@@ -3887,7 +3973,7 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
           chrome.storage.sync.set({ starredMacroIds: Array.from(localStarredSet) });
 
           cachedMacrosList = macros;
-          cachedBrandContext = context.currentBrand;
+          cachedBrandContext = channelIdentifier;
           renderLiveSearchResults(initialQuery);
         } catch (err) {
           resultsDiv.innerHTML = '<div class="macro-error">Lỗi kết nối hệ thống Macro.</div>';
@@ -3939,9 +4025,20 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
       return aTitle.localeCompare(bTitle, 'vi');
     });
 
-    // Client-side Live Filtering: Match Title, Content, or Category Name (including Parent Category!)
+    // Client-side Live Filtering: Match Platform & Category permissions, then Keyword
     const filteredMacros = sortedMacros.filter(m => {
       if (!isPlatformValidForContext(m, context)) return false;
+
+      const categoryObj = m.category || {};
+      const catId = categoryObj._id || m.category;
+      const catName = categoryObj.name || (typeof m.category === 'string' ? m.category : "");
+      const curBrandClean = superClean(context.currentBrand);
+
+      if (catId || catName) {
+        const isAllowed = isCategoryAllowedForBrand(catId, curBrandClean, catName, context);
+        if (!isAllowed) return false;
+      }
+
       if (qNorm) {
         const titleNorm = removeAccents(m.title);
         const plainTextNorm = removeAccents(extractTextFromContent(m.content));
