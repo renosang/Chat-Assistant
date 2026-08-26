@@ -2971,6 +2971,29 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
       const previewText = macroFullPreview.querySelector('.m-content');
       if (previewText) previewText.style.setProperty('color', '#e2e8f0', 'important');
     }
+
+    // 22. React-Select Menus & Form Dropdowns ([class*="-menu"], [class*="-control"], [class*="-option"])
+    const selectMenus = document.querySelectorAll('[class*="-menu"], .select__menu, .react-select__menu, [class*="-MenuList"], .select__menu-list');
+    selectMenus.forEach(sm => {
+      sm.style.setProperty('background-color', pSidebar, 'important');
+      sm.style.setProperty('background', pSidebar, 'important');
+      sm.style.setProperty('border', '1px solid rgba(255, 255, 255, 0.18)', 'important');
+      sm.style.setProperty('box-shadow', '0 12px 35px rgba(0, 0, 0, 0.7)', 'important');
+      sm.style.setProperty('opacity', '1', 'important');
+      sm.style.setProperty('z-index', '99999', 'important');
+    });
+
+    const selectOptions = document.querySelectorAll('[class*="-option"], .select__option');
+    selectOptions.forEach(opt => {
+      opt.style.setProperty('color', '#f8fafc', 'important');
+    });
+
+    const selectControls = document.querySelectorAll('[class*="-control"], .select__control');
+    selectControls.forEach(sc => {
+      sc.style.setProperty('background-color', pPanel, 'important');
+      sc.style.setProperty('background', pPanel, 'important');
+      sc.style.setProperty('border-color', 'rgba(255, 255, 255, 0.15)', 'important');
+    });
   }
 
   setInterval(applyDynamicDarkModeOverrides, 1000);

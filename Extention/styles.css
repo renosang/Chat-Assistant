@@ -2449,4 +2449,146 @@ html.gemini-dark-mode .macro-search-item mark {
   padding: 1px 4px !important;
 }
 
+/* ==========================================================================
+   REACT-SELECT & FORM SELECT DROPDOWN MENUS (DARK MODE FIX)
+   ========================================================================== */
+
+/* 1. Control / Input Box (Select Header) */
+html.gemini-dark-mode [class*="-control"],
+html.gemini-dark-mode .select__control,
+html.gemini-dark-mode .css-yk16xz-control,
+html.gemini-dark-mode .css-1pahdxg-control,
+html.gemini-dark-mode .css-1s2u09g-control,
+html.gemini-dark-mode .css-t3ipsp-control {
+  background-color: var(--gemini-panel, #1e293b) !important;
+  background: var(--gemini-panel, #1e293b) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  border-radius: 8px !important;
+  color: #f8fafc !important;
+  box-shadow: none !important;
+  min-height: 38px !important;
+}
+
+html.gemini-dark-mode [class*="-control"]:hover,
+html.gemini-dark-mode [class*="-control"][class*="is-focused"] {
+  border-color: var(--gemini-accent, #6366f1) !important;
+  box-shadow: 0 0 0 1px var(--gemini-accent, #6366f1) !important;
+}
+
+/* 2. Text, Placeholders & Values inside Control */
+html.gemini-dark-mode [class*="-singleValue"],
+html.gemini-dark-mode .select__single-value,
+html.gemini-dark-mode [class*="singleValue"],
+html.gemini-dark-mode [class*="-ValueContainer"] *,
+html.gemini-dark-mode .css-1hwfws3,
+html.gemini-dark-mode .css-1hwfws3 * {
+  color: #f8fafc !important;
+}
+
+html.gemini-dark-mode [class*="-placeholder"],
+html.gemini-dark-mode .select__placeholder,
+html.gemini-dark-mode .css-1wa3eu0-placeholder {
+  color: #94a3b8 !important;
+}
+
+html.gemini-dark-mode [class*="-Input"] input,
+html.gemini-dark-mode [class*="input"] input {
+  color: #ffffff !important;
+}
+
+html.gemini-dark-mode [class*="-indicatorSeparator"] {
+  background-color: rgba(255, 255, 255, 0.15) !important;
+}
+
+html.gemini-dark-mode [class*="-indicatorContainer"] svg,
+html.gemini-dark-mode [class*="indicatorContainer"] svg {
+  color: #94a3b8 !important;
+  fill: #94a3b8 !important;
+}
+
+/* 3. Dropdown Menu (FLOATING POPUP PANEL) - SOLID 100% OPAQUE BACKGROUND */
+html.gemini-dark-mode [class*="-menu"],
+html.gemini-dark-mode .select__menu,
+html.gemini-dark-mode .react-select__menu,
+html.gemini-dark-mode div[class*="-menu"],
+html.gemini-dark-mode div.css-26l3qy-menu {
+  background-color: var(--gemini-sidebar, #0f172a) !important;
+  background: var(--gemini-sidebar, #0f172a) !important;
+  border: 1px solid rgba(255, 255, 255, 0.18) !important;
+  border-radius: 10px !important;
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.7), 0 0 1px rgba(255, 255, 255, 0.2) !important;
+  margin-top: 4px !important;
+  margin-bottom: 4px !important;
+  z-index: 99999 !important;
+  overflow: hidden !important;
+  opacity: 1 !important;
+}
+
+/* 4. Menu List (Inner Scroll Container) */
+html.gemini-dark-mode [class*="-MenuList"],
+html.gemini-dark-mode .select__menu-list,
+html.gemini-dark-mode [class*="menu-list"],
+html.gemini-dark-mode [class*="-menu-list"] {
+  background-color: var(--gemini-sidebar, #0f172a) !important;
+  background: var(--gemini-sidebar, #0f172a) !important;
+  padding: 6px !important;
+  border-radius: 8px !important;
+  max-height: 260px !important;
+}
+
+/* 5. Options (Each Dropdown Item) */
+html.gemini-dark-mode [class*="-option"],
+html.gemini-dark-mode .select__option,
+html.gemini-dark-mode [class*="option"] {
+  background-color: transparent !important;
+  background: transparent !important;
+  color: #f1f5f9 !important;
+  padding: 8px 12px !important;
+  border-radius: 6px !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  cursor: pointer !important;
+  transition: all 0.15s ease !important;
+}
+
+html.gemini-dark-mode [class*="-option"]:hover,
+html.gemini-dark-mode [class*="-option"][class*="is-focused"],
+html.gemini-dark-mode .select__option--is-focused {
+  background-color: rgba(99, 102, 241, 0.25) !important;
+  background: rgba(99, 102, 241, 0.25) !important;
+  color: #ffffff !important;
+}
+
+html.gemini-dark-mode [class*="-option"][class*="is-selected"],
+html.gemini-dark-mode .select__option--is-selected {
+  background-color: var(--gemini-accent, #6366f1) !important;
+  background: var(--gemini-accent, #6366f1) !important;
+  color: #ffffff !important;
+  font-weight: 700 !important;
+}
+
+/* 6. Generic Native Select & Dropdown Menus */
+html.gemini-dark-mode select option {
+  background-color: var(--gemini-sidebar, #0f172a) !important;
+  color: #f8fafc !important;
+}
+
+html.gemini-dark-mode .dropdown-menu {
+  background-color: var(--gemini-sidebar, #0f172a) !important;
+  background: var(--gemini-sidebar, #0f172a) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.6) !important;
+  border-radius: 10px !important;
+}
+
+html.gemini-dark-mode .dropdown-item {
+  color: #e2e8f0 !important;
+}
+
+html.gemini-dark-mode .dropdown-item:hover,
+html.gemini-dark-mode .dropdown-item:focus {
+  background-color: rgba(99, 102, 241, 0.2) !important;
+  color: #ffffff !important;
+}
+
 
