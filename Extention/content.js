@@ -2050,10 +2050,9 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
   }
 
   /**
-   * 4-TIER BRAND & MARKETPLACE RESOLUTION ENGINE:
-   * Tier 0: Look up in Admin Category-to-Channel Mapping Table (categoryChannelMappings) -> 100% match with Admin Macro Categories!
+   * BRAND & MARKETPLACE RESOLUTION ENGINE:
    * Tier 1: Look up in Admin Brand-to-Platform Mapping Table (brandMappings)
-   * Tier 2: Split by hyphen/separator delimiter (-, –, —, |, :) + Smart Category/Brand normalization
+   * Tier 2: Split by hyphen/separator delimiter (-, –, —, |, :) to get real Store/Brand name & Platform
    * Tier 3: Direct Keyword Matching (shopee, lazada, tiktok, tiki, spe, lzd, tts)
    */
   function resolveBrandAndMarketplace(fullName) {
@@ -2064,36 +2063,6 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
     const rawName = fullName.trim();
     const cleanLower = rawName.toLowerCase();
     const cleanSuper = superClean(rawName);
-
-    // TẦNG 0 (ƯU TIÊN SỐ 1): Tra cứu trực tiếp từ Phân quyền Danh mục & Channel (categoryChannelMappings)
-    if (cachedConfig?.categoryChannelMappings && Array.isArray(cachedConfig.categoryChannelMappings)) {
-      const matchedMapping = cachedConfig.categoryChannelMappings.find(m => {
-        if (!m || !m.categoryName || !Array.isArray(m.appliedChannels)) return false;
-        return m.appliedChannels.some(ch => {
-          if (!ch) return false;
-          const cleanCh = ch.toLowerCase().trim();
-          const cleanChSuper = superClean(ch);
-          return (
-            cleanLower === cleanCh ||
-            cleanSuper === cleanChSuper ||
-            cleanLower.includes(cleanCh) ||
-            cleanCh.includes(cleanLower) ||
-            (cleanChSuper.length >= 3 && (cleanSuper.includes(cleanChSuper) || cleanChSuper.includes(cleanSuper)))
-          );
-        });
-      });
-
-      if (matchedMapping && matchedMapping.categoryName) {
-        currentBrand = matchedMapping.categoryName.trim();
-        // Nhận diện sàn từ tên channel nếu có
-        if (cleanLower.includes("shopee") || cleanLower.includes("spe")) currentMarketplace = "shopee";
-        else if (cleanLower.includes("lazada") || cleanLower.includes("lzd")) currentMarketplace = "lazada";
-        else if (cleanLower.includes("tiktok") || cleanLower.includes("tts")) currentMarketplace = "tiktok";
-        else if (cleanLower.includes("tiki")) currentMarketplace = "tiki";
-
-        return { currentBrand, currentMarketplace, channelFullName: rawName };
-      }
-    }
 
     // TẦNG 1: Tra cứu từ Admin Brand-to-Platform Mapping Table
     const map = compiledData.brandPlatformMap || {};
@@ -2120,26 +2089,13 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
       currentMarketplace = mappedPlatform;
     }
 
-    // TẦNG 2: Tách theo ký tự phân cách (Dấu gạch ngang -, –, —, | hoặc :)
+    // TẦNG 2: Tách theo ký tự phân cách (Dấu gạch ngang -, –, —, | hoặc :) để lấy đúng Brand của gian hàng
     const dashRegex = /\s*[-–—|:]\s*/;
     if (dashRegex.test(rawName)) {
       const parts = rawName.split(dashRegex);
-      let brandPart = parts[0].trim();
-      
-      // Smart resolution: Nếu brandPart là biến thể (vd: "Samsung CE"), kiểm tra xem có danh mục gốc "Samsung" không
-      if (cachedConfig?.allBrands && Array.isArray(cachedConfig.allBrands)) {
-        const matchingKnownBrand = cachedConfig.allBrands.find(b => {
-          if (!b) return false;
-          const cleanB = superClean(b);
-          const cleanPart = superClean(brandPart);
-          return cleanPart.startsWith(cleanB) || cleanB.startsWith(cleanPart);
-        });
-        if (matchingKnownBrand) {
-          brandPart = matchingKnownBrand;
-        }
-      }
-
+      const brandPart = parts[0].trim();
       currentBrand = brandPart;
+
       if (parts.length >= 2) {
         const marketPart = parts[parts.length - 1].trim().toLowerCase();
         if (marketPart.includes("shopee")) currentMarketplace = "shopee";
