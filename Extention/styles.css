@@ -1405,8 +1405,6 @@ html.gemini-dark-mode .navbar-container,
 html.gemini-dark-mode #navbar-mobile,
 html.gemini-dark-mode .sidebar-content,
 html.gemini-dark-mode .chat-application,
-html.gemini-dark-mode .chat-app-window,
-html.gemini-dark-mode .chat-wrapper,
 html.gemini-dark-mode .chat-sidebar,
 html.gemini-dark-mode .chat-user-list,
 html.gemini-dark-mode .sidebar-right,
@@ -1480,17 +1478,62 @@ html.gemini-dark-mode .nav-tabs .nav-link.active {
   border-color: var(--gemini-accent) !important;
 }
 
+/* ==========================================================================
+   MAIN CHAT APPLICATION WINDOW & EMPTY START STATE (DEEP CLEAN DARK)
+   ========================================================================== */
+
 /* Main Chat Message Workspace Area */
+html.gemini-dark-mode .chat-app-window,
+html.gemini-dark-mode .chat-application .chat-app-window,
+html.gemini-dark-mode .content-right .chat-app-window,
+html.gemini-dark-mode [class*="chat-app-window"],
 html.gemini-dark-mode [class*="chat-app"],
 html.gemini-dark-mode [class*="chat-history"],
 html.gemini-dark-mode [class*="chat-container"],
 html.gemini-dark-mode [class*="chat-wrapper"],
 html.gemini-dark-mode [class*="user-chats"],
-html.gemini-dark-mode [class*="chat-content"],
+html.gemini-dark-mode .user-chats,
 html.gemini-dark-mode .chats,
 html.gemini-dark-mode .chat-body {
-  background-color: var(--gemini-bg) !important;
-  background: var(--gemini-bg) !important;
+  background-color: var(--gemini-bg, #0b0f19) !important;
+  background: var(--gemini-bg, #0b0f19) !important;
+}
+
+/* Empty State / Start Chat Area (Khi chưa chọn cuộc trò chuyện nào) */
+html.gemini-dark-mode .start-chat-area,
+html.gemini-dark-mode [class*="start-chat-area"] {
+  background: transparent !important;
+  background-color: transparent !important;
+  color: #94a3b8 !important;
+}
+
+html.gemini-dark-mode .start-chat-icon,
+html.gemini-dark-mode [class*="start-chat-icon"] {
+  background: rgba(99, 102, 241, 0.12) !important;
+  background-color: rgba(99, 102, 241, 0.12) !important;
+  border: 1px solid rgba(99, 102, 241, 0.3) !important;
+  color: #818cf8 !important;
+  border-radius: 50% !important;
+  padding: 24px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  box-shadow: 0 0 30px rgba(99, 102, 241, 0.25) !important;
+}
+
+html.gemini-dark-mode .start-chat-icon svg {
+  color: #818cf8 !important;
+  stroke: #818cf8 !important;
+}
+
+/* Top Navbar of Chat Window */
+html.gemini-dark-mode .chat_navbar,
+html.gemini-dark-mode .chat_header,
+html.gemini-dark-mode header.chat_header {
+  background-color: var(--gemini-sidebar, #0f172a) !important;
+  background: var(--gemini-sidebar, #0f172a) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+  color: #f8fafc !important;
 }
 
 /* ==========================================================================

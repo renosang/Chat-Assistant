@@ -3062,6 +3062,21 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
         btn.style.setProperty('border-color', 'rgba(255, 255, 255, 0.14)', 'important');
       }
     });
+
+    // 28. Start Chat Empty State Area
+    const startChatAreas = document.querySelectorAll('.start-chat-area');
+    startChatAreas.forEach(sc => {
+      sc.style.setProperty('background', 'transparent', 'important');
+      sc.style.setProperty('background-color', 'transparent', 'important');
+    });
+
+    const startChatIcons = document.querySelectorAll('.start-chat-icon');
+    startChatIcons.forEach(si => {
+      si.style.setProperty('background', 'rgba(99, 102, 241, 0.12)', 'important');
+      si.style.setProperty('background-color', 'rgba(99, 102, 241, 0.12)', 'important');
+      si.style.setProperty('border', '1px solid rgba(99, 102, 241, 0.3)', 'important');
+      si.style.setProperty('color', '#818cf8', 'important');
+    });
   }
 
   setInterval(applyDynamicDarkModeOverrides, 1000);
