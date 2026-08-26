@@ -3006,6 +3006,36 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
       fi.style.setProperty('border', 'none', 'important');
       fi.style.setProperty('box-shadow', 'none', 'important');
     });
+
+    // 24. Enhance Platform / Channel Filter Badges with Brand Accent Colors
+    const channelButtons = document.querySelectorAll('button, .btn, .nav-item, [role="tab"], .filter-item');
+    channelButtons.forEach(btn => {
+      const txt = (btn.textContent || '').toLowerCase();
+      const badge = btn.querySelector('.badge, [class*="badge"]');
+      if (!badge) return;
+      
+      if (txt.includes('shopee')) {
+        badge.style.setProperty('background-color', '#ea580c', 'important');
+        badge.style.setProperty('color', '#ffffff', 'important');
+      } else if (txt.includes('tiktok')) {
+        badge.style.setProperty('background-color', '#0891b2', 'important');
+        badge.style.setProperty('color', '#ffffff', 'important');
+      } else if (txt.includes('lazada')) {
+        badge.style.setProperty('background-color', '#2563eb', 'important');
+        badge.style.setProperty('color', '#ffffff', 'important');
+      } else if (txt.includes('facebook')) {
+        badge.style.setProperty('background-color', '#1d4ed8', 'important');
+        badge.style.setProperty('color', '#ffffff', 'important');
+      }
+    });
+
+    // 25. Order tags in Chat list (.badge-purple, ĐƠN HÀNG)
+    const orderTags = document.querySelectorAll('.chat-users__room .badge, .chat-users__item .badge');
+    orderTags.forEach(ot => {
+      ot.style.setProperty('background-color', 'rgba(168, 85, 247, 0.22)', 'important');
+      ot.style.setProperty('color', '#d8b4fe', 'important');
+      ot.style.setProperty('border', '1px solid rgba(168, 85, 247, 0.45)', 'important');
+    });
   }
 
   setInterval(applyDynamicDarkModeOverrides, 1000);

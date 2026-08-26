@@ -1493,26 +1493,105 @@ html.gemini-dark-mode .chat-body {
   background: var(--gemini-bg) !important;
 }
 
-/* Incoming / Customer Message Bubbles */
+/* ==========================================================================
+   CUSTOMER & AGENT MESSAGE BUBBLES (COMFORTABLE EYE-CARE CONTRAST)
+   ========================================================================== */
+
+/* 1. Incoming / Customer Message Bubbles (#334155 Dark Slate + Crisp White Text) */
 html.gemini-dark-mode .chat-left .chat-content,
+html.gemini-dark-mode .chat:not(.chat-right) .chat-content,
 html.gemini-dark-mode .chat-left .chat-body,
-html.gemini-dark-mode .chat-left p,
+html.gemini-dark-mode [class*="chat-left"] .chat-content,
 html.gemini-dark-mode [class*="chat-left"] [class*="content"],
-html.gemini-dark-mode [class*="chat-left"] [class*="body"] {
-  background-color: var(--gemini-panel) !important;
-  background: var(--gemini-panel) !important;
-  color: #ffffff !important;
-  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+html.gemini-dark-mode [class*="chat-left"] [class*="body"],
+html.gemini-dark-mode .chat-left p {
+  background-color: #334155 !important;
+  background: #334155 !important;
+  color: #f8fafc !important;
+  border: 1px solid rgba(255, 255, 255, 0.14) !important;
+  border-radius: 12px !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3) !important;
 }
 
-/* Outgoing / Agent Message Bubbles */
+html.gemini-dark-mode .chat-left .chat-content *,
+html.gemini-dark-mode .chat:not(.chat-right) .chat-content *,
+html.gemini-dark-mode .chat-left p {
+  color: #f8fafc !important;
+}
+
+/* Customer message timestamp / info */
+html.gemini-dark-mode .chat-left .chat-time,
+html.gemini-dark-mode .chat-left time,
+html.gemini-dark-mode .chat-left small {
+  color: #94a3b8 !important;
+}
+
+/* 2. Outgoing / Agent Message Bubbles */
 html.gemini-dark-mode .chat-right .chat-content,
 html.gemini-dark-mode .chat-right .chat-body,
+html.gemini-dark-mode [class*="chat-right"] .chat-content,
 html.gemini-dark-mode [class*="chat-right"] [class*="content"],
 html.gemini-dark-mode [class*="chat-right"] [class*="body"] {
-  background-color: var(--gemini-accent) !important;
-  background: var(--gemini-accent) !important;
+  background-color: var(--gemini-accent, #6366f1) !important;
+  background: linear-gradient(135deg, var(--gemini-accent, #6366f1) 0%, #4f46e5 100%) !important;
   color: #ffffff !important;
+  border-radius: 12px !important;
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.35) !important;
+}
+
+/* 3. Customer Chat List (Column 2) Contrast & Hover Enhancement */
+html.gemini-dark-mode .chat-users__room:not(.active),
+html.gemini-dark-mode .chat-users__item:not(.active),
+html.gemini-dark-mode .chat-sidebar-list-wrapper li:not(.active) {
+  transition: all 0.15s ease !important;
+}
+
+html.gemini-dark-mode .chat-users__room:not(.active):hover,
+html.gemini-dark-mode .chat-users__item:not(.active):hover,
+html.gemini-dark-mode .chat-sidebar-list-wrapper li:not(.active):hover,
+html.gemini-dark-mode [class*="chat-users"] [class*="item"]:not(.active):hover {
+  background-color: rgba(255, 255, 255, 0.06) !important;
+  background: rgba(255, 255, 255, 0.06) !important;
+  cursor: pointer !important;
+}
+
+/* Chat list preview message text (Clear light slate) */
+html.gemini-dark-mode .chat-users__room p,
+html.gemini-dark-mode .chat-users__item p,
+html.gemini-dark-mode .chat-users__message,
+html.gemini-dark-mode .user-chat-text,
+html.gemini-dark-mode .chat-users__item .text-truncate {
+  color: #cbd5e1 !important;
+  font-size: 12px !important;
+}
+
+/* Chat list timestamp (Clear light grey) */
+html.gemini-dark-mode .chat-users__room time,
+html.gemini-dark-mode .chat-users__item time,
+html.gemini-dark-mode .chat-users__time,
+html.gemini-dark-mode .chat-time,
+html.gemini-dark-mode .chat-users__room small,
+html.gemini-dark-mode .chat-users__item small {
+  color: #94a3b8 !important;
+  font-size: 11px !important;
+  font-weight: 600 !important;
+}
+
+/* Tag ĐƠN HÀNG (Order Badge) - Pop out with luminous purple */
+html.gemini-dark-mode [class*="badge-order"],
+html.gemini-dark-mode .badge-purple,
+html.gemini-dark-mode .tag-purple,
+html.gemini-dark-mode [class*="order-tag"],
+html.gemini-dark-mode .chat-users__room [class*="badge"],
+html.gemini-dark-mode .chat-users__item [class*="badge"] {
+  background-color: rgba(168, 85, 247, 0.22) !important;
+  background: rgba(168, 85, 247, 0.22) !important;
+  color: #d8b4fe !important;
+  border: 1px solid rgba(168, 85, 247, 0.45) !important;
+  font-weight: 700 !important;
+  border-radius: 4px !important;
+  padding: 2px 6px !important;
+  font-size: 10.5px !important;
 }
 
 /* Order & Product Cards Inside Chat Bubbles */
