@@ -2360,22 +2360,10 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
 
     // 2. Recurse to parent category
     if (parentObj) {
-      const parentAllowed = isCategoryAllowedForBrand(parentObj, currentBrandClean, null, context);
-      if (parentAllowed) return true;
+      return isCategoryAllowedForBrand(parentObj, currentBrandClean, null, context);
     }
 
-    // 3. Fallback: If this macro is not explicitly from another distinct brand, ALLOW it!
-    if (catName && cachedConfig?.allBrands && Array.isArray(cachedConfig.allBrands)) {
-      const cn = superClean(catName);
-      const isOtherBrand = cachedConfig.allBrands.some(otherB => {
-        const otherClean = superClean(otherB);
-        return otherClean !== currentBrandClean && !areBrandsRelated(otherClean, currentBrandClean, cachedConfig?.brandGroups) && (cn === otherClean || (otherClean.length >= 4 && cn.startsWith(otherClean)));
-      });
-      if (!isOtherBrand) return true;
-    } else {
-      return true;
-    }
-
+    // STRICT WHITELIST: Khong thuoc Macro chung, khong khop Brand hien tai, khong duoc map trong Admin -> TU CHOI
     return false;
   }
 
