@@ -2705,6 +2705,7 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
     // 1. Find all elements with white inline backgrounds or borders and override them
     const allEls = document.querySelectorAll('div[style*="background"], section[style*="background"], aside[style*="background"], header[style*="background"], ul[style*="background"], li[style*="background"], div[style*="border"]');
     allEls.forEach(el => {
+      if (el.closest('.main-menu, .navigation, .menu-content, .input-group')) return;
       const bg = el.style.backgroundColor || el.style.background;
       if (bg && (bg.includes('255') || bg.includes('white') || bg.includes('#fff') || bg.includes('#FFF') || bg.includes('248') || bg.includes('249') || bg.includes('228') || bg.includes('231'))) {
         el.style.setProperty('background-color', pPanel, 'important');

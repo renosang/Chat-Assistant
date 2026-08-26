@@ -1403,8 +1403,6 @@ html.gemini-dark-mode .content-body,
 html.gemini-dark-mode .header-navbar,
 html.gemini-dark-mode .navbar-container,
 html.gemini-dark-mode #navbar-mobile,
-html.gemini-dark-mode .main-menu,
-html.gemini-dark-mode .menu-content,
 html.gemini-dark-mode .sidebar-content,
 html.gemini-dark-mode .chat-application,
 html.gemini-dark-mode .chat-app-window,
@@ -1641,34 +1639,122 @@ html.gemini-sepia-mode {
   transition: filter 0.3s ease;
 }
 
-/* --- LEFT SIDEBAR (MAIN MENU / OPALLO) --- */
+/* --- LEFT SIDEBAR (MAIN MENU / OPALLO) - CLEAN NO-BORDER DESIGN --- */
 html.gemini-dark-mode .main-menu,
 html.gemini-dark-mode .main-menu.menu-light,
 html.gemini-dark-mode .main-menu-content,
-html.gemini-dark-mode .main-menu .navbar-header,
-html.gemini-dark-mode .navigation,
-html.gemini-dark-mode .navigation-main {
-  background-color: var(--gemini-sidebar) !important;
-  background: var(--gemini-sidebar) !important;
+html.gemini-dark-mode .main-menu .navbar-header {
+  background-color: var(--gemini-sidebar, #0f172a) !important;
+  background: var(--gemini-sidebar, #0f172a) !important;
   color: #f8fafc !important;
-  border-color: rgba(255, 255, 255, 0.1) !important;
+  border: none !important;
+  border-right: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+html.gemini-dark-mode .main-menu .navigation,
+html.gemini-dark-mode .main-menu .navigation-main,
+html.gemini-dark-mode .main-menu .menu-content {
+  background-color: transparent !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+html.gemini-dark-mode .main-menu .navigation li,
+html.gemini-dark-mode .main-menu .navigation li a,
+html.gemini-dark-mode .main-menu .navigation li div,
+html.gemini-dark-mode .main-menu .menu-content li,
+html.gemini-dark-mode .main-menu .menu-content li a,
+html.gemini-dark-mode .navigation-main li,
+html.gemini-dark-mode .navigation-main li a {
+  border: none !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+  outline: none !important;
 }
 
 html.gemini-dark-mode .main-menu .navigation li a {
   background-color: transparent !important;
   color: #cbd5e1 !important;
+  border-radius: 6px !important;
+  transition: all 0.2s ease !important;
 }
 
-html.gemini-dark-mode .main-menu .navigation li.active a,
+html.gemini-dark-mode .main-menu .navigation li.active > a,
 html.gemini-dark-mode .main-menu .navigation li a:hover,
-html.gemini-dark-mode .main-menu .navigation li.sidebar-group-active a {
-  background-color: var(--gemini-panel) !important;
-  background: var(--gemini-panel) !important;
+html.gemini-dark-mode .main-menu .navigation li.sidebar-group-active > a {
+  background-color: rgba(99, 102, 241, 0.18) !important;
+  background: rgba(99, 102, 241, 0.18) !important;
   color: #38bdf8 !important;
+  border: none !important;
 }
 
 html.gemini-dark-mode .navigation-header span {
   color: #64748b !important;
+}
+
+/* --- INPUT GROUPS & ADDONS (VND, ICONS, PREPEND/APPEND) --- */
+html.gemini-dark-mode .input-group {
+  display: flex !important;
+  flex-wrap: nowrap !important;
+  align-items: stretch !important;
+  border-radius: 8px !important;
+  background-color: transparent !important;
+}
+
+html.gemini-dark-mode .input-group-prepend,
+html.gemini-dark-mode .input-group-append {
+  display: flex !important;
+  margin: 0 !important;
+}
+
+html.gemini-dark-mode .input-group-text {
+  background-color: var(--gemini-sidebar, #0f172a) !important;
+  background: var(--gemini-sidebar, #0f172a) !important;
+  color: #94a3b8 !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 0.375rem 0.75rem !important;
+}
+
+/* Prepend (VND ở bên trái input): Bo góc bên trái, thẳng góc bên phải và không viền phải */
+html.gemini-dark-mode .input-group-prepend > .input-group-text,
+html.gemini-dark-mode .input-group > .input-group-prepend:first-child > * {
+  border-top-left-radius: 8px !important;
+  border-bottom-left-radius: 8px !important;
+  border-top-right-radius: 0 !important;
+  border-bottom-right-radius: 0 !important;
+  border-right: none !important;
+}
+
+/* Input sau Prepend: Bo góc bên phải, thẳng góc bên trái */
+html.gemini-dark-mode .input-group > .form-control:not(:first-child),
+html.gemini-dark-mode .input-group > .custom-select:not(:first-child) {
+  border-top-left-radius: 0 !important;
+  border-bottom-left-radius: 0 !important;
+  border-top-right-radius: 8px !important;
+  border-bottom-right-radius: 8px !important;
+}
+
+/* Append: Bo góc bên phải, thẳng góc bên trái và không viền trái */
+html.gemini-dark-mode .input-group-append > .input-group-text,
+html.gemini-dark-mode .input-group > .input-group-append:last-child > * {
+  border-top-left-radius: 0 !important;
+  border-bottom-left-radius: 0 !important;
+  border-top-right-radius: 8px !important;
+  border-bottom-right-radius: 8px !important;
+  border-left: none !important;
+}
+
+/* Input trước Append: Bo góc bên trái, thẳng góc bên phải */
+html.gemini-dark-mode .input-group > .form-control:not(:last-child),
+html.gemini-dark-mode .input-group > .custom-select:not(:last-child) {
+  border-top-right-radius: 0 !important;
+  border-bottom-right-radius: 0 !important;
 }
 
 /* --- RIGHT SIDEBAR (CUSTOMER DETAIL & ORDERS/PRODUCT/TICKET) --- */
