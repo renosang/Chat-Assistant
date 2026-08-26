@@ -1598,35 +1598,72 @@ html.gemini-dark-mode [class*="chat-users"] [class*="item"]:not(.active):hover {
   cursor: pointer !important;
 }
 
-/* Chat list preview message text (Clear light slate) */
+/* Chat list Customer Name (White & Bold) */
+html.gemini-dark-mode .chat-users__room h6,
+html.gemini-dark-mode .chat-users__item h6,
+html.gemini-dark-mode .chat-users__name,
+html.gemini-dark-mode [class*="chat-users"] h6,
+html.gemini-dark-mode [class*="chat-users"] [class*="name"] {
+  color: #ffffff !important;
+  font-weight: 700 !important;
+  font-size: 13.5px !important;
+}
+
+/* Chat list Preview Message Text (Anh/Chị chờ em kiểm tra...) - HIGH CONTRAST & CLEAR */
 html.gemini-dark-mode .chat-users__room p,
 html.gemini-dark-mode .chat-users__item p,
 html.gemini-dark-mode .chat-users__message,
 html.gemini-dark-mode .user-chat-text,
-html.gemini-dark-mode .chat-users__item .text-truncate {
+html.gemini-dark-mode .chat-users__item .text-truncate,
+html.gemini-dark-mode .chat-users__room .text-truncate,
+html.gemini-dark-mode [class*="chat-users"] p,
+html.gemini-dark-mode [class*="chat-users"] .text-truncate,
+html.gemini-dark-mode [class*="chat-users"] span.text-truncate {
   color: #cbd5e1 !important;
-  font-size: 12px !important;
+  font-size: 12.5px !important;
+  opacity: 1 !important;
+  font-weight: 400 !important;
 }
 
-/* Chat list timestamp (Clear light grey) */
+/* Chat list timestamp (Clear light grey: 08-26 21:56) */
 html.gemini-dark-mode .chat-users__room time,
 html.gemini-dark-mode .chat-users__item time,
 html.gemini-dark-mode .chat-users__time,
 html.gemini-dark-mode .chat-time,
 html.gemini-dark-mode .chat-users__room small,
-html.gemini-dark-mode .chat-users__item small {
+html.gemini-dark-mode .chat-users__item small,
+html.gemini-dark-mode [class*="chat-users"] time,
+html.gemini-dark-mode [class*="chat-users"] small {
   color: #94a3b8 !important;
   font-size: 11px !important;
   font-weight: 600 !important;
+  opacity: 1 !important;
 }
 
-/* Tag ĐƠN HÀNG (Order Badge) - Pop out with luminous purple */
+/* Unread Message Count Badges (Số tin nhắn chờ - VIBRANT RED) */
+html.gemini-dark-mode .badge-danger,
+html.gemini-dark-mode .badge-pill,
+html.gemini-dark-mode .badge-glow,
+html.gemini-dark-mode .chat-users__room .badge,
+html.gemini-dark-mode .chat-users__item .badge,
+html.gemini-dark-mode [class*="chat-users"] .badge,
+html.gemini-dark-mode .chat-sidebar .badge {
+  background-color: #ef4444 !important;
+  background: #ef4444 !important;
+  color: #ffffff !important;
+  font-weight: 800 !important;
+  border: 1px solid rgba(255, 255, 255, 0.25) !important;
+  border-radius: 6px !important;
+  box-shadow: 0 2px 6px rgba(239, 68, 68, 0.45) !important;
+  font-size: 11px !important;
+  padding: 2px 6px !important;
+}
+
+/* Tag ĐƠN HÀNG (Order Badge) - Pop out with luminous purple ONLY when containing text ĐƠN HÀNG */
 html.gemini-dark-mode [class*="badge-order"],
 html.gemini-dark-mode .badge-purple,
 html.gemini-dark-mode .tag-purple,
-html.gemini-dark-mode [class*="order-tag"],
-html.gemini-dark-mode .chat-users__room [class*="badge"],
-html.gemini-dark-mode .chat-users__item [class*="badge"] {
+html.gemini-dark-mode [class*="order-tag"] {
   background-color: rgba(168, 85, 247, 0.22) !important;
   background: rgba(168, 85, 247, 0.22) !important;
   color: #d8b4fe !important;

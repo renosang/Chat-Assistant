@@ -3029,12 +3029,40 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
       }
     });
 
-    // 25. Order tags in Chat list (.badge-purple, ĐƠN HÀNG)
-    const orderTags = document.querySelectorAll('.chat-users__room .badge, .chat-users__item .badge');
-    orderTags.forEach(ot => {
-      ot.style.setProperty('background-color', 'rgba(168, 85, 247, 0.22)', 'important');
-      ot.style.setProperty('color', '#d8b4fe', 'important');
-      ot.style.setProperty('border', '1px solid rgba(168, 85, 247, 0.45)', 'important');
+    // 25. Unread count badges (RED), Order tags (PURPLE), and Clear Preview text
+    const listBadges = document.querySelectorAll('.chat-users__room .badge, .chat-users__item .badge, .chat-sidebar .badge');
+    listBadges.forEach(bg => {
+      const bgText = (bg.textContent || '').trim().toLowerCase();
+      if (bgText.includes('đơn') || bgText.includes('order')) {
+        bg.style.setProperty('background-color', 'rgba(168, 85, 247, 0.22)', 'important');
+        bg.style.setProperty('color', '#d8b4fe', 'important');
+        bg.style.setProperty('border', '1px solid rgba(168, 85, 247, 0.45)', 'important');
+      } else {
+        // Numeric unread badge (1, 2, 3...) -> VIBRANT RED
+        bg.style.setProperty('background-color', '#ef4444', 'important');
+        bg.style.setProperty('background', '#ef4444', 'important');
+        bg.style.setProperty('color', '#ffffff', 'important');
+        bg.style.setProperty('font-weight', '800', 'important');
+        bg.style.setProperty('border', '1px solid rgba(255, 255, 255, 0.25)', 'important');
+      }
+    });
+
+    const listPreviews = document.querySelectorAll('.chat-users__room p, .chat-users__item p, .chat-users__message, .user-chat-text, .chat-users__item .text-truncate, .chat-users__room .text-truncate');
+    listPreviews.forEach(lp => {
+      lp.style.setProperty('color', '#cbd5e1', 'important');
+      lp.style.setProperty('font-size', '12.5px', 'important');
+    });
+
+    const listNames = document.querySelectorAll('.chat-users__room h6, .chat-users__item h6, .chat-users__name');
+    listNames.forEach(ln => {
+      ln.style.setProperty('color', '#ffffff', 'important');
+      ln.style.setProperty('font-weight', '700', 'important');
+    });
+
+    const listTimes = document.querySelectorAll('.chat-users__room time, .chat-users__item time, .chat-users__time, .chat-time');
+    listTimes.forEach(lt => {
+      lt.style.setProperty('color', '#94a3b8', 'important');
+      lt.style.setProperty('font-weight', '600', 'important');
     });
 
     // 26. Tab-detail--select search dropdown transparency
