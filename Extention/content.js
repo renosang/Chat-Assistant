@@ -2287,24 +2287,38 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
    * Recursively checks if a category is allowed in the current context.
    * Allowed if:
    * 1. It is a "General" category (Macro Chung, General, etc.)
-   * 2. It is related to the current brand context.
+   * 2. It matches current brand or parent lineage matches current brand.
+   * 3. It is explicitly mapped via Category Channel Mappings.
+   * 4. Otherwise allowed unless it explicitly belongs to a DIFFERENT brand.
    */
-  function isCategoryAllowedForBrand(categoryId, currentBrandClean, categoryName = null, context = null) {
-    const targetName = categoryName || (compiledData.categoryMap[categoryId] ? compiledData.categoryMap[categoryId].name : null);
+  function isCategoryAllowedForBrand(categoryObjOrId, currentBrandClean, categoryName = null, context = null) {
+    if (!currentBrandClean || currentBrandClean === "general") return true;
 
-    if (targetName) {
-      const cn = superClean(targetName);
-      // 1. Check if General / Chung
+    // 1. Extract category name and parent object/ID
+    let catName = categoryName;
+    let parentObj = null;
+
+    if (typeof categoryObjOrId === 'object' && categoryObjOrId !== null) {
+      catName = catName || categoryObjOrId.name;
+      parentObj = categoryObjOrId.parent;
+    } else if (categoryObjOrId && compiledData.categoryMap && compiledData.categoryMap[categoryObjOrId]) {
+      catName = catName || compiledData.categoryMap[categoryObjOrId].name;
+      parentObj = compiledData.categoryMap[categoryObjOrId].parentId;
+    }
+
+    if (catName) {
+      const cn = superClean(catName);
+      // 1. General categories always allowed
       if (cn.includes("chung") || cn.includes("general") || cn === "tatca") return true;
 
-      // 2. Check if related to current brand
-      if (currentBrandClean && currentBrandClean !== "general" && areBrandsRelated(cn, currentBrandClean, cachedConfig?.brandGroups)) {
+      // 2. Check if category name matches current brand
+      if (areBrandsRelated(cn, currentBrandClean, cachedConfig?.brandGroups)) {
         return true;
       }
 
-      // 3. Check if explicitly allowed via Category Channel Mappings (Phân quyền Danh mục <-> Channel)
+      // 3. Check Category Channel Mappings
       if (cachedConfig?.categoryChannelMappings && Array.isArray(cachedConfig.categoryChannelMappings)) {
-        const catIdStr = categoryId ? categoryId.toString() : '';
+        const catIdStr = typeof categoryObjOrId === 'string' ? categoryObjOrId : (categoryObjOrId?._id?.toString() || '');
         const channelFullName = context?.channelFullName || context?.fullName || '';
         const curBrand = context?.currentBrand || '';
 
@@ -2344,12 +2358,22 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
       }
     }
 
-    // Recurse to parent
-    if (categoryId && compiledData.categoryMap[categoryId]) {
-      const parentId = compiledData.categoryMap[categoryId].parentId;
-      if (parentId) {
-        return isCategoryAllowedForBrand(parentId, currentBrandClean, null, context);
-      }
+    // 2. Recurse to parent category
+    if (parentObj) {
+      const parentAllowed = isCategoryAllowedForBrand(parentObj, currentBrandClean, null, context);
+      if (parentAllowed) return true;
+    }
+
+    // 3. Fallback: If this macro is not explicitly from another distinct brand, ALLOW it!
+    if (catName && cachedConfig?.allBrands && Array.isArray(cachedConfig.allBrands)) {
+      const cn = superClean(catName);
+      const isOtherBrand = cachedConfig.allBrands.some(otherB => {
+        const otherClean = superClean(otherB);
+        return otherClean !== currentBrandClean && !areBrandsRelated(otherClean, currentBrandClean, cachedConfig?.brandGroups) && (cn === otherClean || (otherClean.length >= 4 && cn.startsWith(otherClean)));
+      });
+      if (!isOtherBrand) return true;
+    } else {
+      return true;
     }
 
     return false;
@@ -4326,8 +4350,8 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
       const catName = categoryObj.name || (typeof m.category === 'string' ? m.category : "");
       const curBrandClean = superClean(context.currentBrand);
 
-      if (catId || catName) {
-        const isAllowed = isCategoryAllowedForBrand(catId, curBrandClean, catName, context);
+      if (categoryObj || catName) {
+        const isAllowed = isCategoryAllowedForBrand(categoryObj, curBrandClean, catName, context);
         if (!isAllowed) return false;
       }
 
