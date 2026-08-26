@@ -4249,8 +4249,13 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
 
     // 2. Tự động kiểm tra tiêu đề và nội dung macro: Nếu chứa tên sàn KHÁC sàn đang chat -> ẨN để tránh gửi nhầm sàn
     const title = (macro.title || '').toLowerCase();
-    const content = (extractTextFromContent(macro.content) || '').toLowerCase();
-    const fullText = `${title} ${content}`;
+    let contentText = "";
+    if (typeof macro.content === 'string') {
+      contentText = macro.content.toLowerCase();
+    } else if (macro.content) {
+      try { contentText = JSON.stringify(macro.content).toLowerCase(); } catch (e) {}
+    }
+    const fullText = `${title} ${contentText}`;
 
     const platforms = [
       { key: 'shopee', words: ['shopee', 'shoppee', 'spe'] },
@@ -4280,9 +4285,8 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
   async function fetchAndInitLiveSearch(initialQuery = "") {
     const resultsDiv = macroSearchOverlay.querySelector("#macro-search-results");
     const context = getCurrentContext();
-    const channelIdentifier = context.channelFullName || context.currentBrand || 'general';
 
-    if (!cachedMacrosList || cachedBrandContext !== channelIdentifier) {
+    if (!cachedMacrosList) {
       resultsDiv.innerHTML = '<div class="macro-loading">Đang tải...</div>';
       chrome.storage.sync.get(['macroAuthToken', 'starredMacroIds'], async (data) => {
         if (!data.macroAuthToken) {
@@ -4294,9 +4298,7 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
         const localStarredSet = new Set(starredArray);
 
         try {
-          const brandParam = context.channelFullName || (context.currentBrand && context.currentBrand !== 'general' ? context.currentBrand : '');
-          const brandQuery = brandParam ? `?brand=${encodeURIComponent(brandParam)}` : '';
-          const response = await fetch(`${MACRO_API_BASE_URL}/macros/search${brandQuery}`, {
+          const response = await fetch(`${MACRO_API_BASE_URL}/macros/search`, {
             headers: { 'Authorization': `Bearer ${data.macroAuthToken}` }
           });
 
@@ -4318,7 +4320,6 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
           chrome.storage.sync.set({ starredMacroIds: Array.from(localStarredSet) });
 
           cachedMacrosList = macros;
-          cachedBrandContext = channelIdentifier;
           renderLiveSearchResults(initialQuery);
         } catch (err) {
           resultsDiv.innerHTML = '<div class="macro-error">Lỗi kết nối hệ thống Macro.</div>';
