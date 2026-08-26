@@ -1,6 +1,6 @@
 
 // --- CONFIGURATION ---
-const API_BASE_URL = "https://api.beegadget.net/api";
+const API_BASE_URL = "https://macro.beegadget.net/api";
 const API_URL = `${API_BASE_URL}/config`;
 const HEARTBEAT_URL = `${API_BASE_URL}/user/heartbeat`;
 const CONFIG_ALARM = "GEMINI_AUTO_FETCH";
@@ -75,7 +75,7 @@ async function getActiveApiUrl() {
       }
     } catch (e) {}
   }
-  return "https://api.beegadget.net/api";
+  return "https://macro.beegadget.net/api";
 }
 
 async function sendViolationAlertToServer(alertData, sendResponse) {
@@ -121,9 +121,12 @@ async function fetchRemoteConfig() {
     const apiUrl = `${baseUrl}/config?t=${Date.now()}`;
     console.log("[Gemini BG] Fetching from:", apiUrl);
 
-    const response = await fetch(apiUrl, { headers });
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 5000);
+    const response = await fetch(apiUrl, { headers, signal: controller.signal }).catch(e => null);
+    clearTimeout(timer);
 
-    if (response.ok) {
+    if (response && response.ok) {
       const config = await response.json();
       
       const typoCount = config.typoDictionary ? config.typoDictionary.length : 0;
@@ -141,11 +144,11 @@ async function fetchRemoteConfig() {
       });
       return true;
     } else {
-      console.error("[Gemini BG] Fetch failed:", response.status, response.statusText);
+      console.log("[Gemini BG] Fetch remote config skipped or returned non-200 status.");
       return false;
     }
   } catch (error) {
-    console.error("[Gemini BG] Network error:", error);
+    console.warn("[Gemini BG] Network check:", error.message || error);
   }
 }
 
