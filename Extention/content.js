@@ -3067,10 +3067,11 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
       }
     });
 
-    const listPreviews = document.querySelectorAll('.chat-users__room p, .chat-users__item p, .chat-users__message, .user-chat-text, .chat-users__item .text-truncate, .chat-users__room .text-truncate');
+    const listPreviews = document.querySelectorAll('.chat-users__room p, .chat-users__item p, .chat-users__message, .user-chat-text, .chat-users__item .text-truncate, .chat-users__room .text-truncate, .chat-users__item .user-chat-info .contact-info .truncate.text-bold-600, .truncate.text-bold-600, .truncate.text-bold-600 div');
     listPreviews.forEach(lp => {
-      lp.style.setProperty('color', '#cbd5e1', 'important');
+      lp.style.setProperty('color', '#a5b4c0', 'important');
       lp.style.setProperty('font-size', '12.5px', 'important');
+      lp.style.setProperty('opacity', '1', 'important');
     });
 
     const listNames = document.querySelectorAll('.chat-users__room h6, .chat-users__item h6, .chat-users__name');

@@ -1618,11 +1618,21 @@ html.gemini-dark-mode .chat-users__item .text-truncate,
 html.gemini-dark-mode .chat-users__room .text-truncate,
 html.gemini-dark-mode [class*="chat-users"] p,
 html.gemini-dark-mode [class*="chat-users"] .text-truncate,
-html.gemini-dark-mode [class*="chat-users"] span.text-truncate {
-  color: #cbd5e1 !important;
+html.gemini-dark-mode [class*="chat-users"] span.text-truncate,
+html.gemini-dark-mode .chat-users__item .user-chat-info .contact-info .truncate.text-bold-600,
+html.gemini-dark-mode .chat-users__item .user-chat-info .contact-info .truncate.text-bold-600 *,
+html.gemini-dark-mode .chat-users__room .user-chat-info .contact-info .truncate.text-bold-600,
+html.gemini-dark-mode .chat-users__room .user-chat-info .contact-info .truncate.text-bold-600 *,
+html.gemini-dark-mode .chat-users__item .truncate.text-bold-600,
+html.gemini-dark-mode .chat-users__item .truncate.text-bold-600 *,
+html.gemini-dark-mode .chat-users__room .truncate.text-bold-600,
+html.gemini-dark-mode .chat-users__room .truncate.text-bold-600 *,
+html.gemini-dark-mode .truncate.text-bold-600,
+html.gemini-dark-mode .truncate.text-bold-600 * {
+  color: #a5b4c0 !important;
   font-size: 12.5px !important;
   opacity: 1 !important;
-  font-weight: 400 !important;
+  font-weight: 500 !important;
 }
 
 /* Chat list timestamp (Clear light grey: 08-26 21:56) */
