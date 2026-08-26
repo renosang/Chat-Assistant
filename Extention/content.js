@@ -4233,19 +4233,48 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
 
   function isPlatformValidForContext(macro, context) {
     if (!macro) return false;
-    if (!macro.platformTags) return true;
-    const tags = macro.platformTags;
-    const hasRestriction = tags.shopee || tags.lazada || tags.tiktok;
-    if (!hasRestriction) return true;
-
     const mkt = (context && context.currentMarketplace) ? context.currentMarketplace.toLowerCase() : '';
-    if (mkt.includes('shopee') && tags.shopee) return true;
-    if (mkt.includes('lazada') && tags.lazada) return true;
-    if (mkt.includes('tiktok') && tags.tiktok) return true;
-
     if (!mkt || mkt === 'general') return true;
 
-    return false;
+    // 1. Kiểm tra tag sàn nếu được cấu hình thủ công trong macro
+    if (macro.platformTags) {
+      const tags = macro.platformTags;
+      const hasRestriction = tags.shopee || tags.lazada || tags.tiktok;
+      if (hasRestriction) {
+        if (mkt.includes('shopee') && !tags.shopee) return false;
+        if (mkt.includes('lazada') && !tags.lazada) return false;
+        if (mkt.includes('tiktok') && !tags.tiktok) return false;
+      }
+    }
+
+    // 2. Tự động kiểm tra tiêu đề và nội dung macro: Nếu chứa tên sàn KHÁC sàn đang chat -> ẨN để tránh gửi nhầm sàn
+    const title = (macro.title || '').toLowerCase();
+    const content = (extractTextFromContent(macro.content) || '').toLowerCase();
+    const fullText = `${title} ${content}`;
+
+    const platforms = [
+      { key: 'shopee', words: ['shopee', 'shoppee', 'spe'] },
+      { key: 'tiktok', words: ['tiktok', 'tik tok', 'tts', 'tik-tok'] },
+      { key: 'lazada', words: ['lazada', 'lzd'] },
+      { key: 'tiki', words: ['tiki'] }
+    ];
+
+    const currentPlatObj = platforms.find(p => mkt.includes(p.key));
+    if (currentPlatObj) {
+      for (const p of platforms) {
+        if (p.key === currentPlatObj.key) continue;
+        const hasOtherPlatform = p.words.some(w => {
+          const rx = new RegExp(`(^|[^\\p{L}\\p{N}])${w}(?=$|[^\\p{L}\\p{N}])`, 'iu');
+          return rx.test(fullText);
+        });
+        if (hasOtherPlatform) {
+          // Macro chứa từ khóa sàn khác -> Ẩn để tránh nhầm sàn
+          return false;
+        }
+      }
+    }
+
+    return true;
   }
 
   async function fetchAndInitLiveSearch(initialQuery = "") {
