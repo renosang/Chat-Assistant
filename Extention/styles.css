@@ -1739,17 +1739,95 @@ html.gemini-dark-mode .customer-info__explorer-collapse,
 html.gemini-dark-mode .customer-info__section,
 html.gemini-dark-mode .customer-info__section-body,
 html.gemini-dark-mode .tab-detail-wrapper,
-html.gemini-dark-mode .tab-detail,
+/* --- RIGHT SIDEBAR SEARCH BAR ENHANCEMENT (DỄ NHÌN, NỔI BẬT, KHÔNG BỊ PHẲNG) --- */
 html.gemini-dark-mode .tab-detail__search-bar,
-html.gemini-dark-mode .tab-detail__list,
-html.gemini-dark-mode .tab-detail__item,
-html.gemini-dark-mode .tab-detail__item--order,
-html.gemini-dark-mode .order,
-html.gemini-dark-mode .order.black {
-  background-color: var(--gemini-sidebar) !important;
-  background: var(--gemini-sidebar) !important;
-  color: #f8fafc !important;
-  border-color: rgba(255, 255, 255, 0.1) !important;
+html.gemini-dark-mode .tab-detail .has-icon-left,
+html.gemini-dark-mode [class*="tab-detail__search-bar"] {
+  background: transparent !important;
+  margin-bottom: 8px !important;
+}
+
+html.gemini-dark-mode .tab-detail__search-bar input.form-control,
+html.gemini-dark-mode .tab-detail input[name="keyword"],
+html.gemini-dark-mode .has-icon-left input[name="keyword"] {
+  background-color: #0f172a !important;
+  background: #0f172a !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(255, 255, 255, 0.22) !important;
+  border-radius: 8px !important;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.4), 0 1px 3px rgba(0, 0, 0, 0.25) !important;
+  padding-left: 90px !important;
+  min-height: 40px !important;
+  font-size: 13px !important;
+  transition: all 0.2s ease !important;
+}
+
+html.gemini-dark-mode .tab-detail__search-bar input.form-control:focus,
+html.gemini-dark-mode .tab-detail input[name="keyword"]:focus,
+html.gemini-dark-mode .has-icon-left input[name="keyword"]:focus {
+  border-color: var(--gemini-accent, #6366f1) !important;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.3), inset 0 1px 2px rgba(0, 0, 0, 0.2) !important;
+  background-color: #0f172a !important;
+}
+
+/* Dropdown bộ lọc nằm bên trong thanh tìm kiếm (.tab-detail--select) */
+html.gemini-dark-mode .tab-detail--select,
+html.gemini-dark-mode .form-control-position.tab-detail--select {
+  display: flex !important;
+  align-items: center !important;
+  height: 100% !important;
+  left: 0 !important;
+  top: 0 !important;
+  padding-left: 8px !important;
+  z-index: 5 !important;
+  pointer-events: auto !important;
+}
+
+html.gemini-dark-mode .tab-detail--select [class*="control"],
+html.gemini-dark-mode .tab-detail--select .css-1fhf3k1-control {
+  background: transparent !important;
+  background-color: transparent !important;
+  border: none !important;
+  border-right: 1px solid rgba(255, 255, 255, 0.2) !important;
+  border-radius: 0 !important;
+  min-height: 24px !important;
+  box-shadow: none !important;
+  padding-right: 6px !important;
+  margin-right: 6px !important;
+}
+
+html.gemini-dark-mode .tab-detail--select [class*="singleValue"],
+html.gemini-dark-mode .tab-detail--select .css-107lb6w-singleValue {
+  color: #38bdf8 !important;
+  font-weight: 700 !important;
+  font-size: 12.5px !important;
+}
+
+html.gemini-dark-mode .tab-detail--select svg {
+  color: #38bdf8 !important;
+  stroke: #38bdf8 !important;
+}
+
+html.gemini-dark-mode .tab-detail--select [class*="indicatorSeparator"] {
+  display: none !important;
+}
+
+/* All generic search inputs in dark mode */
+html.gemini-dark-mode input[type="search"],
+html.gemini-dark-mode .search-bar input,
+html.gemini-dark-mode input.search-input {
+  background-color: #0f172a !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.3) !important;
+  color: #ffffff !important;
+  border-radius: 6px !important;
+}
+
+html.gemini-dark-mode input[type="search"]:focus,
+html.gemini-dark-mode .search-bar input:focus,
+html.gemini-dark-mode input.search-input:focus {
+  border-color: var(--gemini-accent, #6366f1) !important;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.25) !important;
 }
 
 html.gemini-dark-mode .tab-detail__item-order-info,
