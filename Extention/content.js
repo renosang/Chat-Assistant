@@ -22,6 +22,46 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
   let isPanelHovered = false;
   let currentAnalysis = null; // Track current analysis for hover re-triggering
 
+  // Cache danh tính nhân viên CS từ Macro/Extension storage
+  let cachedCSUser = { name: "CS_Unknown", group: "Group_Default", account: "CS", userId: null };
+
+  function refreshCachedCSUser() {
+    try {
+      chrome.storage.sync.get(['macroUser', 'macroUsername', 'username'], (data) => {
+        if (data.macroUser && data.macroUser.username) {
+          cachedCSUser = {
+            name: data.macroUser.fullName || data.macroUser.username,
+            account: data.macroUser.username,
+            group: data.macroUser.team || "Group_Default",
+            userId: data.macroUser.id || null
+          };
+        } else if (data.macroUsername) {
+          cachedCSUser = {
+            name: data.macroUsername,
+            account: data.macroUsername,
+            group: "Group_Default",
+            userId: null
+          };
+        } else if (data.username) {
+          cachedCSUser = {
+            name: data.username,
+            account: data.username,
+            group: "Group_Default",
+            userId: null
+          };
+        }
+      });
+    } catch (e) {}
+  }
+  refreshCachedCSUser();
+  try {
+    chrome.storage.onChanged.addListener((changes, namespace) => {
+      if (namespace === 'sync' && (changes.macroUser || changes.macroUsername || changes.username)) {
+        refreshCachedCSUser();
+      }
+    });
+  } catch (e) {}
+
   /**
    * Helper to replace pronouns while preserving case
    * Target pronouns: anh/chị, anh chị, anh, chị
@@ -250,11 +290,36 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
   function getCurrentCSUser() {
     let name = "CS_Unknown";
     let group = "Group_Default";
+    let account = "";
+    let userId = null;
 
-    // Check for common user profile elements
-    const userEl = document.querySelector(".user-profile-name, .account-name, .username");
+    // 1. Kiểm tra các selector hiển thị tên/tài khoản CS trên Onpoint, Opollo, Shopee, Pancake,...
+    const userSelectors = [
+      ".user-profile-name",
+      ".account-name",
+      ".username",
+      ".user-name",
+      ".user__name",
+      ".profile-name",
+      ".header-profile__name",
+      ".navbar-user-name",
+      ".user-full-name",
+      ".current-user",
+      ".name-account",
+      ".header-user .name",
+      ".user-info .name",
+      ".avatar-info .name"
+    ];
+    let userEl = null;
+    for (const sel of userSelectors) {
+      const el = document.querySelector(sel);
+      if (el && el.textContent.trim()) {
+        userEl = el;
+        break;
+      }
+    }
+
     if (userEl) {
-      // Clean up internal newlines and extra spaces
       let raw = userEl.textContent.trim().replace(/\s+/g, ' ');
       // Handle mock format: "CS: Nguyễn Văn A (Nhóm 1)"
       if (raw.startsWith("CS:")) {
@@ -270,12 +335,45 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
       }
     }
 
-    // Fallback if we are in the Extension's own popup/pages, use logged in username
+    // 2. Tra cứu localStorage trên trang chat quản lý (Onpoint / Opollo)
+    if (name === "CS_Unknown") {
+      try {
+        for (const k of ['user', 'profile', 'currentUser', 'auth_user', 'account']) {
+          const item = localStorage.getItem(k);
+          if (item) {
+            const parsed = JSON.parse(item);
+            const foundName = parsed.fullName || parsed.name || parsed.username || parsed.email;
+            if (foundName && typeof foundName === 'string') {
+              name = foundName.trim();
+              if (parsed.username) account = parsed.username;
+              if (parsed.team || parsed.group) group = parsed.team || parsed.group;
+              break;
+            }
+          }
+        }
+      } catch (e) {}
+    }
+
+    // 3. Fallback đồng bộ từ tài khoản Macro / Extension đã lưu
+    if (name === "CS_Unknown" && cachedCSUser.name !== "CS_Unknown") {
+      name = cachedCSUser.name;
+    }
+    if (!account && cachedCSUser.account && cachedCSUser.account !== "CS") {
+      account = cachedCSUser.account;
+    }
+    if (group === "Group_Default" && cachedCSUser.group !== "Group_Default") {
+      group = cachedCSUser.group;
+    }
+    if (cachedCSUser.userId) {
+      userId = cachedCSUser.userId;
+    }
+
+    // 4. Fallback cuối nếu có cachedConfig.username
     if (name === "CS_Unknown" && cachedConfig?.username) {
       name = cachedConfig.username.toUpperCase();
     }
 
-    return { name, group };
+    return { name, group, account, userId };
   }
 
   const CONFIG = {
@@ -373,7 +471,10 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
           });
 
           if (!isException) {
-            results.forbidden.push({ word: forbidden, msg: `TỪ CẤM: ${forbidden}` });
+            const forbiddenLower = forbidden.toLowerCase();
+            if (!results.forbidden.some(item => (item.word || item).toLowerCase() === forbiddenLower)) {
+              results.forbidden.push({ word: forbidden, msg: `TỪ CẤM: ${forbidden}` });
+            }
           }
           if (match.index === regex.lastIndex) regex.lastIndex++;
         }
@@ -402,14 +503,18 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
     if (compiledData.marketplaces) {
       compiledData.marketplaces.lastIndex = 0;
       let match;
+      const foundPlatforms = new Set();
       while ((match = compiledData.marketplaces.exec(text)) !== null) {
-        const word = match[1].toLowerCase();
+        const rawWord = match[1];
+        const word = rawWord.trim().toLowerCase();
         if (word === context.currentMarketplace || context.currentMarketplace.includes(word)) continue;
+        if (foundPlatforms.has(word)) continue; // Chống ghi nhận trùng lặp sàn vi phạm trong cùng 1 câu
+        foundPlatforms.add(word);
 
         const currentLabel = context.currentMarketplace.charAt(0).toUpperCase() + context.currentMarketplace.slice(1);
         results.platforms.push({
-          word: match[1],
-          msg: `SAI SÀN: ${match[1].toUpperCase()} (ĐANG CHAT: ${currentLabel.toUpperCase()})`
+          word: rawWord,
+          msg: `SAI SÀN: ${rawWord.toUpperCase()} (ĐANG CHAT: ${currentLabel.toUpperCase()})`
         });
         if (match.index === compiledData.marketplaces.lastIndex) compiledData.marketplaces.lastIndex++;
       }
@@ -736,16 +841,27 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
     const currentText = (textContent || getChatText(currentActiveTextarea) || "").trim();
     if (!currentText) return;
 
-    // Collect all violations
+    // Collect all violations without duplicates
     const violations = [];
+    const seenViolationKeys = new Set();
+
+    const addUniqueViolation = (type, word, msg) => {
+      const cleanWord = (word || '').replace(/_/g, ' ').trim();
+      const key = `${type}__${cleanWord.toLowerCase()}`;
+      if (!seenViolationKeys.has(key)) {
+        seenViolationKeys.add(key);
+        violations.push({ type, word: cleanWord, msg: (msg || '').replace(/_/g, ' ').trim() });
+      }
+    };
+
     (analysis.forbidden || []).forEach(f => {
-      violations.push({ type: "FORBIDDEN", word: f.word || f, msg: f.msg || `TỪ CẤM: ${f.word || f}` });
+      addUniqueViolation("FORBIDDEN", f.word || f, f.msg || `TỪ CẤM: ${f.word || f}`);
     });
     (analysis.brands || []).forEach(b => {
-      violations.push({ type: "BRAND", word: b.word || b, msg: b.msg || `SAI BRAND: ${b.word || b}` });
+      addUniqueViolation("BRAND", b.word || b, b.msg || `SAI BRAND: ${b.word || b}`);
     });
     (analysis.platforms || []).forEach(p => {
-      violations.push({ type: "PLATFORM", word: p.word || p, msg: p.msg || `SAI SÀN: ${p.word || p}` });
+      addUniqueViolation("PLATFORM", p.word || p, p.msg || `SAI SÀN: ${p.word || p}`);
     });
 
     if (violations.length === 0) return;
@@ -777,7 +893,8 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
       csUser: {
         name: csUser.name,
         group: csUser.group,
-        account: cachedConfig?.username || "CS"
+        account: csUser.account || cachedCSUser.account || cachedConfig?.username || "CS",
+        userId: csUser.userId || cachedCSUser.userId || null
       },
       customerId: customerId || "Chưa xác định",
       channel: context.channelFullName || document.querySelector(".channel-items__el.active .channel-name")?.textContent?.trim() || "Chưa xác định",

@@ -120,8 +120,23 @@ document.addEventListener('DOMContentLoaded', () => {
             headers: { 'Authorization': `Bearer ${data.macroAuthToken}` }
           });
           if (response.status === 401) {
-            chrome.storage.sync.remove(['macroAuthToken']);
+            chrome.storage.sync.remove(['macroAuthToken', 'macroUsername', 'macroUser']);
             return;
+          }
+          if (response.ok) {
+            const user = await response.json();
+            if (user) {
+              chrome.storage.sync.set({
+                macroUsername: user.username,
+                macroUser: {
+                  id: user._id || user.id,
+                  username: user.username,
+                  fullName: user.fullName || user.username,
+                  team: Array.isArray(user.team) ? user.team.join(', ') : (user.team || 'Default'),
+                  role: user.role
+                }
+              });
+            }
           }
           macroLoginSection.style.display = 'none';
           macroContentSection.style.display = 'block';
@@ -168,7 +183,19 @@ document.addEventListener('DOMContentLoaded', () => {
       const result = await response.json();
       if (!response.ok) throw new Error(result.message || 'Đăng nhập Macro thất bại.');
 
-      chrome.storage.sync.set({ macroAuthToken: result.token }, () => {
+      const macroUserData = {
+        id: result.id || result._id,
+        username: result.username || username,
+        fullName: result.fullName || username,
+        team: Array.isArray(result.team) ? result.team.join(', ') : (result.team || 'Default'),
+        role: result.role || 'user'
+      };
+
+      chrome.storage.sync.set({ 
+        macroAuthToken: result.token,
+        macroUsername: result.username || username,
+        macroUser: macroUserData
+      }, () => {
         checkMacroAuthStatus();
       });
     } catch (error) {
@@ -188,7 +215,7 @@ document.addEventListener('DOMContentLoaded', () => {
           }
         }).catch(err => console.error('Lỗi khi gọi API logout macro:', err));
       }
-      chrome.storage.sync.remove(['macroAuthToken'], () => {
+      chrome.storage.sync.remove(['macroAuthToken', 'macroUsername', 'macroUser'], () => {
         checkMacroAuthStatus();
       });
     });

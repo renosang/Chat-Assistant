@@ -84,14 +84,42 @@ async function getMacroApiUrl() {
 
 async function sendViolationAlertToServer(alertData, sendResponse) {
   try {
-    const settings = await chrome.storage.sync.get(['authToken']);
+    const syncData = await chrome.storage.sync.get([
+      'macroAuthToken',
+      'macroUser',
+      'macroUsername',
+      'username',
+      'authToken'
+    ]);
+
+    const token = syncData.macroAuthToken || syncData.authToken;
     const headers = { 'Content-Type': 'application/json' };
-    if (settings.authToken) {
-      headers['Authorization'] = `Bearer ${settings.authToken}`;
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+
+    // Tự động làm giàu danh tính CS nếu dữ liệu DOM chưa nhận diện được
+    if (!alertData.csUser || alertData.csUser.name === 'CS_Unknown' || alertData.csUser.account === 'CS') {
+      const user = syncData.macroUser;
+      if (user && user.username) {
+        alertData.csUser = {
+          name: user.fullName || user.username,
+          account: user.username,
+          group: user.team || 'Default',
+          userId: user.id
+        };
+      } else if (syncData.macroUsername || syncData.username) {
+        const u = syncData.macroUsername || syncData.username;
+        alertData.csUser = {
+          name: u,
+          account: u,
+          group: 'Default'
+        };
+      }
     }
 
     const baseUrl = await getMacroApiUrl();
-    console.log('[Gemini BG] Sending violation alert to:', `${baseUrl}/utils/violation-alert`);
+    console.log('[Gemini BG] Sending violation alert to:', `${baseUrl}/utils/violation-alert`, 'CS:', alertData.csUser);
     const response = await fetch(`${baseUrl}/utils/violation-alert`, {
       method: 'POST',
       headers: headers,
