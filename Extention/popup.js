@@ -1,5 +1,5 @@
 
-const API_BASE_URL = "https://api.beegadget.net/api";
+const API_BASE_URL = "https://macro.beegadget.net/api";
 const MACRO_API_BASE_URL = "https://macro.beegadget.net/api";
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -277,7 +277,7 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    setLoading(btnLogin, true, 'Đang xác thực...');
+    setLoading(btnLogin, true, 'Đang xác thực Macro...');
     try {
       const response = await fetch(`${API_BASE_URL}/login`, {
         method: 'POST',
@@ -285,29 +285,53 @@ document.addEventListener('DOMContentLoaded', () => {
         body: JSON.stringify({ 
           username, 
           password, 
-          version: chrome.runtime.getManifest().version
+          version: chrome.runtime.getManifest().version,
+          userAgent: navigator.userAgent
         })
       });
 
       const result = await response.json();
-      if (!response.ok) throw new Error(result.message || 'Đăng nhập thất bại.');
+      if (!response.ok) throw new Error(result.message || 'Đăng nhập tài khoản Macro thất bại.');
 
-      chrome.storage.sync.set({ authToken: result.token, username: username }, () => {
+      const macroUserData = {
+        id: result.id || result._id,
+        username: result.username || username,
+        fullName: result.fullName || username,
+        team: Array.isArray(result.team) ? result.team.join(', ') : (result.team || 'Default'),
+        role: result.role || 'user'
+      };
+
+      // Đăng nhập 1 tài khoản duy nhất (SSO): Đồng bộ cả tiện ích kiểm duyệt và hệ thống Macro
+      chrome.storage.sync.set({ 
+        authToken: result.token, 
+        username: result.username || username,
+        macroAuthToken: result.token,
+        macroUsername: result.username || username,
+        macroUser: macroUserData
+      }, () => {
         chrome.runtime.sendMessage({ action: "reloadConfig" });
         checkAuthStatus();
+        checkMacroAuthStatus();
       });
     } catch (error) {
       showMessage(loginMessage, error.message, 'red');
     } finally {
-      setLoading(btnLogin, false, 'Đăng nhập');
+      setLoading(btnLogin, false, 'Xác nhận đăng nhập');
     }
   }
 
   btnLogout.addEventListener('click', () => {
-    chrome.storage.sync.remove(['authToken', 'username'], () => {
+    chrome.storage.sync.remove([
+      'authToken', 
+      'username',
+      'macroAuthToken',
+      'macroUsername',
+      'macroUser'
+    ], () => {
       chrome.storage.local.remove('remoteConfig');
       chrome.runtime.sendMessage({ action: "userLoggedOut" });
       showLoginView();
+      checkMacroAuthStatus();
     });
   });
 

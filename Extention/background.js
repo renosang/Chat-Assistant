@@ -1,7 +1,7 @@
 
 // --- CONFIGURATION ---
-// 1. Máy chủ Quản trị Luật & Cấu hình Extension (https://api.beegadget.net/admin/)
-const API_BASE_URL = "https://api.beegadget.net/api";
+// 1. Máy chủ Quản trị Luật & Cấu hình Extension (https://macro.beegadget.net/admin/extension)
+const API_BASE_URL = "https://macro.beegadget.net/api";
 const API_URL = `${API_BASE_URL}/config`;
 const HEARTBEAT_URL = `${API_BASE_URL}/user/heartbeat`;
 const CONFIG_ALARM = "GEMINI_AUTO_FETCH";

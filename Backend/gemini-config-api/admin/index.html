@@ -923,7 +923,13 @@
                 updatedData.allBrands = buffers.allBrands.split('\n').map(x => x.trim()).filter(Boolean);
                 updatedData.allMarketplaces = buffers.allMarketplaces.split('\n').map(x => x.trim()).filter(Boolean);
                 updatedData.brandGroups = buffers.brandGroups.split('\n').map(line => line.split(',').map(item => item.trim()).filter(Boolean)).filter(group => group.length > 0);
-                updatedData.forbiddenRules = { VI: buffers.forbiddenRules.split('\n').map(l => { const [w, ex] = l.split('|'); return { word: w?.trim(), exception: ex?.trim() }; }).filter(r => r.word) };
+                updatedData.forbiddenRules = { VI: buffers.forbiddenRules.split('\n').map(l => {
+                    const parts = l.split('|').map(s => s.trim()).filter(Boolean);
+                    if (!parts.length) return null;
+                    const word = parts[0];
+                    const exception = parts.slice(1).join(', ');
+                    return { word, exception };
+                }).filter(r => r && r.word) };
                 updatedData.typoDictionary = buffers.typoDictionary.split('\n').map(l => { const [err, fix] = l.split('|'); return { error: err?.trim(), fix: fix?.trim() }; }).filter(r => r.error && r.fix);
                 updatedData.brandMappings = buffers.brandMappings.split('\n').map(l => { const [b, p] = l.split('|'); return { brand: b?.trim(), platform: p?.trim() }; }).filter(r => r.brand && r.platform);
                 updatedData.motivationConfig = motivationConfig;
@@ -1593,8 +1599,20 @@
                         )}
                         {activeTab === 'forbidden' && (
                             <div className="space-y-4">
-                                <h3 className="text-xl font-bold">Từ cấm & Ngoại lệ</h3>
-                                <textarea className="w-full h-[400px] bg-slate-50 border rounded-2xl p-8 font-mono text-sm" value={buffers.forbiddenRules} onChange={e => setBuffers({ ...buffers, forbiddenRules: e.target.value })} />
+                                <div>
+                                    <h3 className="text-xl font-bold flex items-center gap-2">
+                                        <span>🚫 Quản Lý Từ Cấm & Ngoại Lệ Cho Phép</span>
+                                    </h3>
+                                    <p className="text-sm text-slate-500 font-medium mt-1">
+                                        Khai báo từ cấm kèm ngữ cảnh ngoại lệ cho phép bỏ qua cảnh báo. Cú pháp: <code>Từ cấm | Ngoại lệ 1, Ngoại lệ 2</code> hoặc phân tách bằng dấu <code>|</code>.
+                                    </p>
+                                </div>
+                                <textarea 
+                                    className="w-full h-[400px] bg-slate-50 border border-slate-200 rounded-2xl p-6 font-mono text-sm leading-relaxed focus:bg-white focus:border-indigo-500 focus:outline-none transition-all shadow-inner" 
+                                    value={buffers.forbiddenRules} 
+                                    onChange={e => setBuffers({ ...buffers, forbiddenRules: e.target.value })} 
+                                    placeholder="ngừng | ngừng sử dụng, ngừng in, ngừng lệnh in, ngưng sử dụng&#10;dừng | dừng sử dụng&#10;hủy"
+                                />
                             </div>
                         )}
                     </div>

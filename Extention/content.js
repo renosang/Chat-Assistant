@@ -444,31 +444,62 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
     }
 
     // 1) Forbidden (Normalized & Exception-Aware)
-    if (cachedConfig.forbiddenWords) {
+    const forbiddenRules = cachedConfig.forbiddenWords || cachedConfig.forbiddenRules?.VI || [];
+    if (forbiddenRules.length > 0) {
       const normText = text.normalize('NFC');
 
-      cachedConfig.forbiddenWords.forEach(rule => {
+      forbiddenRules.forEach(rule => {
         if (!rule) return;
-        const [forbidden, ...exceptions] = rule.split('|').map(s => s.trim().normalize('NFC'));
+        let forbidden = "";
+        let rawExceptions = [];
+
+        if (typeof rule === "string") {
+          const parts = rule.split('|').map(s => s.trim().normalize('NFC')).filter(Boolean);
+          if (!parts.length) return;
+          forbidden = parts[0];
+          rawExceptions = parts.slice(1);
+        } else if (rule && typeof rule === "object" && rule.word) {
+          forbidden = rule.word.trim().normalize('NFC');
+          if (rule.exception) {
+            rawExceptions = [rule.exception];
+          }
+        }
         if (!forbidden) return;
 
-        const regex = new RegExp(`(^|[^\\p{L}])${escapeRegExp(forbidden)}(?=[^\\p{L}]|$)`, 'giu');
+        // Tách các từ ngoại lệ (hỗ trợ cả dấu phẩy, chấm phẩy, dấu gạch đứng | hoặc xuống dòng)
+        const exceptions = rawExceptions
+          .flatMap(exStr => String(exStr).split(/[,;\n|]/))
+          .map(s => s.trim().normalize('NFC'))
+          .filter(Boolean);
+
+        const forbiddenRegex = new RegExp(`(^|[^\\p{L}])${escapeRegExp(forbidden)}(?=[^\\p{L}]|$)`, 'giu');
         let match;
-        while ((match = regex.exec(normText)) !== null) {
-          const matchedPos = match.index + (match[1] ? match[1].length : 0);
+        while ((match = forbiddenRegex.exec(normText)) !== null) {
+          const prefixLen = match[1] ? match[1].length : 0;
+          const matchedPos = match.index + prefixLen;
           const matchedEnd = matchedPos + forbidden.length;
 
-          // Check if this forbidden word is part of an exception phrase
-          const isException = exceptions.some(ex => {
-            const exRegex = new RegExp(`(^|[^\\p{L}])${escapeRegExp(ex)}(?=[^\\p{L}]|$)`, 'iu');
+          // Kiểm tra xem vị trí từ cấm này có nằm trong cụm ngoại lệ cho phép hay không
+          let isException = false;
+          for (const ex of exceptions) {
+            if (!ex) continue;
+            const exEscaped = escapeRegExp(ex).trim().replace(/\s+/g, '\\s+');
+            const exRegex = new RegExp(`(^|[^\\p{L}])${exEscaped}(?=[^\\p{L}]|$)`, 'giu');
             let exMatch;
             while ((exMatch = exRegex.exec(normText)) !== null) {
-              const exPos = exMatch.index + (exMatch[1] ? exMatch[1].length : 0);
-              const exEnd = exPos + ex.length;
-              if (matchedPos >= exPos && matchedEnd <= exEnd) return true;
+              const exPrefixLen = exMatch[1] ? exMatch[1].length : 0;
+              const exPos = exMatch.index + exPrefixLen;
+              const exMatchedStr = exMatch[0].slice(exPrefixLen);
+              const exEnd = exPos + exMatchedStr.length;
+
+              if (matchedPos >= exPos && matchedEnd <= exEnd) {
+                isException = true;
+                break;
+              }
+              if (exMatch.index === exRegex.lastIndex) exRegex.lastIndex++;
             }
-            return false;
-          });
+            if (isException) break;
+          }
 
           if (!isException) {
             const forbiddenLower = forbidden.toLowerCase();
@@ -476,7 +507,7 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
               results.forbidden.push({ word: forbidden, msg: `TỪ CẤM: ${forbidden}` });
             }
           }
-          if (match.index === regex.lastIndex) regex.lastIndex++;
+          if (match.index === forbiddenRegex.lastIndex) forbiddenRegex.lastIndex++;
         }
       });
     }
@@ -4573,6 +4604,12 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
       const useCount = Number(m.useCount || 0);
       const formattedUseCount = useCount.toLocaleString('vi-VN');
 
+      const uTime = m.updatedAt ? new Date(m.updatedAt).getTime() : 0;
+      const cTime = m.createdAt ? new Date(m.createdAt).getTime() : 0;
+      const latestTime = Math.max(isNaN(uTime) ? 0 : uTime, isNaN(cTime) ? 0 : cTime);
+      const isNew = latestTime > 0 && (Date.now() - latestTime >= -86400000) && (Date.now() - latestTime <= 7 * 24 * 60 * 60 * 1000);
+      const newTagHtml = isNew ? `<span style="background: #ffe4e6; color: #e11d48; border: 1px solid #fecdd3; font-size: 10px; font-weight: 800; padding: 1px 6px; border-radius: 9999px; text-transform: uppercase; margin-left: 6px; display: inline-flex; align-items: center; gap: 3px; vertical-align: middle; line-height: 1.2;" title="Nội dung mới trong vòng 7 ngày"><span style="width: 5px; height: 5px; border-radius: 50%; background: #e11d48; display: inline-block;"></span>NEW</span>` : '';
+
       div.innerHTML = `
         <div style="display: flex; justify-content: space-between; align-items: center; gap: 6px;">
           <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
@@ -4591,7 +4628,7 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="opacity: 0.2"><polyline points="9 18 15 12 9 6"></polyline></svg>
           </div>
         </div>
-        <strong>${titleHighlighted}</strong>
+        <strong>${titleHighlighted}${newTagHtml}</strong>
         <p>${snippetHighlighted}</p>
       `;
 
