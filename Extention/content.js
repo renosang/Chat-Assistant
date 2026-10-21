@@ -1,11 +1,11 @@
-if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
-  console.log("[Gemini] Content script already loaded. Skipping.");
+if (window.ASSISTANT_CONTENT_SCRIPT_LOADED) {
+  console.log("[Assistant] Content script already loaded. Skipping.");
 } else {
-  window.GEMINI_CONTENT_SCRIPT_LOADED = true;
+  window.ASSISTANT_CONTENT_SCRIPT_LOADED = true;
 
   let currentActiveTextarea = null;
   let suggestionPanel = null;
-  let geminiOverlay = null;
+  let assistantOverlay = null;
   let typingTimer;
   let cachedConfig = null;
   let forceAllowSend = false;
@@ -115,15 +115,15 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
 
 
   // Load saved position and state
-  chrome.storage.sync.get(['geminiPanelPos', 'macroPanelPos', 'geminiPanelMinimized', 'geminiPanelSize', 'geminiPanelOpacity'], (data) => {
-    if (data.geminiPanelPos) userSavedPosition = data.geminiPanelPos;
+  chrome.storage.sync.get(['assistantPanelPos', 'macroPanelPos', 'assistantPanelMinimized', 'assistantPanelSize', 'assistantPanelOpacity'], (data) => {
+    if (data.assistantPanelPos) userSavedPosition = data.assistantPanelPos;
     if (data.macroPanelPos) userSavedMacroPosition = data.macroPanelPos;
-    if (data.geminiPanelMinimized) isMinimized = data.geminiPanelMinimized;
-    if (data.geminiPanelSize) userSavedSize = data.geminiPanelSize;
-    if (data.geminiPanelOpacity !== undefined) userSavedOpacity = data.geminiPanelOpacity;
+    if (data.assistantPanelMinimized) isMinimized = data.assistantPanelMinimized;
+    if (data.assistantPanelSize) userSavedSize = data.assistantPanelSize;
+    if (data.assistantPanelOpacity !== undefined) userSavedOpacity = data.assistantPanelOpacity;
   });
 
-  function makeDraggable(el, handleSelector, storageKey = 'geminiPanelPos') {
+  function makeDraggable(el, handleSelector, storageKey = 'assistantPanelPos') {
     const handle = el.querySelector(handleSelector);
     if (!handle) return;
 
@@ -141,10 +141,10 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
       document.onmouseup = () => {
         document.onmouseup = null;
         document.onmousemove = null;
-        el.classList.remove("gemini-dragging");
+        el.classList.remove("assistant-dragging");
         // Save position
         const newPos = { top: el.style.top, left: el.style.left };
-        if (storageKey === 'geminiPanelPos') userSavedPosition = newPos;
+        if (storageKey === 'assistantPanelPos') userSavedPosition = newPos;
         else userSavedMacroPosition = newPos;
 
         chrome.storage.sync.set({ [storageKey]: newPos });
@@ -159,7 +159,7 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
         el.style.top = (el.offsetTop - pos2) + "px";
         el.style.left = (el.offsetLeft - pos1) + "px";
         el.style.transform = "none";
-        el.classList.add("gemini-dragging");
+        el.classList.add("assistant-dragging");
       };
     };
   }
@@ -245,7 +245,7 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
   let moodAlertPanel = null;
 
   // ---------- REPORTING SYSTEM ----------
-  const REPORT_KEY = "gemini_quality_logs";
+  const REPORT_KEY = "assistant_quality_logs";
 
   function reportQualityAction(actionType, detail = {}) {
     // Always fetch latest username from sync storage or cached config
@@ -267,7 +267,7 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
         url: window.location.href
       };
 
-      console.log("[Gemini Report] Recording action:", logEntry);
+      console.log("[Assistant Report] Recording action:", logEntry);
 
       // 1. Send to Server (via Background)
       chrome.runtime.sendMessage({ action: "SAVE_QUALITY_LOG", data: logEntry }, (response) => {
@@ -554,28 +554,8 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
     // 4) Pronoun strict
     checkPronounConsistency(text, results);
 
-    // 5) Repetition (Unicode) - 1 to 3 words
-    const repeatRegex = /(^|[\s,.!?;"'“”(){}\[\]-])(\p{L}+(?:\s+\p{L}+){0,2})[\s\n]+\2(?=([\s,.!?;"'“”(){}\[\]-]|$))/giu;
-    let repeatMatch;
-    while ((repeatMatch = repeatRegex.exec(text)) !== null) {
-      const duplicated = repeatMatch[2];
-      results.grammar.push({ word: duplicated, msg: `Phát hiện lặp cụm từ: "${duplicated} ${duplicated}"` });
-      if (repeatMatch.index === repeatRegex.lastIndex) repeatRegex.lastIndex++;
-    }
-
-    // 6) Suggestions (punctuation/case/typo)
-    let finalText = text;
-    finalText = finalText.replace(repeatRegex, (full, prefix, word) => `${prefix}${word}`);
-    finalText = finalText.replace(/ {2,}/g, " ");
-    finalText = processSentenceMechanics(finalText, compiledData.typoLookup);
-
-    results.suggestedText = finalText;
-
-    // 7) Chat Polish (Greetings/Questions/Tone)
-    polishChatTone(text, results);
-
-    // 8) Add detailed mechanics errors (each as its own line)
-    addMechanicsErrors(text, finalText, results);
+    // 5) Extension performs no sentence rewriting or grammar alteration (per policy)
+    results.suggestedText = text || "";
 
     return results;
   }
@@ -587,222 +567,6 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
    * - Đầu câu: viết hoa.
    * - Typo: thay theo typoLookup, giữ case chữ cái đầu nếu từ gốc viết hoa.
    */
-  function processSentenceMechanics(text, typoLookup) {
-    if (!text) return "";
-
-    let s = text;
-
-    // Active Chat Polish: Greeting Commas
-    // Dạ em chào anh -> Dạ, em chào anh
-    s = s.replace(/^(Dạ|Chào (?:anh|chị|em|bạn|quý khách))(?!\s*[,!])/gi, "$1,");
-
-    // comma spacing
-    s = s.replace(/\s+,/g, ",");
-    s = s.replace(/,([^\s\n])/g, ", $1");
-    s = s.replace(/,\s{2,}/g, ", ");
-
-    // end punctuation spacing
-    s = s.replace(/\s+([.!?])/g, "$1");
-    s = s.replace(/([.!?])([^\s\n])/g, "$1 $2");
-    s = s.replace(/([.!?])\s{2,}/g, "$1 ");
-
-    const chars = Array.from(s);
-    let out = [];
-    let buffer = "";
-    let sentenceStart = true;
-    let afterComma = false;
-
-    // Skip leading non-letters to correctly identifying sentence start
-    let firstLetterFound = false;
-
-    const flushWord = () => {
-      if (!buffer) return "";
-
-      let processed = buffer;
-      const lower = buffer.toLowerCase();
-
-      // typoLookup check
-      if (typoLookup && typoLookup[lower]) {
-        processed = typoLookup[lower];
-        const a0 = buffer[0];
-        if (a0 === a0.toUpperCase() && a0 !== a0.toLowerCase()) {
-          processed = processed.charAt(0).toUpperCase() + processed.slice(1);
-        }
-      } else if (buffer.length > 2) {
-        // Stop auto-stripping Telex/VNI markers to avoid mangling English words.
-        // Suggestions will be made via detailed error messages instead.
-
-
-        // Generic Joined Word splitting (Common prefixes)
-        // anhbạn -> anh bạn, chịem -> chị em
-        const commonPrefixes = ["anh", "chị", "bạn", "em", "con", "người", "sản", "shopee", "tiktok"];
-        for (const pref of commonPrefixes) {
-          if (lower.startsWith(pref) && lower.length > pref.length + 1) {
-            // Additional check: second part should also be letters
-            const rest = lower.slice(pref.length);
-            if (/^\p{L}+$/u.test(rest)) {
-              processed = buffer.slice(0, pref.length) + " " + buffer.slice(pref.length);
-              break;
-            }
-          }
-        }
-      }
-
-      // case rules
-      const first = processed[0];
-      if (first && /\p{L}/u.test(first)) {
-        if (sentenceStart) {
-          processed = first.toLocaleUpperCase() + processed.slice(1);
-        } else if (afterComma) {
-          // MÀU NHIỆM: Chỉ viết thường lại nếu đó là 1 từ tiếng Việt hợp lệ 
-          // để không vô tình sửa sai danh từ riêng tiếng Anh (Senka, Combo, Clear...)
-          if (typeof isPossibleVietnameseSyllable === "function" && isPossibleVietnameseSyllable(processed.toLowerCase())) {
-            processed = first.toLocaleLowerCase() + processed.slice(1);
-          }
-        }
-      }
-
-      buffer = "";
-      afterComma = false;
-      sentenceStart = false;
-
-      return processed;
-    };
-
-    for (let i = 0; i < chars.length; i++) {
-      const ch = chars[i];
-
-      if (/\p{L}/u.test(ch)) {
-        if (!firstLetterFound) {
-          firstLetterFound = true;
-          sentenceStart = true;
-        }
-        buffer += ch;
-        continue;
-      }
-
-      out.push(flushWord());
-      out.push(ch);
-
-      if (ch === ",") {
-        afterComma = true;
-      } else if (ch === "." || ch === "!" || ch === "?") {
-        sentenceStart = true;
-        afterComma = false;
-      } else if (ch === "\n") {
-        sentenceStart = true;
-        afterComma = false;
-      }
-    }
-
-    out.push(flushWord());
-
-    let final = out.join("");
-    final = final.replace(/\s+,/g, ",");
-    final = final.replace(/\s+([.!?])/g, "$1");
-    final = final.replace(/,([^\s\n])/g, ", $1");
-    final = final.replace(/([.!?])([^\s\n])/g, "$1 $2");
-    final = final.replace(/ {2,}/g, " ");
-
-    return final;
-  }
-
-  function addMechanicsErrors(original, suggested, results) {
-    const msgs = new Set();
-    const lowerOri = original.toLowerCase();
-
-    // 1. Spacing formatting errors
-    const spaceErrors = [];
-
-    const excessSpaceMatches = original.matchAll(/(\S+\s{2,}\S+)/g);
-    for (const match of excessSpaceMatches) {
-      spaceErrors.push(`"${match[0]}"`);
-    }
-
-    const spaceBeforePuncMatches = original.matchAll(/(\S+\s+[.,!?:;])/g);
-    for (const match of spaceBeforePuncMatches) {
-      spaceErrors.push(`"${match[0]}"`);
-    }
-
-    const missingSpaceMatches = original.matchAll(/(\S+[.,!?:;][^\s\n\d]\S*)/g);
-    for (const match of missingSpaceMatches) {
-      spaceErrors.push(`"${match[0]}"`);
-    }
-
-    if (spaceErrors.length > 0) {
-      msgs.add(`Lỗi định dạng khoảng cách tại: ${spaceErrors.join(", ")}`);
-    }
-
-    // 4. Telex/Typing errors (trailing markers)
-    const telexRegex = /\b([a-zà-ỹ]{2,})([jfrsx]+)\b/gi;
-    let telexMatch;
-    const telexErrors = new Set();
-    while ((telexMatch = telexRegex.exec(original)) !== null) {
-      if (telexMatch[1].length > 1) { // Basic sanity
-        const baseWord = telexMatch[1].toLowerCase();
-        if (typeof isPossibleVietnameseSyllable === "function" && isPossibleVietnameseSyllable(baseWord)) {
-          telexErrors.add(`"${telexMatch[0]}"`);
-        }
-      }
-    }
-    if (telexErrors.size > 0) {
-      msgs.add(`Lỗi đánh máy (Telex): ${Array.from(telexErrors).join(", ")}`);
-    }
-
-    // 4a. VNI errors (trailing numbers)
-    const vniRegex = /\b(\p{L}+)([1-9]+)\b/giu;
-    let vniMatch;
-    const vniErrors = new Set();
-    while ((vniMatch = vniRegex.exec(original)) !== null) {
-      const baseWord = vniMatch[1].toLowerCase();
-      if (typeof isPossibleVietnameseSyllable === "function" && isPossibleVietnameseSyllable(baseWord)) {
-        vniErrors.add(`"${vniMatch[0]}"`);
-      }
-    }
-    if (vniErrors.size > 0) {
-      msgs.add(`Lỗi đánh máy (VNI): ${Array.from(vniErrors).join(", ")}`);
-    }
-
-    // 5. Joined Words (Dính chữ / Thiếu khoảng cách)
-    const commonPrefixes = ["anh", "chị", "bạn", "em", "con", "người", "sản", "shopee", "tiktok"];
-    const words = original.split(/[\s,.!?]+/);
-    words.forEach(w => {
-      const lw = w.toLowerCase();
-      for (const pref of commonPrefixes) {
-        if (lw.startsWith(pref) && lw.length > pref.length + 1) {
-          const rest = lw.slice(pref.length);
-          if (/^\p{L}+$/u.test(rest)) {
-            msgs.add(`Lỗi thiếu khoảng cách (dính chữ) tại: "${w}"`);
-            break;
-          }
-        }
-      }
-    });
-
-    // 6. Grammar/Sentence starts - Improved regex to count actual fixes
-    const getLowerStartCount = (str) => {
-      return str.split(/[.!?\n]\s+/).filter(s => s.trim().length > 0 && /^\p{Ll}/u.test(s.trim())).length;
-    };
-    if (getLowerStartCount(original) > getLowerStartCount(suggested)) {
-      msgs.add("Lỗi không viết hoa chữ cái đầu câu");
-    }
-
-    const countOriginalUpperAfterComma = (original.match(/, ?\p{Lu}/gu) || []).length;
-    const countSuggestedUpperAfterComma = (suggested.match(/, ?\p{Lu}/gu) || []).length;
-    if (countOriginalUpperAfterComma > countSuggestedUpperAfterComma) {
-      msgs.add("Lỗi sau dấu phẩy phải viết thường");
-    }
-
-    // Removed generic "Chuẩn hoá..." if we already have specific messages
-    if (suggested !== original && msgs.size === 0) {
-      msgs.add("Cần chuẩn hoá dấu câu và viết hoa theo chuẩn tiếng Việt");
-    }
-
-    msgs.forEach((m) => {
-      if (m) results.grammar.push({ word: "mechanics", msg: m });
-    });
-  }
-
   // ---------- PRONOUN STRICT (5 MODES) ----------
 
   function checkPronounConsistency(text, results) {
@@ -901,7 +665,7 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
     const alertKey = `${currentText}__${violations.map(v => v.word).sort().join('_')}__${actionStatus}`;
     const now = Date.now();
     if (lastViolationAlertHash === alertKey && (now - lastViolationAlertTime) < 10000) {
-      console.log("[Gemini Alert] Anti-spam: Duplicate violation alert suppressed within 10s window.");
+      console.log("[Assistant Alert] Anti-spam: Duplicate violation alert suppressed within 10s window.");
       return;
     }
     lastViolationAlertHash = alertKey;
@@ -938,16 +702,16 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
       url: window.location.href
     };
 
-    console.log("[Gemini Alert] 🚨 Kích hoạt cảnh báo vi phạm tới Zalo:", payload);
+    console.log("[Assistant Alert] 🚨 Kích hoạt cảnh báo vi phạm tới Zalo:", payload);
 
     chrome.runtime.sendMessage({
       action: "ALERT_VIOLATION_ZALO",
       data: payload
     }, (response) => {
       if (chrome.runtime.lastError) {
-        console.warn("[Gemini Alert] Lỗi khi gửi message tới background:", chrome.runtime.lastError);
+        console.warn("[Assistant Alert] Lỗi khi gửi message tới background:", chrome.runtime.lastError);
       } else {
-        console.log("[Gemini Alert] ✅ Kết quả gửi cảnh báo Zalo:", response);
+        console.log("[Assistant Alert] ✅ Kết quả gửi cảnh báo Zalo:", response);
       }
     });
   }
@@ -961,7 +725,7 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
 
   function enforceBlockIfNeeded(reasonEvent) {
     if (forceAllowSend) {
-      console.log("[Gemini] Bypass activated: Allowing action.");
+      console.log("[Assistant] Bypass activated: Allowing action.");
       forceAllowSend = false; // Reset immediately
       return false;
     }
@@ -1003,10 +767,10 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
     const isBlocking = hasBlockingErrors(analysis);
 
     // Debug log for specifically for test pages
-    console.log("[Gemini] enforceBlockIfNeeded (Chat):", { isBlocking, event: reasonEvent?.type });
+    console.log("[Assistant] enforceBlockIfNeeded (Chat):", { isBlocking, event: reasonEvent?.type });
 
     if (isBlocking) {
-      console.log("[Gemini] 🛑 BLOCKING detected. Halting event.");
+      console.log("[Assistant] 🛑 BLOCKING detected. Halting event.");
 
       // Gửi cảnh báo ngay lập tức về Group Zalo
       const actionStatus = reasonEvent?.type === "keydown" ? "enter_pressed" : "blocked";
@@ -1107,28 +871,28 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
 
     suggestionPanel.innerHTML = `
       <div class="gemini-block-alert">
-        <div class="gemini-alert-mascot">
+        <div class="assistant-alert-mascot">
           <img src="${mascotUrl}" alt="Mascot" />
         </div>
-        <div class="gemini-alert-content">
-          <h3 class="gemini-alert-title">SOP Nhắc Nhở! 🎀</h3>
-          <p class="gemini-alert-msg" style="text-align: left; margin-bottom: 15px;">
+        <div class="assistant-alert-content">
+          <h3 class="assistant-alert-title">SOP Nhắc Nhở! 🎀</h3>
+          <p class="assistant-alert-msg" style="text-align: left; margin-bottom: 15px;">
             Hành trình Khiếu nại cần điền đầy đủ thông tin nè. Bạn đang thiếu:
           </p>
           <ul style="text-align: left; list-style: none; padding: 0; margin-bottom: 20px; font-size: 14px; color: #ef4444; font-weight: 600;">
             ${errorListHtml}
           </ul>
-          <div class="gemini-alert-actions">
-             <button class="gemini-alert-btn-main" id="gemini-ticket-fix">Kiểm tra ngay</button>
-             <button class="gemini-alert-btn-sub" id="gemini-ticket-bypass">Vẫn lưu</button>
+          <div class="assistant-alert-actions">
+             <button class="assistant-alert-btn-main" id="gemini-ticket-fix">Kiểm tra ngay</button>
+             <button class="assistant-alert-btn-sub" id="gemini-ticket-bypass">Vẫn lưu</button>
           </div>
         </div>
       </div>
     `;
 
     suggestionPanel.style.display = "block";
-    if (geminiOverlay) geminiOverlay.style.display = "block";
-    suggestionPanel.classList.add("gemini-blocking-active");
+    if (assistantOverlay) assistantOverlay.style.display = "block";
+    suggestionPanel.classList.add("assistant-blocking-active");
     suggestionPanel.style.position = "fixed";
     suggestionPanel.style.left = "50%";
     suggestionPanel.style.top = "50%";
@@ -1137,12 +901,12 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
 
     document.getElementById("gemini-ticket-fix")?.addEventListener("click", () => {
       suggestionPanel.style.display = "none";
-      suggestionPanel.classList.remove("gemini-blocking-active");
+      suggestionPanel.classList.remove("assistant-blocking-active");
     });
 
     document.getElementById("gemini-ticket-bypass")?.addEventListener("click", () => {
       suggestionPanel.style.display = "none";
-      suggestionPanel.classList.remove("gemini-blocking-active");
+      suggestionPanel.classList.remove("assistant-blocking-active");
       forceAllowSend = true;
       targetButton?.click(); // Re-trigger the button click
     });
@@ -1160,17 +924,17 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
 
     suggestionPanel.innerHTML = `
     <div class="gemini-block-alert">
-      <div class="gemini-alert-mascot">
+      <div class="assistant-alert-mascot">
         <img src="${mascotUrl}" alt="Mascot" />
       </div>
-      <div class="gemini-alert-content">
-        <h3 class="gemini-alert-title">Hông bé ơi! 🛑</h3>
-        <p class="gemini-alert-msg">Đang <strong>${issue}</strong> kìa! Kiểm tra lại nha không là bị ký warning đó. 😂</p>
-        <div class="gemini-alert-actions">
-           <button class="gemini-alert-btn-main" id="gemini-alert-fix">Kiểm tra ngay</button>
-           <div class="gemini-alert-btn-sub-row">
-             <button class="gemini-alert-btn-sub" id="gemini-alert-bypass">Vẫn gửi</button>
-             <button class="gemini-alert-btn-sub" id="gemini-alert-close">Đóng</button>
+      <div class="assistant-alert-content">
+        <h3 class="assistant-alert-title">Hông bé ơi! 🛑</h3>
+        <p class="assistant-alert-msg">Đang <strong>${issue}</strong> kìa! Kiểm tra lại nha không là bị ký warning đó. 😂</p>
+        <div class="assistant-alert-actions">
+           <button class="assistant-alert-btn-main" id="assistant-alert-fix">Kiểm tra ngay</button>
+           <div class="assistant-alert-btn-sub-row">
+             <button class="assistant-alert-btn-sub" id="assistant-alert-bypass">Vẫn gửi</button>
+             <button class="assistant-alert-btn-sub" id="assistant-alert-close">Đóng</button>
            </div>
         </div>
       </div>
@@ -1178,8 +942,8 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
   `;
 
     suggestionPanel.style.display = "block";
-    if (geminiOverlay) geminiOverlay.style.display = "block";
-    suggestionPanel.classList.add("gemini-blocking-active");
+    if (assistantOverlay) assistantOverlay.style.display = "block";
+    suggestionPanel.classList.add("assistant-blocking-active");
 
     // Center only for blocking alert
     suggestionPanel.style.position = "fixed";
@@ -1190,11 +954,11 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
     suggestionPanel.style.height = "auto";
     suggestionPanel.style.zIndex = "9999999";
 
-    document.getElementById("gemini-alert-fix")?.addEventListener("click", () => {
-      suggestionPanel.classList.remove("gemini-blocking-active");
+    document.getElementById("assistant-alert-fix")?.addEventListener("click", () => {
+      suggestionPanel.classList.remove("assistant-blocking-active");
       showSuggestionPanel(analysis);
     });
-    document.getElementById("gemini-alert-bypass")?.addEventListener("click", () => {
+    document.getElementById("assistant-alert-bypass")?.addEventListener("click", () => {
       const currentChatText = getChatText(currentActiveTextarea).trim();
       
       // LOG: Bypass action
@@ -1207,7 +971,7 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
       triggerZaloViolationAlert(analysis, "bypassed", currentChatText);
 
       forceAllowSend = true;
-      suggestionPanel.classList.remove("gemini-blocking-active");
+      suggestionPanel.classList.remove("assistant-blocking-active");
       hideUI();
 
       // Re-enable send button
@@ -1219,16 +983,16 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
       // Tìm và click nút gửi thật
       const foundSendBtn = sendBtn || document.querySelector(CONFIG.SEND_BUTTON_SELECTORS);
       if (foundSendBtn) {
-        console.log("[Gemini] User bypassed: Triggering send button click.");
+        console.log("[Assistant] User bypassed: Triggering send button click.");
         foundSendBtn.click();
       } else {
         // Fallback: nếu không tìm thấy nút, ít nhất người dùng có thể thử gõ Enter lại
-        console.warn("[Gemini] Bypassed but send button not found for auto-click.");
+        console.warn("[Assistant] Bypassed but send button not found for auto-click.");
       }
     });
 
-    document.getElementById("gemini-alert-close")?.addEventListener("click", () => {
-      suggestionPanel.classList.remove("gemini-blocking-active");
+    document.getElementById("assistant-alert-close")?.addEventListener("click", () => {
+      suggestionPanel.classList.remove("assistant-blocking-active");
 
       // Re-enable send button when closing alert
       if (sendBtn) {
@@ -1256,9 +1020,9 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
     suggestionPanel.style.opacity = "1";
 
     if (isMinimized) {
-      suggestionPanel.classList.add("gemini-is-minimized");
+      suggestionPanel.classList.add("assistant-is-minimized");
     } else {
-      suggestionPanel.classList.remove("gemini-is-minimized");
+      suggestionPanel.classList.remove("assistant-is-minimized");
     }
 
     suggestionPanel.style.opacity = userSavedOpacity;
@@ -1329,16 +1093,16 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
     });
 
     const errorsHtml = finalLines.length
-      ? `<ul class="gemini-list">
+      ? `<ul class="assistant-list">
         ${finalLines.map(l => {
         let cls = "";
-        if (l.crit) cls = "gemini-crit-error";
+        if (l.crit) cls = "assistant-crit-error";
         else if (l.processed) cls = "gemini-processed-msg";
-        else if (l.warn) cls = "gemini-warn-msg";
+        else if (l.warn) cls = "assistant-warn-msg";
         return `<li class="${cls}">${escapeHtml(l.text)}</li>`;
       }).join("")}
       </ul>`
-      : `<div class="gemini-empty">✅ Không phát hiện lỗi.</div>`;
+      : `<div class="assistant-empty">✅ Không phát hiện lỗi.</div>`;
 
     if (suggestedText.length > 150) {
       suggestionPanel.classList.add("gemini-wide");
@@ -1359,7 +1123,7 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
     // Focused View: Only show lines with errors/changes if the text is multiline
     if (showEditor && suggestedText.includes('\n')) {
       const lines = fullHighlightedText.split('\n');
-      const errorLines = lines.filter(l => l.includes('gemini-highlight-') || l.includes('gemini-processed-'));
+      const errorLines = lines.filter(l => l.includes('assistant-highlight-') || l.includes('gemini-processed-'));
 
       if (errorLines.length > 0 && errorLines.length < lines.length) {
         displayHtml = errorLines.join('<div class="gemini-fragment-divider">...</div>');
@@ -1374,14 +1138,14 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
 
     const suggestHtml = showEditor
       ? `
-      <details class="gemini-details" open>
-        <summary class="gemini-summary">
+      <details class="assistant-details" open>
+        <summary class="assistant-summary">
           ✨ Gợi ý chỉnh sửa
-          <span class="gemini-summary-hint"></span>
+          <span class="assistant-summary-hint"></span>
         </summary>
 
-        <div class="gemini-suggest-wrap">
-          <div class="gemini-suggest-edit ${isFragmented ? 'gemini-is-fragmented' : ''}" id="gemini-suggest-content" contenteditable="${isFragmented ? 'false' : 'true'}" spellcheck="false" style="max-height: 250px; overflow-y: auto;">${displayHtml}</div>
+        <div class="assistant-suggest-wrap">
+          <div class="assistant-suggest-edit ${isFragmented ? 'gemini-is-fragmented' : ''}" id="assistant-suggest-content" contenteditable="${isFragmented ? 'false' : 'true'}" spellcheck="false" style="max-height: 250px; overflow-y: auto;">${displayHtml}</div>
         </div>
       </details>
     `
@@ -1395,42 +1159,42 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
   `;
 
     // Simplified UI for Hover Mode (Tooltip style)
-    suggestionPanel.className = `gemini-suggestion-panel ${isHoverMode ? 'gemini-mini-mode' : ''}`;
+    suggestionPanel.className = `assistant-suggestion-panel ${isHoverMode ? 'gemini-mini-mode' : ''}`;
 
     if (isHoverMode) {
       suggestionPanel.innerHTML = `
-        <div class="gemini-panel gemini-tooltip-panel" style="padding: 12px; min-width: 280px; border-radius: 12px;">
-          <div class="gemini-panel-body" style="padding: 0;">
+        <div class="assistant-panel gemini-tooltip-panel" style="padding: 12px; min-width: 280px; border-radius: 12px;">
+          <div class="assistant-panel-body" style="padding: 0;">
             ${errorsHtml}
           </div>
         </div>
       `;
     } else {
       suggestionPanel.innerHTML = `
-      <div class="gemini-panel ${isMinimized ? 'gemini-minimized-state' : ''} ${isHoverMode ? 'gemini-mini-mode-inner' : ''}" style="max-height: 85vh !important; display: flex !important; flex-direction: column !important; overflow: hidden !important; min-width: 320px;">
-        <div class="gemini-panel-header" id="gemini-drag-handle" style="cursor: move;">
-          <div class="gemini-title" style="font-size: 11px;">✨ ${isHoverMode ? 'Gợi ý chỉnh sửa' : 'Kiểm tra nội dung'}</div>
+      <div class="assistant-panel ${isMinimized ? 'gemini-minimized-state' : ''} ${isHoverMode ? 'gemini-mini-mode-inner' : ''}" style="max-height: 85vh !important; display: flex !important; flex-direction: column !important; overflow: hidden !important; min-width: 320px;">
+        <div class="assistant-panel-header" id="gemini-drag-handle" style="cursor: move;">
+          <div class="assistant-title" style="font-size: 11px;">✨ ${isHoverMode ? 'Gợi ý chỉnh sửa' : 'Kiểm tra nội dung'}</div>
           <div class="header-tools" style="display: flex; align-items: center; gap: 4px;">
             ${!isHoverMode ? `
             <div class="gemini-opacity-wrapper" style="display: none; align-items: center; gap: 6px; background: rgba(255,255,255,0.9); padding: 2px 8px; border-radius: 10px; border: 1px solid #ddd; margin-right: 2px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
                <span style="font-size: 9px; font-weight: 800; color: #6366f1;">${Math.round(userSavedOpacity * 100)}%</span>
                <input type="range" id="gemini-opacity-slider" min="0.2" max="1" step="0.05" value="${userSavedOpacity}" style="width: 50px; height: 3px; cursor: pointer;">
             </div>
-            <button class="gemini-min-btn" id="gemini-opacity-toggle" title="Độ trong suốt" type="button" style="padding: 4px;">🌓</button>
-            <button class="gemini-min-btn" id="gemini-minimize-toggle" title="${isMinimized ? 'Mở rộng' : 'Thu nhỏ'}" type="button" style="padding: 4px;">
+            <button class="assistant-min-btn" id="gemini-opacity-toggle" title="Độ trong suốt" type="button" style="padding: 4px;">🌓</button>
+            <button class="assistant-min-btn" id="gemini-minimize-toggle" title="${isMinimized ? 'Mở rộng' : 'Thu nhỏ'}" type="button" style="padding: 4px;">
               ${isMinimized ? '🔳' : '➖'}
             </button>
             ` : ''}
-            <button class="gemini-x" id="gemini-x-btn" type="button" aria-label="Close" style="padding: 4px 6px;">✕</button>
+            <button class="assistant-x" id="assistant-x-btn" type="button" aria-label="Close" style="padding: 4px 6px;">✕</button>
           </div>
         </div>
 
-        <div class="gemini-panel-body" style="flex: 1; overflow-y: auto; padding: 12px; ${isMinimized ? 'display: none;' : ''}">
+        <div class="assistant-panel-body" style="flex: 1; overflow-y: auto; padding: 12px; ${isMinimized ? 'display: none;' : ''}">
           ${errorsHtml}
           ${suggestHtml}
         </div>
 
-        <div class="gemini-panel-footer" style="${isMinimized ? 'display: none;' : ''}">
+        <div class="assistant-panel-footer" style="${isMinimized ? 'display: none;' : ''}">
           ${actionsHtml}
         </div>
 
@@ -1463,7 +1227,7 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
           const { width, height } = entry.contentRect;
           if (width > 0 && height > 0) {
             userSavedSize = { width: suggestionPanel.style.width, height: suggestionPanel.style.height };
-            chrome.storage.sync.set({ geminiPanelSize: userSavedSize });
+            chrome.storage.sync.set({ assistantPanelSize: userSavedSize });
           }
         }
       });
@@ -1472,7 +1236,7 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
 
     const toggleMinimize = () => {
       isMinimized = !isMinimized;
-      chrome.storage.sync.set({ geminiPanelMinimized: isMinimized });
+      chrome.storage.sync.set({ assistantPanelMinimized: isMinimized });
       showSuggestionPanel(analysis); // Re-render
     };
 
@@ -1494,11 +1258,11 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
       suggestionPanel.style.opacity = val;
       userSavedOpacity = val;
       opWrapper.querySelector("span").textContent = `${Math.round(val * 100)}%`;
-      chrome.storage.sync.set({ geminiPanelOpacity: val });
+      chrome.storage.sync.set({ assistantPanelOpacity: val });
     });
 
     const close = () => hideUI();
-    document.getElementById("gemini-x-btn")?.addEventListener("click", close);
+    document.getElementById("assistant-x-btn")?.addEventListener("click", close);
 
     // Reposition panel
     if (isHoverMode) {
@@ -1525,7 +1289,7 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
   }
 
   function positionNearToolbar() {
-    const pill = document.getElementById("gemini-toolbar-status");
+    const pill = document.getElementById("assistant-toolbar-status");
     if (!pill || !suggestionPanel) return;
 
     // Ensure panel is in mini mode for sizing
@@ -1647,10 +1411,10 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
     clearTimeout(typingTimer);
     if (suggestionPanel) {
       suggestionPanel.style.display = "none";
-      suggestionPanel.classList.remove("gemini-blocking-active");
+      suggestionPanel.classList.remove("assistant-blocking-active");
     }
-    if (geminiOverlay) {
-      geminiOverlay.style.display = "none";
+    if (assistantOverlay) {
+      assistantOverlay.style.display = "none";
     }
     forceAllowSend = false;
 
@@ -1824,8 +1588,8 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
       var btn = ev.target.closest('button');
       if (!btn) return;
       if (btn.matches('button.button--icon.btn.btn-primary.btn-sm') || btn.matches('.send-btn, .btn-send, [class*="send"][role="button"]')) {
-        var panel = document.getElementById('gemini-suggestion-panel');
-        if (panel && panel.classList.contains('gemini-blocking-active')) {
+        var panel = document.getElementById('assistant-suggestion-panel');
+        if (panel && panel.classList.contains('assistant-blocking-active')) {
           btn.disabled = true;
           btn.style.pointerEvents = 'none';
           btn.style.opacity = '0.5';
@@ -1856,8 +1620,8 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
     });
 
     setInterval(function() {
-      var panel = document.getElementById('gemini-suggestion-panel');
-      if (panel && panel.classList.contains('gemini-blocking-active')) {
+      var panel = document.getElementById('assistant-suggestion-panel');
+      if (panel && panel.classList.contains('assistant-blocking-active')) {
         var btn = document.querySelector('button.button--icon.btn.btn-primary.btn-sm, .send-btn, .btn-send, [class*="send"][role="button"]');
         if (btn) {
           if (!btn.disabled) {
@@ -1870,8 +1634,8 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
     }, 50);
 
     var observer = new MutationObserver(function() {
-      var panel = document.getElementById('gemini-suggestion-panel');
-      if (panel && panel.classList.contains('gemini-blocking-active')) {
+      var panel = document.getElementById('assistant-suggestion-panel');
+      if (panel && panel.classList.contains('assistant-blocking-active')) {
         var btn = document.querySelector('button.button--icon.btn.btn-primary.btn-sm, .send-btn, .btn-send, [class*="send"][role="button"]');
         if (btn && !btn.disabled) {
           btn.disabled = true;
@@ -1933,7 +1697,7 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
       });
     }
 
-    console.log("[Gemini Content] Updated Static Config.");
+    console.log("[Assistant Content] Updated Static Config.");
 
     // Build Admin Brand-to-Platform Lookup Dictionary
     compiledData.brandPlatformMap = {};
@@ -1982,7 +1746,7 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
 
     // Process Automatic Brand Exclusion
     compiledData.allBrandsSet = new Set((config.allBrands || []).map(b => superClean(b)));
-    console.log("[Gemini Content] Automated Brand Exclusion set initialized with", compiledData.allBrandsSet.size, "brands, Admin Brand Mappings:", Object.keys(compiledData.brandPlatformMap).length);
+    console.log("[Assistant Content] Automated Brand Exclusion set initialized with", compiledData.allBrandsSet.size, "brands, Admin Brand Mappings:", Object.keys(compiledData.brandPlatformMap).length);
 
     // Trigger category hierarchy fetch if not yet loaded
     if (Object.keys(compiledData.categoryMap).length === 0) {
@@ -2006,7 +1770,7 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
     mergeAndCompile("service", MOOD_INDICATORS.service);
     mergeAndCompile("exclude", MOOD_INDICATORS.exclude);
 
-    console.log("[Gemini Content] Empathy Mood Indicators Compiled.");
+    console.log("[Assistant Content] Empathy Mood Indicators Compiled.");
     try {
       injectGlobalMotivationMascot();
     } catch (e) {}
@@ -2050,18 +1814,18 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
       }
 
       if (w1.normalize() === w2.normalize()) {
-        if (isC) html += `<span class="gemini-highlight-red">${escapeHtml(w2)}</span>`;
-        else if (isP && pronounConflict) html += `<span class="gemini-highlight-blue">${escapeHtml(w2)}</span>`;
-        else if (isW) html += `<span class="gemini-highlight-amber">${escapeHtml(w2)}</span>`;
+        if (isC) html += `<span class="assistant-highlight-red">${escapeHtml(w2)}</span>`;
+        else if (isP && pronounConflict) html += `<span class="assistant-highlight-blue">${escapeHtml(w2)}</span>`;
+        else if (isW) html += `<span class="assistant-highlight-amber">${escapeHtml(w2)}</span>`;
         else html += escapeHtml(w2);
         i++;
       } else {
         // Mismatch
-        if (isC) html += `<span class="gemini-highlight-red">${escapeHtml(w2)}</span>`;
-        else if (isP) html += `<span class="gemini-highlight-blue">${escapeHtml(w2)}</span>`;
-        else if (isW) html += `<span class="gemini-highlight-amber">${escapeHtml(w2)}</span>`;
+        if (isC) html += `<span class="assistant-highlight-red">${escapeHtml(w2)}</span>`;
+        else if (isP) html += `<span class="assistant-highlight-blue">${escapeHtml(w2)}</span>`;
+        else if (isW) html += `<span class="assistant-highlight-amber">${escapeHtml(w2)}</span>`;
         else {
-          const cls = w2.trim() === "" ? "gemini-processed-msg gemini-highlight-space" : "gemini-processed-text";
+          const cls = w2.trim() === "" ? "gemini-processed-msg assistant-highlight-space" : "gemini-processed-text";
           html += `<span class="${cls}">${escapeHtml(w2)}</span>`;
         }
         // Sync
@@ -2107,102 +1871,6 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
     return false;
   }
 
-  // ---------- SEMANTIC & PHONETIC (LOCAL) ----------
-
-  /**
-   * Validates if a word follows Vietnamese phonetic rules (Syllable structure).
-   * This is a heuristic-based approach to catch typing errors like "bna", "qoa", "hjr".
-   */
-  function isPossibleVietnameseSyllable(word) {
-    const s = word.toLowerCase().normalize("NFC");
-    if (!/^[\p{L}]+$/u.test(s)) return true; // Ignore if not pure letters
-    if (s.length <= 1) return true; // Short words are hard to validate accurately without dictionary
-
-    // 1. Letters that DO NOT exist in Vietnamese alphabet
-    if (/[fzjvw]/i.test(s)) return false;
-
-    // 2. English consonant clusters & combinations not valid in VN
-    const engClusters = /bl|br|cl|cr|dr|fl|fr|gl|gr|pl|pr|sc|sk|sl|sm|sn|sp|st|sw|tw|wh|wr|sch|scr|shr|sph|spl|spr|squ|str|pt|ct|ft|lt|lk|ld|lf|lp|rk|rc|rd|rf|rp|rt|mp|nt|nd|nc|nk|nx|mb|ll|rr|ss|cc|mm|nn|dd|pp|bb|gg/i;
-
-    if (engClusters.test(s)) return false;
-
-    // Check for impossible character combinations in Vietnamese
-    const impossible = [
-      /[aeiouyáàảãạâấầẩẫậăắằẳẵặéèẻẽẹêếềểễệíìỉĩịóòỏõọôốồổỗộơớờởỡợúùủũụưứừửữựýỳỷỹỵ]{4,}/i, // 4+ vowels
-      /[q][^u]/i,                     // q must be followed by u
-      /[v][wr]/i,                     // v cannot be followed by w or r
-      /[x][gh]/i                      // x cannot be followed by g or h
-    ];
-
-    if (impossible.some(rx => rx.test(s))) return false;
-
-    // 3+ consonants check (excluding valid 'ngh' cluster)
-    if (/[bcdfghjklmnpqrstvwxz]{3,}/i.test(s.replace(/ngh/gi, ""))) {
-      return false;
-    }
-
-    // Flag known weird patterns
-    if (/(.)\1\1/.test(s)) return false; // 3 identical chars (aaa, bbb)
-
-    // Specific catch for "bna", "qoa", etc.
-    const weird = [/^bna$/i, /^qoa$/i, /^hjr$/i, /^vwr$/i, /^xgh$/i];
-    if (weird.some(rx => rx.test(s))) return false;
-
-    return true;
-  }
-
-  /**
-   * Enhances chat professionalism by suggesting punctuation and tone improvements.
-   */
-  function polishChatTone(text, results) {
-    const s = text.toLowerCase();
-    const sentences = text.split(/([.!?\n])/).filter(Boolean);
-
-    // 1. Greeting Punctuation (Warning if missed manually)
-    if (/^(Dạ|Chào (?:anh|chị|em|bạn|quý khách))(?!\s*[,!])/i.test(text)) {
-      results.grammar.push({ word: "greeting", msg: "Đã thêm dấu phẩy sau lời chào giúp câu chat chuyên nghiệp hơn" });
-    }
-
-    // 2. Question Detection
-    const questionIndicators = [
-      /\bcho em hỏi\b/i,
-      /\bkhông biết\b/i,
-      /\banh có thể\b/i,
-      /\bchị có thể\b/i,
-      /\bcòn hàng không\b/i,
-      /\bgiao chưa\b/i
-    ];
-
-    // Check if any sentence starts with indicator but lacks '?'
-    sentences.forEach(sent => {
-      const trimmed = sent.trim();
-      if (questionIndicators.some(rx => rx.test(trimmed)) && !trimmed.endsWith('?')) {
-        if (trimmed.length > 5) {
-          results.grammar.push({ word: "?", msg: "Câu hỏi nên kết thúc bằng dấu chấm hỏi (?)" });
-        }
-      }
-    });
-
-    // 3. Refined "Nếu... thì" (Only for long, complex sentences)
-    if (/\bnếu\b/i.test(s) && !/\bthì\b/i.test(s)) {
-      if (s.split(/\s+/).length > 12) {
-        results.grammar.push({ word: "mechanics", msg: "Cấu trúc 'Nếu...' dài nên có '...thì...' để rõ mạch văn" });
-      }
-    }
-
-    // 4. Politeness suggestion for short sentences
-    const shortBlunt = /^(đợi xíu|chờ tí|hết hàng|qua xem)$/i;
-    if (shortBlunt.test(text.trim())) {
-      results.grammar.push({ word: "tone", msg: "Nên thêm 'ạ' hoặc 'nhé' để câu trả lời mềm mỏng hơn" });
-    }
-  }
-
-  /**
-   * BRAND & MARKETPLACE RESOLUTION ENGINE:
-   * Tier 1: Look up in Admin Brand-to-Platform Mapping Table (brandMappings)
-   * Tier 2: Split by hyphen/separator delimiter (-, –, —, |, :) to get real Store/Brand name & Platform
-   * Tier 3: Direct Keyword Matching (shopee, lazada, tiktok, tiki, spe, lzd, tts)
-   */
   function resolveBrandAndMarketplace(fullName) {
     let currentBrand = "general";
     let currentMarketplace = "general";
@@ -2375,9 +2043,9 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
           };
         });
         compiledData.categoryMap = newMap;
-        console.log("[Gemini Content] Category hierarchy loaded:", Object.keys(newMap).length, "items");
+        console.log("[Assistant Content] Category hierarchy loaded:", Object.keys(newMap).length, "items");
       } catch (err) {
-        console.error("[Gemini Content] Error fetching categories:", err);
+        console.error("[Assistant Content] Error fetching categories:", err);
       }
     });
   }
@@ -2716,21 +2384,21 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
   // ---------- UI init / listeners ----------
 
   function createUIElements() {
-    if (document.getElementById("gemini-suggestion-panel")) {
-      suggestionPanel = document.getElementById("gemini-suggestion-panel");
-      geminiOverlay = document.getElementById("gemini-overlay");
+    if (document.getElementById("assistant-suggestion-panel")) {
+      suggestionPanel = document.getElementById("assistant-suggestion-panel");
+      assistantOverlay = document.getElementById("gemini-overlay");
       return;
     }
 
     // Create Panel
     suggestionPanel = document.createElement("div");
-    suggestionPanel.id = "gemini-suggestion-panel";
+    suggestionPanel.id = "assistant-suggestion-panel";
     document.body.appendChild(suggestionPanel);
 
     // Create Overlay (append after panel for sibling CSS selectors)
-    geminiOverlay = document.createElement("div");
-    geminiOverlay.id = "gemini-overlay";
-    geminiOverlay.style.cssText = `
+    assistantOverlay = document.createElement("div");
+    assistantOverlay.id = "gemini-overlay";
+    assistantOverlay.style.cssText = `
       display: none;
       position: fixed;
       top: 0;
@@ -2740,18 +2408,18 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
       background: transparent;
       z-index: 9999998;
     `;
-    geminiOverlay.addEventListener("click", hideUI);
-    document.body.appendChild(geminiOverlay);
+    assistantOverlay.addEventListener("click", hideUI);
+    document.body.appendChild(assistantOverlay);
   }
 
   function createMoodUI() {
-    if (document.getElementById("gemini-mood-alert")) {
-      moodAlertPanel = document.getElementById("gemini-mood-alert");
+    if (document.getElementById("assistant-mood-alert")) {
+      moodAlertPanel = document.getElementById("assistant-mood-alert");
       return;
     }
 
     moodAlertPanel = document.createElement("div");
-    moodAlertPanel.id = "gemini-mood-alert";
+    moodAlertPanel.id = "assistant-mood-alert";
     moodAlertPanel.innerHTML = `
     <div class="gemini-mood-content">
         <span class="gemini-mood-icon" style="align-self: flex-start; margin-top: 2px;"></span>
@@ -2773,7 +2441,7 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
       const style = document.createElement("style");
       style.id = "gemini-mood-styles";
       style.textContent = `
-            #gemini-mood-alert {
+            #assistant-mood-alert {
                 position: fixed;
                 top: 25px;
                 left: 50%;
@@ -2793,7 +2461,7 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
                 animation: gemini-premium-bounce 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
                 letter-spacing: -0.01em;
             }
-            #gemini-mood-alert.gemini-mood-type-info {
+            #assistant-mood-alert.gemini-mood-type-info {
                 background: rgba(240, 249, 255, 0.85);
                 border-color: rgba(186, 230, 253, 0.5);
                 color: #0369a1;
@@ -2979,8 +2647,8 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
       rm.style.setProperty('border-color', pAccent, 'important');
     });
 
-    // 3. Pronoun buttons (.gemini-pronoun-quick-btn)
-    const pronounBtns = document.querySelectorAll('.gemini-pronoun-quick-btn');
+    // 3. Pronoun buttons (.assistant-pronoun-quick-btn)
+    const pronounBtns = document.querySelectorAll('.assistant-pronoun-quick-btn');
     pronounBtns.forEach(btn => {
       if (btn.classList.contains('active')) {
         btn.style.setProperty('background-color', pAccent, 'important');
@@ -3223,8 +2891,8 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
       });
     });
 
-    // 21. Quick Macro Search Overlay & Full Preview Modal (#gemini-macro-overlay, #gemini-macro-full-preview)
-    const macroOverlay = document.getElementById("gemini-macro-overlay");
+    // 21. Quick Macro Search Overlay & Full Preview Modal (#assistant-macro-overlay, #assistant-macro-full-preview)
+    const macroOverlay = document.getElementById("assistant-macro-overlay");
     if (macroOverlay) {
       macroOverlay.style.setProperty('background-color', pPanel, 'important');
       macroOverlay.style.setProperty('background', pPanel, 'important');
@@ -3245,7 +2913,7 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
       });
     }
 
-    const macroFullPreview = document.getElementById("gemini-macro-full-preview");
+    const macroFullPreview = document.getElementById("assistant-macro-full-preview");
     if (macroFullPreview) {
       macroFullPreview.style.setProperty('background-color', pPanel, 'important');
       macroFullPreview.style.setProperty('background', pPanel, 'important');
@@ -3410,10 +3078,10 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
   setInterval(applyDynamicDarkModeOverrides, 1000);
 
   function showThemeToast(msg) {
-    let toast = document.querySelector(".gemini-theme-toast");
+    let toast = document.querySelector(".assistant-theme-toast");
     if (toast) toast.remove();
     toast = document.createElement("div");
-    toast.className = "gemini-theme-toast";
+    toast.className = "assistant-theme-toast";
     toast.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg> <span>${msg}</span>`;
     document.body.appendChild(toast);
     setTimeout(() => { if (toast) toast.remove(); }, 2500);
@@ -3712,7 +3380,6 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
   chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     if (request.action === "CONFIG_UPDATED") {
       updateCachedConfig(request.config);
-      compileData();
       return;
     }
     if (request.action === "THEME_MODE_CHANGED") {
@@ -3847,7 +3514,7 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
     }
 
     // 2. Update UI (highlight active button)
-    document.querySelectorAll(".gemini-pronoun-quick-btn").forEach(btn => {
+    document.querySelectorAll(".assistant-pronoun-quick-btn").forEach(btn => {
       btn.classList.toggle("active", btn.dataset.pronoun === targetPronoun);
     });
   }
@@ -3951,7 +3618,7 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
     const pronouns = ["Anh/Chị", "Anh", "Chị"];
     pronouns.forEach(p => {
       const pBtn = document.createElement("span");
-      pBtn.className = "gemini-pronoun-quick-btn";
+      pBtn.className = "assistant-pronoun-quick-btn";
       const pVal = p.toLowerCase();
       if (pVal === activePronoun) pBtn.classList.add("active");
       pBtn.dataset.pronoun = pVal;
@@ -3967,8 +3634,8 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
 
     // --- Toolbar Warning Status ---
     const statusPill = document.createElement("div");
-    statusPill.id = "gemini-toolbar-status";
-    statusPill.className = "gemini-toolbar-status";
+    statusPill.id = "assistant-toolbar-status";
+    statusPill.className = "assistant-toolbar-status";
     statusPill.style.display = "none";
 
     statusPill.addEventListener("mouseenter", () => {
@@ -4112,26 +3779,26 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
     container.style.opacity = "1";
 
     let bubble = container.querySelector("#gemini-motivation-text");
-    let mascotWrapper = container.querySelector(".gemini-mascot-wrapper");
-    let mascotSvg = container.querySelector(".gemini-mascot");
+    let mascotWrapper = container.querySelector(".assistant-mascot-wrapper");
+    let mascotSvg = container.querySelector(".assistant-mascot");
 
     if (!bubble) {
       container.innerHTML = `
         <div class="gemini-motivation-bubble nav-mode" id="gemini-motivation-text" style="opacity: 1; transition: opacity 0.5s ease;">
           ${messages[0] || ''}
         </div>
-        <span class="cursor-pointer gemini-mascot-wrapper" style="display: ${showMascot ? 'inline-flex' : 'none'};">
-          <svg class="gemini-mascot" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <span class="cursor-pointer assistant-mascot-wrapper" style="display: ${showMascot ? 'inline-flex' : 'none'};">
+          <svg class="assistant-mascot" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <rect x="4" y="8" width="16" height="12" rx="4" fill="currentColor" fill-opacity="0.15"></rect>
-            <circle class="gemini-mascot-eye" cx="9" cy="13" r="1.5" fill="currentColor"></circle>
-            <circle class="gemini-mascot-eye" cx="15" cy="13" r="1.5" fill="currentColor"></circle>
+            <circle class="assistant-mascot-eye" cx="9" cy="13" r="1.5" fill="currentColor"></circle>
+            <circle class="assistant-mascot-eye" cx="15" cy="13" r="1.5" fill="currentColor"></circle>
             <path d="M10 17C10 17 11 18 12 18C13 18 14 17 14 17" stroke="currentColor" stroke-linecap="round"></path>
             <path d="M12 8V4M12 4L9 2M12 4L15 2" stroke="currentColor" stroke-width="2"></path>
           </svg>
         </span>
       `;
       bubble = container.querySelector("#gemini-motivation-text");
-      mascotSvg = container.querySelector(".gemini-mascot");
+      mascotSvg = container.querySelector(".assistant-mascot");
     } else {
       bubble.style.opacity = "1";
       if (mascotWrapper) {
@@ -4200,7 +3867,7 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
   }
 
   function updateToolbarStatus(analysis, text) {
-    const statusPill = document.getElementById("gemini-toolbar-status");
+    const statusPill = document.getElementById("assistant-toolbar-status");
     if (!statusPill) return;
 
     // 1. Hide if empty text
@@ -4263,7 +3930,7 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
       if (message && message.action === "clearMacroCache") {
         cachedMacrosList = null;
         cachedBrandContext = null;
-        console.log("[Gemini] Macro cache cleared via Popup sync.");
+        console.log("[Assistant] Macro cache cleared via Popup sync.");
       }
     });
   } catch (e) {}
@@ -4274,7 +3941,7 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
 
     if (!macroSearchOverlay) {
       macroSearchOverlay = document.createElement("div");
-      macroSearchOverlay.id = "gemini-macro-overlay";
+      macroSearchOverlay.id = "assistant-macro-overlay";
       macroSearchOverlay.innerHTML = `
         <div class="macro-search-container">
           <div class="macro-drag-handle"></div>
@@ -4305,7 +3972,7 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
 
       // Create Full Preview Container
       macroFullPreview = document.createElement("div");
-      macroFullPreview.id = "gemini-macro-full-preview";
+      macroFullPreview.id = "assistant-macro-full-preview";
       macroFullPreview.innerHTML = `<div class="preview-inner"></div>`;
       document.body.appendChild(macroFullPreview);
 
@@ -4757,7 +4424,7 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
     findActiveTextarea();
 
     if (!currentActiveTextarea) {
-      console.warn("[Gemini] Không tìm thấy ô chat để chèn macro.");
+      console.warn("[Assistant] Không tìm thấy ô chat để chèn macro.");
       return;
     }
 
@@ -5016,7 +4683,7 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
   // Auto-hide when clicking outside
   document.addEventListener("mousedown", (e) => {
     if (suggestionPanel && suggestionPanel.style.display !== "none") {
-      if (geminiOverlay && geminiOverlay.style.display !== "none") return;
+      if (assistantOverlay && assistantOverlay.style.display !== "none") return;
       const isInsidePanel = suggestionPanel.contains(e.target);
       const isInsideTextarea = currentActiveTextarea && (currentActiveTextarea.contains(e.target) || e.target === currentActiveTextarea);
 
@@ -5026,7 +4693,7 @@ if (window.GEMINI_CONTENT_SCRIPT_LOADED) {
     }
 
     // Auto-hide Macro Overlay
-    const macroOverlay = document.getElementById("gemini-macro-overlay");
+    const macroOverlay = document.getElementById("assistant-macro-overlay");
     if (macroOverlay && macroOverlay.style.display !== "none") {
       if (!macroOverlay.contains(e.target)) {
         macroOverlay.style.display = "none";

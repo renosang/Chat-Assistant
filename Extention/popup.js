@@ -1,6 +1,4 @@
-
 const API_BASE_URL = "https://macro.beegadget.net/api";
-const MACRO_API_BASE_URL = "https://macro.beegadget.net/api";
 
 document.addEventListener('DOMContentLoaded', () => {
   const loginView = document.getElementById('loginView');
@@ -20,36 +18,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const extensionVersion = document.getElementById('extensionVersion');
 
-  // macro system elements
-  const macroView = document.getElementById('macroView');
-  const btnOpenMacro = document.getElementById('btnOpenMacro');
-  const btnBackToMain = document.getElementById('btnBackToMain');
-  const macroLoginSection = document.getElementById('macroLoginSection');
-  const macroContentSection = document.getElementById('macroContentSection');
-  const btnMacroLogin = document.getElementById('btnMacroLogin');
-  const macroUsernameInput = document.getElementById('macroUsername');
-  const macroPasswordInput = document.getElementById('macroPassword');
-  const macroLoginMessage = document.getElementById('macroLoginMessage');
-  const macroSearchInput = document.getElementById('macroSearchInput');
-  const macroResultsContainer = document.getElementById('macroResults');
-  const btnMacroLogout = document.getElementById('btnMacroLogout');
-
   if (extensionVersion) {
     extensionVersion.textContent = 'v' + chrome.runtime.getManifest().version;
-
-    let clickCount = 0;
-    extensionVersion.addEventListener('click', () => {
-      clickCount++;
-      if (clickCount === 7) {
-        chrome.tabs.create({ url: chrome.runtime.getURL('demo.html') });
-        clickCount = 0;
-      }
-      // Reset counter after 2 seconds of inactivity
-      clearTimeout(extensionVersion.clickTimeout);
-      extensionVersion.clickTimeout = setTimeout(() => {
-        clickCount = 0;
-      }, 2000);
-    });
   }
 
   checkAuthStatus();
@@ -89,145 +59,10 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  const btnOpenReport = document.getElementById('btnOpenReport');
-  if (btnOpenReport) {
-    btnOpenReport.addEventListener('click', () => {
-      chrome.storage.sync.get(['username'], (data) => {
-        const userParam = data.username ? `?user=${encodeURIComponent(data.username.toUpperCase())}` : '';
-        chrome.tabs.create({ url: chrome.runtime.getURL('admin_report.html' + userParam) });
-      });
-    });
-  }
-
-  // --- Macro System Integration logic ---
-  btnOpenMacro.addEventListener('click', () => {
-    loginView.classList.remove('active');
-    settingsView.classList.remove('active');
-    macroView.classList.add('active');
-    checkMacroAuthStatus();
-  });
-
-  btnBackToMain.addEventListener('click', () => {
-    macroView.classList.remove('active');
-    settingsView.classList.add('active');
-  });
-
-  function checkMacroAuthStatus() {
-    chrome.storage.sync.get(['macroAuthToken'], async (data) => {
-      if (data.macroAuthToken) {
-        try {
-          const response = await fetch(`${MACRO_API_BASE_URL}/auth/me`, {
-            headers: { 'Authorization': `Bearer ${data.macroAuthToken}` }
-          });
-          if (response.status === 401) {
-            chrome.storage.sync.remove(['macroAuthToken', 'macroUsername', 'macroUser']);
-            return;
-          }
-          if (response.ok) {
-            const user = await response.json();
-            if (user) {
-              chrome.storage.sync.set({
-                macroUsername: user.username,
-                macroUser: {
-                  id: user._id || user.id,
-                  username: user.username,
-                  fullName: user.fullName || user.username,
-                  team: Array.isArray(user.team) ? user.team.join(', ') : (user.team || 'Default'),
-                  role: user.role
-                }
-              });
-            }
-          }
-          macroLoginSection.style.display = 'none';
-          macroContentSection.style.display = 'block';
-        } catch (err) {
-          console.error('Lỗi xác thực phiên Macro:', err);
-          // Gặp lỗi kết nối mạng tạm thời vẫn giữ giao diện kết nối
-          macroLoginSection.style.display = 'none';
-          macroContentSection.style.display = 'block';
-        }
-      } else {
-        macroLoginSection.style.display = 'block';
-        macroContentSection.style.display = 'none';
-        macroLoginMessage.textContent = '';
-      }
-    });
-  }
-
-  btnMacroLogin.addEventListener('click', handleMacroLogin);
-
-  // Enter key support for macro login
-  [macroUsernameInput, macroPasswordInput].forEach(input => {
-    input.addEventListener('keypress', (e) => {
-      if (e.key === 'Enter') handleMacroLogin();
-    });
-  });
-
-  async function handleMacroLogin() {
-    const username = macroUsernameInput.value.trim();
-    const password = macroPasswordInput.value.trim();
-
-    if (!username || !password) {
-      showMessage(macroLoginMessage, 'Vui lòng nhập tên đăng nhập và mật khẩu.', 'red');
-      return;
-    }
-
-    setLoading(btnMacroLogin, true, 'Đang xác thực Macro...');
-    try {
-      const response = await fetch(`${MACRO_API_BASE_URL}/auth/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password, clientType: 'extension' })
-      });
-
-      const result = await response.json();
-      if (!response.ok) throw new Error(result.message || 'Đăng nhập Macro thất bại.');
-
-      const macroUserData = {
-        id: result.id || result._id,
-        username: result.username || username,
-        fullName: result.fullName || username,
-        team: Array.isArray(result.team) ? result.team.join(', ') : (result.team || 'Default'),
-        role: result.role || 'user'
-      };
-
-      chrome.storage.sync.set({ 
-        macroAuthToken: result.token,
-        macroUsername: result.username || username,
-        macroUser: macroUserData
-      }, () => {
-        checkMacroAuthStatus();
-      });
-    } catch (error) {
-      showMessage(macroLoginMessage, error.message, 'red');
-    } finally {
-      setLoading(btnMacroLogin, false, 'Đăng nhập Macro');
-    }
-  }
-
-  btnMacroLogout.addEventListener('click', () => {
-    chrome.storage.sync.get(['macroAuthToken'], (data) => {
-      if (data.macroAuthToken) {
-        fetch(`${MACRO_API_BASE_URL}/auth/logout`, {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${data.macroAuthToken}`
-          }
-        }).catch(err => console.error('Lỗi khi gọi API logout macro:', err));
-      }
-      chrome.storage.sync.remove(['macroAuthToken', 'macroUsername', 'macroUser'], () => {
-        checkMacroAuthStatus();
-      });
-    });
-  });
-
   chrome.storage.onChanged.addListener((changes, namespace) => {
     if (namespace === 'sync') {
       if (changes.authToken || changes.username) {
         checkAuthStatus();
-      }
-      if (changes.macroAuthToken) {
-        checkMacroAuthStatus();
       }
     }
   });
@@ -235,9 +70,35 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
   function checkAuthStatus() {
-    chrome.storage.sync.get(['authToken', 'username'], (data) => {
+    chrome.storage.sync.get(['authToken', 'username', 'macroAuthToken', 'macroUser'], (data) => {
       if (data.authToken) {
+        // Tự động di chuyển: Nếu có authToken nhưng thiếu macroAuthToken thì đồng bộ ngay
+        if (!data.macroAuthToken) {
+          chrome.storage.sync.set({
+            macroAuthToken: data.authToken,
+            macroUsername: data.username,
+            macroUser: { username: data.username, fullName: data.username }
+          });
+        }
         showSettingsView(data);
+
+        // Ping server kiểm tra trạng thái kích hoạt tài khoản trong thời gian thực
+        fetch(`${API_BASE_URL}/user/heartbeat`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${data.authToken}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ version: chrome.runtime.getManifest().version })
+        }).then(res => {
+          if (res.status === 401 || res.status === 403) {
+            console.warn("[Popup] Account locked or token expired. Revoking local session...");
+            chrome.storage.sync.remove(['authToken', 'username', 'macroAuthToken', 'macroUsername', 'macroUser']);
+            chrome.storage.local.remove(['remoteConfig']);
+            showLoginView();
+            showMessage(loginMessage, 'Tài khoản của bạn đã bị khóa hoặc vô hiệu hóa bởi Quản trị viên.', 'red');
+          }
+        }).catch(() => {});
       } else {
         showLoginView();
       }
@@ -311,7 +172,6 @@ document.addEventListener('DOMContentLoaded', () => {
       }, () => {
         chrome.runtime.sendMessage({ action: "reloadConfig" });
         checkAuthStatus();
-        checkMacroAuthStatus();
       });
     } catch (error) {
       showMessage(loginMessage, error.message, 'red');
@@ -331,7 +191,6 @@ document.addEventListener('DOMContentLoaded', () => {
       chrome.storage.local.remove('remoteConfig');
       chrome.runtime.sendMessage({ action: "userLoggedOut" });
       showLoginView();
-      checkMacroAuthStatus();
     });
   });
 

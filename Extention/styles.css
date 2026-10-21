@@ -1,16 +1,16 @@
 @import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800;900&display=swap');
 
-#gemini-suggestion-panel *, 
-#gemini-macro-overlay *, 
-#gemini-macro-full-preview *,
-#gemini-mood-alert * {
+#assistant-suggestion-panel *, 
+#assistant-macro-overlay *, 
+#assistant-macro-full-preview *,
+#assistant-mood-alert * {
   font-family: 'Be Vietnam Pro', 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   box-sizing: border-box;
 }
 
-#gemini-suggestion-panel {
+#assistant-suggestion-panel {
   display: none;
   position: fixed;
   z-index: 2147483647;
@@ -27,44 +27,44 @@
   transition: opacity 0.2s ease, width 0.3s ease;
 }
 
-#gemini-suggestion-panel:not(.gemini-dragging) {
+#assistant-suggestion-panel:not(.assistant-dragging) {
   transition: opacity 0.2s ease, transform 0.2s ease, width 0.3s ease, top 0.3s ease, left 0.3s ease;
 }
 
-#gemini-suggestion-panel.gemini-mini-mode {
+#assistant-suggestion-panel.assistant-mini-mode {
   width: auto !important;
   min-width: 280px;
   max-width: 400px;
   border-radius: 12px;
   border: 1px solid rgba(0, 0, 0, 0.05);
   box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-  animation: gemini-tooltip-reveal 0.3s ease-out;
+  animation: assistant-tooltip-reveal 0.3s ease-out;
   transform-origin: bottom center;
   resize: none !important;
   transition: opacity 0.2s ease, width 0.3s ease !important; /* Remove left/transform transitions */
 }
 
-@keyframes gemini-tooltip-reveal {
+@keyframes assistant-tooltip-reveal {
   0% { opacity: 0; transform: translateX(-50%) translateY(10px) scale(0.98); }
   100% { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
 }
 
-#gemini-suggestion-panel:not(.gemini-mini-mode).gemini-wide {
+#assistant-suggestion-panel:not(.assistant-mini-mode).assistant-wide {
   width: 580px;
 }
 
-#gemini-suggestion-panel.gemini-is-minimized {
+#assistant-suggestion-panel.assistant-is-minimized {
   width: 200px !important;
   height: auto !important;
 }
 
-.gemini-panel {
+.assistant-panel {
   display: flex !important;
   flex-direction: column !important;
   max-height: 85vh !important;
 }
 
-.gemini-panel-header {
+.assistant-panel-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -74,11 +74,11 @@
   user-select: none;
 }
 
-.gemini-dragging .gemini-panel-header {
+.assistant-dragging .assistant-panel-header {
   background: linear-gradient(180deg, rgba(99, 102, 241, 0.2) 0%, rgba(255, 255, 255, 1) 100%);
 }
 
-.gemini-min-btn {
+.assistant-min-btn {
   border: 0;
   background: transparent;
   cursor: pointer;
@@ -91,17 +91,17 @@
   transition: all 0.2s;
 }
 
-.gemini-min-btn:hover {
+.assistant-min-btn:hover {
   background: rgba(17, 24, 39, 0.05);
 }
 
-.gemini-title {
+.assistant-title {
   font-weight: 800;
   font-size: 11.5px;
   color: rgba(17, 24, 39, 0.9);
 }
 
-.gemini-x {
+.assistant-x {
   border: 0;
   background: transparent;
   cursor: pointer;
@@ -111,11 +111,11 @@
   border-radius: 8px;
 }
 
-.gemini-x:hover {
+.assistant-x:hover {
   background: rgba(17, 24, 39, 0.05);
 }
 
-.gemini-panel-body {
+.assistant-panel-body {
   padding: 6px 10px 0px;
   display: flex;
   flex-direction: column;
@@ -123,21 +123,21 @@
   flex: 1;
 }
 
-.gemini-panel-footer {
+.assistant-panel-footer {
   padding: 10px;
   background: white;
   border-top: 1px solid rgba(17, 24, 39, 0.06);
   z-index: 10;
 }
 
-.gemini-section-title {
+.assistant-section-title {
   font-size: 10.5px;
   font-weight: 800;
   color: rgba(17, 24, 39, 0.6);
   margin: 2px 0 6px;
 }
 
-.gemini-empty {
+.assistant-empty {
   padding: 8px 10px;
   border-radius: 10px;
   border: 1px dashed rgba(17, 24, 39, 0.15);
@@ -147,7 +147,7 @@
   margin-bottom: 8px;
 }
 
-.gemini-list {
+.assistant-list {
   margin: 4px 0 4px 2px;
   padding: 0;
   font-size: 11.5px;
@@ -156,7 +156,7 @@
   list-style: none;
 }
 
-.gemini-list li {
+.assistant-list li {
   margin: 4px 0;
   display: flex;
   align-items: flex-start;
@@ -168,12 +168,12 @@
   transition: background 0.2s ease;
 }
 
-.gemini-list li:hover {
+.assistant-list li:hover {
   background: rgba(17, 24, 39, 0.02) !important;
 }
 
 /* Icons */
-.gemini-list li::before {
+.assistant-list li::before {
   content: "";
   display: inline-block;
   width: 12px;
@@ -186,56 +186,56 @@
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%239ca3af'%3E%3Ccircle cx='12' cy='12' r='4'/%3E%3C/svg%3E");
 }
 
-.gemini-crit-error {
+.assistant-crit-error {
   color: #b91c1c !important;
   font-weight: 600 !important;
 }
 
-.gemini-crit-error::before {
+.assistant-crit-error::before {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23ef4444'%3E%3Cpath d='M12 2L1 21H23L12 2ZM13 18H11V16H13V18ZM13 14H11V9H13V14Z' /%3E%3C/svg%3E") !important;
 }
 
-.gemini-processed-msg {
+.assistant-processed-msg {
   color: #374151 !important;
 }
 
-.gemini-processed-msg::before {
+.assistant-processed-msg::before {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2310b981'%3E%3Cpath d='M12 2L14.85 8.15L21 11L14.85 13.85L12 20L9.15 13.85L3 11L9.15 8.15L12 2Z' /%3E%3C/svg%3E") !important;
 }
 
-.gemini-warn-msg {
+.assistant-warn-msg {
   color: #d97706 !important;
 }
 
-.gemini-warn-msg::before {
+.assistant-warn-msg::before {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23f59e0b'%3E%3Cpath d='M3 17.25V21H6.75L17.81 9.94L14.06 6.19L3 17.25ZM20.71 7.04C21.1 6.65 21.1 6.01 20.71 5.63L18.37 3.29C17.99 2.9 17.35 2.9 16.96 3.29L15.13 5.12L18.88 8.87L20.71 7.04V7.04Z' /%3E%3C/svg%3E") !important;
 }
 
-.gemini-highlight-red {
+.assistant-highlight-red {
   color: #dc2626 !important;
   font-weight: 800 !important;
   text-decoration: underline decoration-thickness(1px);
 }
 
-.gemini-highlight-blue {
+.assistant-highlight-blue {
   color: #2563eb !important;
   font-weight: 800 !important;
 }
 
-.gemini-highlight-amber {
+.assistant-highlight-amber {
   color: #f59e0b !important;
   font-weight: 800 !important;
   text-decoration: underline decoration-thickness(1px);
 }
 
-.gemini-highlight-space {
+.assistant-highlight-space {
   display: inline;
   min-width: 4px;
   text-decoration: underline decoration-thickness(3px) !important;
 }
 
 /* Suggestion Box */
-.gemini-details {
+.assistant-details {
   border-radius: 10px;
   border: 1px solid rgba(17, 24, 39, 0.05);
   background: #fff;
@@ -243,7 +243,7 @@
   margin-top: 6px;
 }
 
-.gemini-summary {
+.assistant-summary {
   list-style: none;
   cursor: pointer;
   padding: 8px 10px;
@@ -256,22 +256,22 @@
   justify-content: space-between;
 }
 
-.gemini-summary::-webkit-details-marker {
+.assistant-summary::-webkit-details-marker {
   display: none;
 }
 
-.gemini-summary-hint {
+.assistant-summary-hint {
   font-size: 10px;
   font-weight: 700;
   color: #9ca3af;
 }
 
-.gemini-suggest-wrap {
+.assistant-suggest-wrap {
   padding: 8px 10px;
 }
 
 /* Pronoun Switcher */
-.gemini-pronoun-bar {
+.assistant-pronoun-bar {
   display: flex;
   align-items: center;
   gap: 6px;
@@ -282,14 +282,14 @@
   border: 1px solid #e0e7ff;
 }
 
-.gemini-pronoun-label {
+.assistant-pronoun-label {
   font-size: 10.5px;
   font-weight: 800;
   color: #4f46e5;
   white-space: nowrap;
 }
 
-.gemini-pronoun-btn {
+.assistant-pronoun-btn {
   padding: 4px 10px;
   font-size: 11px;
   font-weight: 600;
@@ -301,14 +301,14 @@
   transition: all 0.2s;
 }
 
-.gemini-pronoun-btn:hover, .gemini-pronoun-btn.active {
+.assistant-pronoun-btn:hover, .assistant-pronoun-btn.active {
   background: #4f46e5;
   color: white;
   border-color: #4f46e5;
 }
 
 /* Editable Suggestion Box */
-.gemini-suggest-edit {
+.assistant-suggest-edit {
   width: 100%;
   min-height: 60px;
   max-height: 240px;
@@ -327,7 +327,7 @@
   position: relative;
 }
 
-.gemini-suggest-edit:focus {
+.assistant-suggest-edit:focus {
   background: #ffffff;
   border-color: #6366f1;
   border-style: solid;
@@ -335,18 +335,18 @@
 }
 
 /* Actions logic */
-.gemini-actions {
+.assistant-actions {
   display: grid;
   grid-template-columns: 1fr 80px;
   gap: 10px;
   margin-top: 5px;
 }
 
-.gemini-actions-alone {
+.assistant-actions-alone {
   grid-template-columns: 1fr !important;
 }
 
-.gemini-apply-btn {
+.assistant-apply-btn {
   background: #111827;
   color: #fff;
   border: none;
@@ -358,12 +358,12 @@
   transition: all 0.2s;
 }
 
-.gemini-apply-btn:hover {
+.assistant-apply-btn:hover {
   background: #1f2937;
   transform: translateY(-1px);
 }
 
-.gemini-secondary-btn {
+.assistant-secondary-btn {
   background: #fff;
   color: #374151;
   border: 1px solid #e5e7eb;
@@ -375,12 +375,12 @@
   transition: all 0.2s;
 }
 
-.gemini-secondary-btn:hover {
+.assistant-secondary-btn:hover {
   background: #f9fafb;
 }
 
 /* --- QUICK MACRO STYLES (APPLE STYLE) --- */
-#gemini-macro-overlay {
+#assistant-macro-overlay {
   display: none;
   position: fixed;
   z-index: 2147483647;
@@ -660,7 +660,7 @@
 }
 
 /* Full Preview (Apple Style) */
-#gemini-macro-full-preview {
+#assistant-macro-full-preview {
   display: none;
   position: fixed;
   z-index: 2147483647;
@@ -713,7 +713,7 @@
 }
 
 /* Resize & Opacity UI */
-.gemini-resize-handle {
+.assistant-resize-handle {
   position: absolute;
   right: 0;
   bottom: 0;
@@ -725,7 +725,7 @@
   pointer-events: none;
 }
 
-#gemini-opacity-slider {
+#assistant-opacity-slider {
   -webkit-appearance: none;
   background: #e0e7ff;
   border-radius: 10px;
@@ -733,7 +733,7 @@
   height: 3px;
 }
 
-#gemini-opacity-slider::-webkit-slider-thumb {
+#assistant-opacity-slider::-webkit-slider-thumb {
   -webkit-appearance: none;
   width: 10px;
   height: 10px;
@@ -744,7 +744,7 @@
 }
 
 /* --- PRONOUN QUICK SWITCHER --- */
-.gemini-pronoun-quick-btn {
+.assistant-pronoun-quick-btn {
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
@@ -765,13 +765,13 @@
   box-sizing: border-box !important;
 }
 
-.gemini-pronoun-quick-btn:hover {
+.assistant-pronoun-quick-btn:hover {
   background: #f1f5f9 !important;
   border-color: rgba(99, 102, 241, 0.3) !important;
   color: #4f46e5 !important;
 }
 
-.gemini-pronoun-quick-btn.active {
+.assistant-pronoun-quick-btn.active {
   background: #4f46e5 !important;
   color: white !important;
   border-color: #4f46e5 !important;
@@ -779,7 +779,7 @@
 }
 
 /* --- TOOLBAR WARNING --- */
-.gemini-toolbar-status {
+.assistant-toolbar-status {
   display: none;
   align-items: center !important;
   justify-content: center !important;
@@ -799,48 +799,48 @@
   text-align: center !important;
 }
 
-.gemini-toolbar-status.critical {
+.assistant-toolbar-status.critical {
   display: flex !important;
   color: #ef4444 !important;
   background: #fee2e2 !important;
   border: 1px solid rgba(239, 68, 68, 0.3) !important;
 }
 
-.gemini-toolbar-status.pulse {
-  animation: gemini-pulse-red 1.5s infinite ease-in-out !important;
+.assistant-toolbar-status.pulse {
+  animation: assistant-pulse-red 1.5s infinite ease-in-out !important;
 }
 
-.gemini-toolbar-status.minor {
+.assistant-toolbar-status.minor {
   display: flex !important;
   color: #92400e !important;
   background: #fef3c7 !important;
   border: 1px solid rgba(146, 64, 14, 0.3) !important;
 }
 
-.gemini-toolbar-status.perfect {
+.assistant-toolbar-status.perfect {
   display: flex !important;
   color: #166534 !important;
   background: #dcfce7 !important;
   border: 1px solid rgba(22, 101, 52, 0.3) !important;
 }
 
-.gemini-toolbar-status.pulse-green {
-  animation: gemini-pulse-green 2s infinite ease-in-out !important;
+.assistant-toolbar-status.pulse-green {
+  animation: assistant-pulse-green 2s infinite ease-in-out !important;
 }
 
-@keyframes gemini-pulse-red {
+@keyframes assistant-pulse-red {
   0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
   50% { transform: scale(1.02); box-shadow: 0 0 0 8px rgba(239, 68, 68, 0); }
   100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
 }
 
-@keyframes gemini-pulse-green {
+@keyframes assistant-pulse-green {
   0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.4); }
   50% { transform: scale(1.02); box-shadow: 0 0 0 8px rgba(34, 197, 94, 0); }
   100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
 }
 
-.gemini-fragment-divider {
+.assistant-fragment-divider {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -853,8 +853,8 @@
   opacity: 0.6;
 }
 
-.gemini-fragment-divider::before,
-.gemini-fragment-divider::after {
+.assistant-fragment-divider::before,
+.assistant-fragment-divider::after {
   content: "";
   height: 1px;
   flex: 1;
@@ -862,7 +862,7 @@
 }
 
 /* --- BLOCKING ALERT (MASCOT) STYLES --- */
-.gemini-block-alert {
+.assistant-block-alert {
   display: flex !important;
   flex-direction: column !important;
   align-items: center !important;
@@ -874,7 +874,7 @@
   overflow: hidden !important;
 }
 
-.gemini-alert-mascot {
+.assistant-alert-mascot {
   width: 100% !important;
   height: 280px !important;
   overflow: hidden !important;
@@ -884,24 +884,24 @@
   background: #f8fafc !important;
 }
 
-.gemini-alert-mascot img {
+.assistant-alert-mascot img {
   max-width: 100% !important;
   max-height: 100% !important;
   object-fit: cover !important;
   transition: transform 0.3s ease !important;
 }
 
-.gemini-alert-mascot:hover img {
+.assistant-alert-mascot:hover img {
   transform: scale(1.05) !important;
 }
 
-.gemini-alert-content {
+.assistant-alert-content {
   padding: 24px 28px !important;
   width: 100% !important;
   box-sizing: border-box !important;
 }
 
-.gemini-alert-title {
+.assistant-alert-title {
   margin: 0 0 10px 0 !important;
   font-size: 20px !important;
   font-weight: 800 !important;
@@ -909,26 +909,26 @@
   letter-spacing: -0.5px !important;
 }
 
-.gemini-alert-msg {
+.assistant-alert-msg {
   margin: 0 0 24px 0 !important;
   font-size: 14px !important;
   line-height: 1.6 !important;
   color: #64748b !important;
 }
 
-.gemini-alert-msg strong {
+.assistant-alert-msg strong {
   color: #ef4444 !important;
   font-weight: 800 !important;
 }
 
-.gemini-alert-actions {
+.assistant-alert-actions {
   display: flex !important;
   flex-direction: column !important;
   gap: 10px !important;
   width: 100% !important;
 }
 
-.gemini-alert-btn-main {
+.assistant-alert-btn-main {
   width: 100% !important;
   padding: 12px !important;
   border: none !important;
@@ -942,19 +942,19 @@
   box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25) !important;
 }
 
-.gemini-alert-btn-main:hover {
+.assistant-alert-btn-main:hover {
   transform: translateY(-2px) !important;
   box-shadow: 0 6px 16px rgba(79, 70, 229, 0.35) !important;
   filter: brightness(1.1) !important;
 }
 
-.gemini-alert-btn-sub-row {
+.assistant-alert-btn-sub-row {
   display: flex !important;
   gap: 10px !important;
   width: 100% !important;
 }
 
-.gemini-alert-btn-sub {
+.assistant-alert-btn-sub {
   flex: 1 !important;
   padding: 10px !important;
   border: 1px solid #e2e8f0 !important;
@@ -967,21 +967,21 @@
   transition: all 0.2s !important;
 }
 
-.gemini-alert-btn-sub:hover {
+.assistant-alert-btn-sub:hover {
   background: #f8fafc !important;
   color: #1e293b !important;
   border-color: #cbd5e1 !important;
 }
 
 /* Background overlay blur */
-.gemini-blocking-active ~ #gemini-overlay {
+.assistant-blocking-active ~ #assistant-overlay {
   backdrop-filter: blur(5px) !important;
   -webkit-backdrop-filter: blur(5px) !important;
   background: rgba(0, 0, 0, 0.3) !important;
 }
 
-/* --- Gemini Mascot & Motivation Styles --- */
-.gemini-motivation-container {
+/* --- Assistant Mascot & Motivation Styles --- */
+.assistant-motivation-container {
     display: flex;
     align-items: center;
     gap: 10px;
@@ -990,7 +990,7 @@
     z-index: 9999;
 }
 
-.gemini-motivation-bubble {
+.assistant-motivation-bubble {
     background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(10px);
     border: 1px solid rgba(99, 102, 241, 0.15);
@@ -1002,7 +1002,7 @@
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
     position: relative;
     max-width: 450px;
-    animation: gemini-bounce-subtle 3s infinite ease-in-out;
+    animation: assistant-bounce-subtle 3s infinite ease-in-out;
     line-height: 1.4;
     text-align: center;
     white-space: nowrap;
@@ -1010,7 +1010,7 @@
     text-overflow: ellipsis;
 }
 
-.gemini-motivation-bubble.nav-mode::after {
+.assistant-motivation-bubble.nav-mode::after {
     content: '';
     position: absolute;
     right: -6px;
@@ -1022,68 +1022,68 @@
 }
 
 /* --- MOTIVATION THEMES --- */
-.gemini-motivation-container.theme-indigo .gemini-motivation-bubble {
+.assistant-motivation-container.theme-indigo .assistant-motivation-bubble {
     background: rgba(238, 242, 255, 0.95) !important;
     border-color: rgba(199, 210, 254, 0.8) !important;
     color: #3730a3 !important;
 }
-.gemini-motivation-container.theme-indigo .gemini-motivation-bubble.nav-mode::after {
+.assistant-motivation-container.theme-indigo .assistant-motivation-bubble.nav-mode::after {
     border-color: transparent transparent transparent rgba(238, 242, 255, 0.95) !important;
 }
-.gemini-motivation-container.theme-indigo .gemini-mascot {
+.assistant-motivation-container.theme-indigo .assistant-mascot {
     color: #6366f1 !important;
 }
 
-.gemini-motivation-container.theme-emerald .gemini-motivation-bubble {
+.assistant-motivation-container.theme-emerald .assistant-motivation-bubble {
     background: rgba(236, 253, 245, 0.95) !important;
     border-color: rgba(167, 243, 208, 0.8) !important;
     color: #065f46 !important;
 }
-.gemini-motivation-container.theme-emerald .gemini-motivation-bubble.nav-mode::after {
+.assistant-motivation-container.theme-emerald .assistant-motivation-bubble.nav-mode::after {
     border-color: transparent transparent transparent rgba(236, 253, 245, 0.95) !important;
 }
-.gemini-motivation-container.theme-emerald .gemini-mascot {
+.assistant-motivation-container.theme-emerald .assistant-mascot {
     color: #10b981 !important;
 }
 
-.gemini-motivation-container.theme-sunset .gemini-motivation-bubble {
+.assistant-motivation-container.theme-sunset .assistant-motivation-bubble {
     background: rgba(255, 247, 237, 0.95) !important;
     border-color: rgba(254, 215, 170, 0.8) !important;
     color: #9a3412 !important;
 }
-.gemini-motivation-container.theme-sunset .gemini-motivation-bubble.nav-mode::after {
+.assistant-motivation-container.theme-sunset .assistant-motivation-bubble.nav-mode::after {
     border-color: transparent transparent transparent rgba(255, 247, 237, 0.95) !important;
 }
-.gemini-motivation-container.theme-sunset .gemini-mascot {
+.assistant-motivation-container.theme-sunset .assistant-mascot {
     color: #f97316 !important;
 }
 
-.gemini-motivation-container.theme-cyber .gemini-motivation-bubble {
+.assistant-motivation-container.theme-cyber .assistant-motivation-bubble {
     background: rgba(15, 23, 42, 0.95) !important;
     border-color: rgba(56, 189, 248, 0.5) !important;
     color: #38bdf8 !important;
     box-shadow: 0 0 15px rgba(6, 182, 212, 0.3) !important;
 }
-.gemini-motivation-container.theme-cyber .gemini-motivation-bubble.nav-mode::after {
+.assistant-motivation-container.theme-cyber .assistant-motivation-bubble.nav-mode::after {
     border-color: transparent transparent transparent rgba(15, 23, 42, 0.95) !important;
 }
-.gemini-motivation-container.theme-cyber .gemini-mascot {
+.assistant-motivation-container.theme-cyber .assistant-mascot {
     color: #06b6d4 !important;
 }
 
-.gemini-motivation-container.theme-minimal .gemini-motivation-bubble {
+.assistant-motivation-container.theme-minimal .assistant-motivation-bubble {
     background: rgba(248, 250, 252, 0.95) !important;
     border-color: rgba(226, 232, 240, 0.8) !important;
     color: #334155 !important;
 }
-.gemini-motivation-container.theme-minimal .gemini-motivation-bubble.nav-mode::after {
+.assistant-motivation-container.theme-minimal .assistant-motivation-bubble.nav-mode::after {
     border-color: transparent transparent transparent rgba(248, 250, 252, 0.95) !important;
 }
-.gemini-motivation-container.theme-minimal .gemini-mascot {
+.assistant-motivation-container.theme-minimal .assistant-mascot {
     color: #64748b !important;
 }
 
-.gemini-navbar-motivation {
+.assistant-navbar-motivation {
     max-height: 42px;
     margin: 0 auto !important;
     display: flex !important;
@@ -1093,40 +1093,40 @@
     flex: 1 1 auto !important;
 }
 
-.navbar-container .content .gemini-navbar-motivation,
-.navbar-container.content .gemini-navbar-motivation,
-.navbar-container .gemini-navbar-motivation {
+.navbar-container .content .assistant-navbar-motivation,
+.navbar-container.content .assistant-navbar-motivation,
+.navbar-container .assistant-navbar-motivation {
     margin: 0 auto !important;
     justify-content: center !important;
     align-items: center !important;
     flex: 1 !important;
 }
 
-.gemini-mascot {
+.assistant-mascot {
     width: 28px;
     height: 28px;
-    animation: gemini-float 4s infinite ease-in-out;
+    animation: assistant-float 4s infinite ease-in-out;
     cursor: pointer;
     flex-shrink: 0;
 }
 
-@keyframes gemini-float {
+@keyframes assistant-float {
     0%, 100% { transform: translateY(0) rotate(0deg); }
     50% { transform: translateY(-6px) rotate(2deg); }
 }
 
-@keyframes gemini-bounce-subtle {
+@keyframes assistant-bounce-subtle {
     0%, 100% { transform: scale(1); }
     50% { transform: scale(1.02); }
 }
 
-@keyframes gemini-blink {
+@keyframes assistant-blink {
     0%, 45%, 55%, 100% { transform: scaleY(1); }
     50% { transform: scaleY(0.1); }
 }
 
-.gemini-mascot-eye {
-    animation: gemini-blink 4s infinite;
+.assistant-mascot-eye {
+    animation: assistant-blink 4s infinite;
     transform-origin: center;
 }
 
@@ -1152,330 +1152,170 @@
   color: #94a3b8;
 }
 
-/* --- UPDATE BANNER (MINIMALIST WHITE ROCKET) --- */
-.gemini-navbar-motivation.gemini-update-active {
-  display: flex !important;
-  background: rgba(255, 255, 255, 0.98) !important;
-  backdrop-filter: blur(15px);
-  -webkit-backdrop-filter: blur(15px);
-  border: 1px solid #e2e8f0 !important;
-  border-radius: 100px !important;
-  padding: 5px 18px 5px 18px !important; /* Tăng padding đều hai bên */
-  position: relative !important;
-  max-width: 620px !important; /* Thu gọn chiều rộng */
-  margin: 0 auto !important;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08) !important;
-  align-items: center !important;
-  z-index: 1000 !important;
-  gap: 20px; /* Tạo gap thay vì space-between để bỏ khoảng trống thừa */
-  justify-content: center !important;
-}
-
-.gemini-update-banner.rocket-mode {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  width: auto; /* Không để width 100% để tránh bị giãn */
-}
-
-.gemini-rocket-icon {
-  color: #4f46e5;
-  width: 22px;
-  height: 22px;
-  flex-shrink: 0;
-  animation: gemini-rocket-vibrate 3s infinite ease-in-out;
-}
-
-@keyframes gemini-rocket-vibrate {
-  0%, 100% { transform: translate(0, 0) rotate(0deg); }
-  10%, 30%, 50%, 70%, 90% { transform: translate(-0.5px, 0.5px) rotate(-1deg); }
-  20%, 40%, 60%, 80% { transform: translate(0.5px, -0.5px) rotate(1deg); }
-}
-
-.gemini-update-info {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.gemini-update-text {
-  font-size: 13px;
-  font-weight: 600;
-  color: #1e293b;
-  white-space: nowrap;
-}
-
-.gemini-update-text b {
-  color: #4f46e5;
-  font-weight: 800;
-}
-
-.gemini-update-btns {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-}
-
-.gemini-update-nav-btn {
-  padding: 5px 16px;
-  font-size: 12px;
-  font-weight: 700;
-  border-radius: 20px;
-  border: none;
-  cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.gemini-update-nav-btn.primary {
-  background: #007aff;
-  color: #ffffff !important;
-  box-shadow: 0 2px 6px rgba(0, 122, 255, 0.2);
-  white-space: nowrap; /* Ép không ngắt dòng */
-  min-width: 120px; /* Đảm bảo đủ độ rộng */
-}
-
-.gemini-update-nav-btn.primary:hover {
-  background: #0063cc;
-  transform: scale(1.02);
-  box-shadow: 0 4px 10px rgba(0, 122, 255, 0.3);
-}
-
-.gemini-update-nav-btn.secondary {
-  background: #334155; /* Xám than đậm */
-  color: #ffffff !important;
-  font-weight: 800;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-}
-
-.gemini-update-nav-btn.secondary:hover {
-  background: #1e293b;
-  transform: scale(1.02);
-}
-
-.gemini-update-help-trigger {
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  background: #f1f5f9;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 11px;
-  font-weight: 900;
-  color: #4f46e5;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.gemini-update-help-trigger:hover, .gemini-update-help-trigger.active {
-  background: #007aff;
-  color: white;
-}
-
-/* --- NAV GUIDE DROPDOWN --- */
-.gemini-nav-update-guide {
-  display: none;
-  position: absolute;
-  top: calc(100% + 10px);
-  right: 0; /* Căn phải để không bị tràn */
-  background: white;
-  border: 1px solid #e2e8f0;
-  border-radius: 16px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-  padding: 16px;
-  flex-direction: column;
-  gap: 12px;
-  z-index: 1000;
-  width: 260px;
-}
-
-.gemini-guide-step {
-  font-size: 12.5px;
-  color: #334155;
-  display: flex;
-  gap: 10px;
-  line-height: 1.4;
-  text-align: left;
-}
-
-.gemini-guide-step a:hover {
-  text-decoration: none !important;
-  opacity: 0.8;
-}
-
-.gemini-guide-step b {
-  color: #007aff;
-  font-weight: 800;
-}
-
-
-  font-weight: 800;
-}
-
 /* ==========================================================================
    DEEP DARK MODE & EYE CARE SYSTEM (SLATE NIGHT THEME)
    ========================================================================== */
 
 /* --- DARK MODE THEME PRESET CSS VARIABLES --- */
-html.gemini-dark-mode,
-html.gemini-dark-mode.preset-midnight {
-  --gemini-bg: #0b0f19;
-  --gemini-panel: #1e293b;
-  --gemini-sidebar: #0f172a;
-  --gemini-accent: #6366f1;
+html.assistant-dark-mode,
+html.assistant-dark-mode.preset-midnight {
+  --assistant-bg: #0b0f19;
+  --assistant-panel: #1e293b;
+  --assistant-sidebar: #0f172a;
+  --assistant-accent: #6366f1;
 }
 
-html.gemini-dark-mode.preset-oled {
-  --gemini-bg: #000000;
-  --gemini-panel: #121212;
-  --gemini-sidebar: #080808;
-  --gemini-accent: #10b981;
+html.assistant-dark-mode.preset-oled {
+  --assistant-bg: #000000;
+  --assistant-panel: #121212;
+  --assistant-sidebar: #080808;
+  --assistant-accent: #10b981;
 }
 
-html.gemini-dark-mode.preset-cyber {
-  --gemini-bg: #050b14;
-  --gemini-panel: #111a2e;
-  --gemini-sidebar: #0a1220;
-  --gemini-accent: #06b6d4;
+html.assistant-dark-mode.preset-cyber {
+  --assistant-bg: #050b14;
+  --assistant-panel: #111a2e;
+  --assistant-sidebar: #0a1220;
+  --assistant-accent: #06b6d4;
 }
 
-html.gemini-dark-mode.preset-bronze {
-  --gemini-bg: #181311;
-  --gemini-panel: #26201c;
-  --gemini-sidebar: #1e1815;
-  --gemini-accent: #f59e0b;
+html.assistant-dark-mode.preset-bronze {
+  --assistant-bg: #181311;
+  --assistant-panel: #26201c;
+  --assistant-sidebar: #1e1815;
+  --assistant-accent: #f59e0b;
 }
 
 /* Apply CSS Variables to base dark mode elements */
-html.gemini-dark-mode,
-body.gemini-dark-mode,
-html.gemini-dark-mode body,
-html.gemini-dark-mode #app,
-html.gemini-dark-mode .app-content,
-html.gemini-dark-mode .content-wrapper,
-html.gemini-dark-mode [class*="chat-app"],
-html.gemini-dark-mode [class*="chat-history"],
-html.gemini-dark-mode [class*="chat-container"],
-html.gemini-dark-mode [class*="chat-wrapper"],
-html.gemini-dark-mode [class*="user-chats"],
-html.gemini-dark-mode .chats,
-html.gemini-dark-mode .chat-body {
-  background-color: var(--gemini-bg) !important;
-  background: var(--gemini-bg) !important;
+html.assistant-dark-mode,
+body.assistant-dark-mode,
+html.assistant-dark-mode body,
+html.assistant-dark-mode #app,
+html.assistant-dark-mode .app-content,
+html.assistant-dark-mode .content-wrapper,
+html.assistant-dark-mode [class*="chat-app"],
+html.assistant-dark-mode [class*="chat-history"],
+html.assistant-dark-mode [class*="chat-container"],
+html.assistant-dark-mode [class*="chat-wrapper"],
+html.assistant-dark-mode [class*="user-chats"],
+html.assistant-dark-mode .chats,
+html.assistant-dark-mode .chat-body {
+  background-color: var(--assistant-bg) !important;
+  background: var(--assistant-bg) !important;
   color: #f8fafc !important;
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-html.gemini-dark-mode .card,
-html.gemini-dark-mode .modal-content,
-html.gemini-dark-mode .chat-application,
-html.gemini-dark-mode .chat-users__room,
-html.gemini-dark-mode .chat-app-input--utils,
-html.gemini-dark-mode .chat-suggestions,
-html.gemini-dark-mode .sort-dropdown,
-html.gemini-dark-mode .ql-container,
-html.gemini-dark-mode .ql-editor {
-  background-color: var(--gemini-panel) !important;
-  background: var(--gemini-panel) !important;
+html.assistant-dark-mode .card,
+html.assistant-dark-mode .modal-content,
+html.assistant-dark-mode .chat-application,
+html.assistant-dark-mode .chat-users__room,
+html.assistant-dark-mode .chat-app-input--utils,
+html.assistant-dark-mode .chat-suggestions,
+html.assistant-dark-mode .sort-dropdown,
+html.assistant-dark-mode .ql-container,
+html.assistant-dark-mode .ql-editor {
+  background-color: var(--assistant-panel) !important;
+  background: var(--assistant-panel) !important;
 }
 
-html.gemini-dark-mode .main-menu,
-html.gemini-dark-mode .sidebar-content,
-html.gemini-dark-mode .chat-sidebar,
-html.gemini-dark-mode .customer-detail {
-  background-color: var(--gemini-sidebar) !important;
-  background: var(--gemini-sidebar) !important;
+html.assistant-dark-mode .main-menu,
+html.assistant-dark-mode .sidebar-content,
+html.assistant-dark-mode .chat-sidebar,
+html.assistant-dark-mode .customer-detail {
+  background-color: var(--assistant-sidebar) !important;
+  background: var(--assistant-sidebar) !important;
 }
 
-html.gemini-dark-mode .btn-primary,
-html.gemini-dark-mode .side-menu-item.active {
-  background-color: var(--gemini-accent) !important;
-  background: var(--gemini-accent) !important;
-  border-color: var(--gemini-accent) !important;
+html.assistant-dark-mode .btn-primary,
+html.assistant-dark-mode .side-menu-item.active {
+  background-color: var(--assistant-accent) !important;
+  background: var(--assistant-accent) !important;
+  border-color: var(--assistant-accent) !important;
 }
 
 /* Backgrounds & Containers Catch-All */
-html.gemini-dark-mode body,
-html.gemini-dark-mode #app,
-html.gemini-dark-mode .app-content,
-html.gemini-dark-mode .content-wrapper,
-html.gemini-dark-mode .content-body,
-html.gemini-dark-mode .header-navbar,
-html.gemini-dark-mode .navbar-container,
-html.gemini-dark-mode #navbar-mobile,
-html.gemini-dark-mode .sidebar-content,
-html.gemini-dark-mode .chat-application,
-html.gemini-dark-mode .chat-sidebar,
-html.gemini-dark-mode .chat-user-list,
-html.gemini-dark-mode .sidebar-right,
-html.gemini-dark-mode .card,
-html.gemini-dark-mode .card-body,
-html.gemini-dark-mode .card-header,
-html.gemini-dark-mode .modal-content,
-html.gemini-dark-mode div.bg-white,
-html.gemini-dark-mode div.bg-light,
-html.gemini-dark-mode div[class*="bg-white"],
-html.gemini-dark-mode div[class*="bg-light"],
-html.gemini-dark-mode [class*="right-sidebar"],
-html.gemini-dark-mode [class*="sidebar-detached"],
-html.gemini-dark-mode [class*="orders"],
-html.gemini-dark-mode [class*="product"],
-html.gemini-dark-mode [class*="ticket"] {
-  background-color: var(--gemini-sidebar) !important;
-  background: var(--gemini-sidebar) !important;
+html.assistant-dark-mode body,
+html.assistant-dark-mode #app,
+html.assistant-dark-mode .app-content,
+html.assistant-dark-mode .content-wrapper,
+html.assistant-dark-mode .content-body,
+html.assistant-dark-mode .header-navbar,
+html.assistant-dark-mode .navbar-container,
+html.assistant-dark-mode #navbar-mobile,
+html.assistant-dark-mode .sidebar-content,
+html.assistant-dark-mode .chat-application,
+html.assistant-dark-mode .chat-sidebar,
+html.assistant-dark-mode .chat-user-list,
+html.assistant-dark-mode .sidebar-right,
+html.assistant-dark-mode .card,
+html.assistant-dark-mode .card-body,
+html.assistant-dark-mode .card-header,
+html.assistant-dark-mode .modal-content,
+html.assistant-dark-mode div.bg-white,
+html.assistant-dark-mode div.bg-light,
+html.assistant-dark-mode div[class*="bg-white"],
+html.assistant-dark-mode div[class*="bg-light"],
+html.assistant-dark-mode [class*="right-sidebar"],
+html.assistant-dark-mode [class*="sidebar-detached"],
+html.assistant-dark-mode [class*="orders"],
+html.assistant-dark-mode [class*="product"],
+html.assistant-dark-mode [class*="ticket"] {
+  background-color: var(--assistant-sidebar) !important;
+  background: var(--assistant-sidebar) !important;
   color: #f8fafc !important;
   border-color: rgba(255, 255, 255, 0.1) !important;
 }
 
 /* Force dark on inline white backgrounds */
-html.gemini-dark-mode div[style*="background-color: white"],
-html.gemini-dark-mode div[style*="background-color: rgb(255"],
-html.gemini-dark-mode div[style*="background-color: #fff"],
-html.gemini-dark-mode div[style*="background-color: #FFF"],
-html.gemini-dark-mode div[style*="background: white"],
-html.gemini-dark-mode div[style*="background: rgb(255"],
-html.gemini-dark-mode div[style*="background: #fff"],
-html.gemini-dark-mode div[style*="background: #FFF"],
-html.gemini-dark-mode div[style*="background:#fff"],
-html.gemini-dark-mode div[style*="background:#FFF"],
-html.gemini-dark-mode div[style*="background: #f8f9fa"],
-html.gemini-dark-mode div[style*="background-color: #f8f9fa"],
-html.gemini-dark-mode div[style*="background: #f3f4f6"],
-html.gemini-dark-mode div[style*="background-color: #f3f4f6"] {
-  background-color: var(--gemini-panel) !important;
-  background: var(--gemini-panel) !important;
+html.assistant-dark-mode div[style*="background-color: white"],
+html.assistant-dark-mode div[style*="background-color: rgb(255"],
+html.assistant-dark-mode div[style*="background-color: #fff"],
+html.assistant-dark-mode div[style*="background-color: #FFF"],
+html.assistant-dark-mode div[style*="background: white"],
+html.assistant-dark-mode div[style*="background: rgb(255"],
+html.assistant-dark-mode div[style*="background: #fff"],
+html.assistant-dark-mode div[style*="background: #FFF"],
+html.assistant-dark-mode div[style*="background:#fff"],
+html.assistant-dark-mode div[style*="background:#FFF"],
+html.assistant-dark-mode div[style*="background: #f8f9fa"],
+html.assistant-dark-mode div[style*="background-color: #f8f9fa"],
+html.assistant-dark-mode div[style*="background: #f3f4f6"],
+html.assistant-dark-mode div[style*="background-color: #f3f4f6"] {
+  background-color: var(--assistant-panel) !important;
+  background: var(--assistant-panel) !important;
   color: #f8fafc !important;
   border-color: rgba(255, 255, 255, 0.1) !important;
 }
 
 /* Sub-containers, User Cards & List Items */
-html.gemini-dark-mode .media,
-html.gemini-dark-mode .list-group-item,
-html.gemini-dark-mode .chat-sidebar .media,
-html.gemini-dark-mode .store-list,
-html.gemini-dark-mode .customer-list-item,
-html.gemini-dark-mode .nav-tabs,
-html.gemini-dark-mode .nav-tabs .nav-link,
-html.gemini-dark-mode .tab-content,
-html.gemini-dark-mode [class*="user-profile"],
-html.gemini-dark-mode [class*="chat-header"],
-html.gemini-dark-mode [class*="chat-navbar"] {
-  background-color: var(--gemini-panel) !important;
-  background: var(--gemini-panel) !important;
+html.assistant-dark-mode .media,
+html.assistant-dark-mode .list-group-item,
+html.assistant-dark-mode .chat-sidebar .media,
+html.assistant-dark-mode .store-list,
+html.assistant-dark-mode .customer-list-item,
+html.assistant-dark-mode .nav-tabs,
+html.assistant-dark-mode .nav-tabs .nav-link,
+html.assistant-dark-mode .tab-content,
+html.assistant-dark-mode [class*="user-profile"],
+html.assistant-dark-mode [class*="chat-header"],
+html.assistant-dark-mode [class*="chat-navbar"] {
+  background-color: var(--assistant-panel) !important;
+  background: var(--assistant-panel) !important;
   color: #f1f5f9 !important;
   border-color: rgba(255, 255, 255, 0.1) !important;
 }
 
 /* Active & Hover items */
-html.gemini-dark-mode .media:hover,
-html.gemini-dark-mode .media.active,
-html.gemini-dark-mode .list-group-item:hover,
-html.gemini-dark-mode .list-group-item.active,
-html.gemini-dark-mode .nav-tabs .nav-link.active {
-  background-color: var(--gemini-accent) !important;
-  background: var(--gemini-accent) !important;
+html.assistant-dark-mode .media:hover,
+html.assistant-dark-mode .media.active,
+html.assistant-dark-mode .list-group-item:hover,
+html.assistant-dark-mode .list-group-item.active,
+html.assistant-dark-mode .nav-tabs .nav-link.active {
+  background-color: var(--assistant-accent) !important;
+  background: var(--assistant-accent) !important;
   color: #ffffff !important;
-  border-color: var(--gemini-accent) !important;
+  border-color: var(--assistant-accent) !important;
 }
 
 /* ==========================================================================
@@ -1483,32 +1323,32 @@ html.gemini-dark-mode .nav-tabs .nav-link.active {
    ========================================================================== */
 
 /* Main Chat Message Workspace Area */
-html.gemini-dark-mode .chat-app-window,
-html.gemini-dark-mode .chat-application .chat-app-window,
-html.gemini-dark-mode .content-right .chat-app-window,
-html.gemini-dark-mode [class*="chat-app-window"],
-html.gemini-dark-mode [class*="chat-app"],
-html.gemini-dark-mode [class*="chat-history"],
-html.gemini-dark-mode [class*="chat-container"],
-html.gemini-dark-mode [class*="chat-wrapper"],
-html.gemini-dark-mode [class*="user-chats"],
-html.gemini-dark-mode .user-chats,
-html.gemini-dark-mode .chats,
-html.gemini-dark-mode .chat-body {
-  background-color: var(--gemini-bg, #0b0f19) !important;
-  background: var(--gemini-bg, #0b0f19) !important;
+html.assistant-dark-mode .chat-app-window,
+html.assistant-dark-mode .chat-application .chat-app-window,
+html.assistant-dark-mode .content-right .chat-app-window,
+html.assistant-dark-mode [class*="chat-app-window"],
+html.assistant-dark-mode [class*="chat-app"],
+html.assistant-dark-mode [class*="chat-history"],
+html.assistant-dark-mode [class*="chat-container"],
+html.assistant-dark-mode [class*="chat-wrapper"],
+html.assistant-dark-mode [class*="user-chats"],
+html.assistant-dark-mode .user-chats,
+html.assistant-dark-mode .chats,
+html.assistant-dark-mode .chat-body {
+  background-color: var(--assistant-bg, #0b0f19) !important;
+  background: var(--assistant-bg, #0b0f19) !important;
 }
 
 /* Empty State / Start Chat Area (Khi chưa chọn cuộc trò chuyện nào) */
-html.gemini-dark-mode .start-chat-area,
-html.gemini-dark-mode [class*="start-chat-area"] {
+html.assistant-dark-mode .start-chat-area,
+html.assistant-dark-mode [class*="start-chat-area"] {
   background: transparent !important;
   background-color: transparent !important;
   color: #94a3b8 !important;
 }
 
-html.gemini-dark-mode .start-chat-icon,
-html.gemini-dark-mode [class*="start-chat-icon"] {
+html.assistant-dark-mode .start-chat-icon,
+html.assistant-dark-mode [class*="start-chat-icon"] {
   background: rgba(99, 102, 241, 0.12) !important;
   background-color: rgba(99, 102, 241, 0.12) !important;
   border: 1px solid rgba(99, 102, 241, 0.3) !important;
@@ -1521,17 +1361,17 @@ html.gemini-dark-mode [class*="start-chat-icon"] {
   box-shadow: 0 0 30px rgba(99, 102, 241, 0.25) !important;
 }
 
-html.gemini-dark-mode .start-chat-icon svg {
+html.assistant-dark-mode .start-chat-icon svg {
   color: #818cf8 !important;
   stroke: #818cf8 !important;
 }
 
 /* Top Navbar of Chat Window */
-html.gemini-dark-mode .chat_navbar,
-html.gemini-dark-mode .chat_header,
-html.gemini-dark-mode header.chat_header {
-  background-color: var(--gemini-sidebar, #0f172a) !important;
-  background: var(--gemini-sidebar, #0f172a) !important;
+html.assistant-dark-mode .chat_navbar,
+html.assistant-dark-mode .chat_header,
+html.assistant-dark-mode header.chat_header {
+  background-color: var(--assistant-sidebar, #0f172a) !important;
+  background: var(--assistant-sidebar, #0f172a) !important;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
   color: #f8fafc !important;
 }
@@ -1541,13 +1381,13 @@ html.gemini-dark-mode header.chat_header {
    ========================================================================== */
 
 /* 1. Incoming / Customer Message Bubbles (#334155 Dark Slate + Crisp White Text) */
-html.gemini-dark-mode .chat-left .chat-content,
-html.gemini-dark-mode .chat:not(.chat-right) .chat-content,
-html.gemini-dark-mode .chat-left .chat-body,
-html.gemini-dark-mode [class*="chat-left"] .chat-content,
-html.gemini-dark-mode [class*="chat-left"] [class*="content"],
-html.gemini-dark-mode [class*="chat-left"] [class*="body"],
-html.gemini-dark-mode .chat-left p {
+html.assistant-dark-mode .chat-left .chat-content,
+html.assistant-dark-mode .chat:not(.chat-right) .chat-content,
+html.assistant-dark-mode .chat-left .chat-body,
+html.assistant-dark-mode [class*="chat-left"] .chat-content,
+html.assistant-dark-mode [class*="chat-left"] [class*="content"],
+html.assistant-dark-mode [class*="chat-left"] [class*="body"],
+html.assistant-dark-mode .chat-left p {
   background-color: #334155 !important;
   background: #334155 !important;
   color: #f8fafc !important;
@@ -1556,79 +1396,79 @@ html.gemini-dark-mode .chat-left p {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3) !important;
 }
 
-html.gemini-dark-mode .chat-left .chat-content *,
-html.gemini-dark-mode .chat:not(.chat-right) .chat-content *,
-html.gemini-dark-mode .chat-left p {
+html.assistant-dark-mode .chat-left .chat-content *,
+html.assistant-dark-mode .chat:not(.chat-right) .chat-content *,
+html.assistant-dark-mode .chat-left p {
   color: #f8fafc !important;
 }
 
 /* Customer message timestamp / info */
-html.gemini-dark-mode .chat-left .chat-time,
-html.gemini-dark-mode .chat-left time,
-html.gemini-dark-mode .chat-left small {
+html.assistant-dark-mode .chat-left .chat-time,
+html.assistant-dark-mode .chat-left time,
+html.assistant-dark-mode .chat-left small {
   color: #94a3b8 !important;
 }
 
 /* 2. Outgoing / Agent Message Bubbles */
-html.gemini-dark-mode .chat-right .chat-content,
-html.gemini-dark-mode .chat-right .chat-body,
-html.gemini-dark-mode [class*="chat-right"] .chat-content,
-html.gemini-dark-mode [class*="chat-right"] [class*="content"],
-html.gemini-dark-mode [class*="chat-right"] [class*="body"] {
-  background-color: var(--gemini-accent, #6366f1) !important;
-  background: linear-gradient(135deg, var(--gemini-accent, #6366f1) 0%, #4f46e5 100%) !important;
+html.assistant-dark-mode .chat-right .chat-content,
+html.assistant-dark-mode .chat-right .chat-body,
+html.assistant-dark-mode [class*="chat-right"] .chat-content,
+html.assistant-dark-mode [class*="chat-right"] [class*="content"],
+html.assistant-dark-mode [class*="chat-right"] [class*="body"] {
+  background-color: var(--assistant-accent, #6366f1) !important;
+  background: linear-gradient(135deg, var(--assistant-accent, #6366f1) 0%, #4f46e5 100%) !important;
   color: #ffffff !important;
   border-radius: 12px !important;
   box-shadow: 0 2px 8px rgba(99, 102, 241, 0.35) !important;
 }
 
 /* 3. Customer Chat List (Column 2) Contrast & Hover Enhancement */
-html.gemini-dark-mode .chat-users__room:not(.active),
-html.gemini-dark-mode .chat-users__item:not(.active),
-html.gemini-dark-mode .chat-sidebar-list-wrapper li:not(.active) {
+html.assistant-dark-mode .chat-users__room:not(.active),
+html.assistant-dark-mode .chat-users__item:not(.active),
+html.assistant-dark-mode .chat-sidebar-list-wrapper li:not(.active) {
   transition: all 0.15s ease !important;
 }
 
-html.gemini-dark-mode .chat-users__room:not(.active):hover,
-html.gemini-dark-mode .chat-users__item:not(.active):hover,
-html.gemini-dark-mode .chat-sidebar-list-wrapper li:not(.active):hover,
-html.gemini-dark-mode [class*="chat-users"] [class*="item"]:not(.active):hover {
+html.assistant-dark-mode .chat-users__room:not(.active):hover,
+html.assistant-dark-mode .chat-users__item:not(.active):hover,
+html.assistant-dark-mode .chat-sidebar-list-wrapper li:not(.active):hover,
+html.assistant-dark-mode [class*="chat-users"] [class*="item"]:not(.active):hover {
   background-color: rgba(255, 255, 255, 0.06) !important;
   background: rgba(255, 255, 255, 0.06) !important;
   cursor: pointer !important;
 }
 
 /* Chat list Customer Name (White & Bold) */
-html.gemini-dark-mode .chat-users__room h6,
-html.gemini-dark-mode .chat-users__item h6,
-html.gemini-dark-mode .chat-users__name,
-html.gemini-dark-mode [class*="chat-users"] h6,
-html.gemini-dark-mode [class*="chat-users"] [class*="name"] {
+html.assistant-dark-mode .chat-users__room h6,
+html.assistant-dark-mode .chat-users__item h6,
+html.assistant-dark-mode .chat-users__name,
+html.assistant-dark-mode [class*="chat-users"] h6,
+html.assistant-dark-mode [class*="chat-users"] [class*="name"] {
   color: #ffffff !important;
   font-weight: 700 !important;
   font-size: 13.5px !important;
 }
 
 /* Chat list Preview Message Text (Anh/Chị chờ em kiểm tra...) - HIGH CONTRAST & CLEAR */
-html.gemini-dark-mode .chat-users__room p,
-html.gemini-dark-mode .chat-users__item p,
-html.gemini-dark-mode .chat-users__message,
-html.gemini-dark-mode .user-chat-text,
-html.gemini-dark-mode .chat-users__item .text-truncate,
-html.gemini-dark-mode .chat-users__room .text-truncate,
-html.gemini-dark-mode [class*="chat-users"] p,
-html.gemini-dark-mode [class*="chat-users"] .text-truncate,
-html.gemini-dark-mode [class*="chat-users"] span.text-truncate,
-html.gemini-dark-mode .chat-users__item .user-chat-info .contact-info .truncate.text-bold-600,
-html.gemini-dark-mode .chat-users__item .user-chat-info .contact-info .truncate.text-bold-600 *,
-html.gemini-dark-mode .chat-users__room .user-chat-info .contact-info .truncate.text-bold-600,
-html.gemini-dark-mode .chat-users__room .user-chat-info .contact-info .truncate.text-bold-600 *,
-html.gemini-dark-mode .chat-users__item .truncate.text-bold-600,
-html.gemini-dark-mode .chat-users__item .truncate.text-bold-600 *,
-html.gemini-dark-mode .chat-users__room .truncate.text-bold-600,
-html.gemini-dark-mode .chat-users__room .truncate.text-bold-600 *,
-html.gemini-dark-mode .truncate.text-bold-600,
-html.gemini-dark-mode .truncate.text-bold-600 * {
+html.assistant-dark-mode .chat-users__room p,
+html.assistant-dark-mode .chat-users__item p,
+html.assistant-dark-mode .chat-users__message,
+html.assistant-dark-mode .user-chat-text,
+html.assistant-dark-mode .chat-users__item .text-truncate,
+html.assistant-dark-mode .chat-users__room .text-truncate,
+html.assistant-dark-mode [class*="chat-users"] p,
+html.assistant-dark-mode [class*="chat-users"] .text-truncate,
+html.assistant-dark-mode [class*="chat-users"] span.text-truncate,
+html.assistant-dark-mode .chat-users__item .user-chat-info .contact-info .truncate.text-bold-600,
+html.assistant-dark-mode .chat-users__item .user-chat-info .contact-info .truncate.text-bold-600 *,
+html.assistant-dark-mode .chat-users__room .user-chat-info .contact-info .truncate.text-bold-600,
+html.assistant-dark-mode .chat-users__room .user-chat-info .contact-info .truncate.text-bold-600 *,
+html.assistant-dark-mode .chat-users__item .truncate.text-bold-600,
+html.assistant-dark-mode .chat-users__item .truncate.text-bold-600 *,
+html.assistant-dark-mode .chat-users__room .truncate.text-bold-600,
+html.assistant-dark-mode .chat-users__room .truncate.text-bold-600 *,
+html.assistant-dark-mode .truncate.text-bold-600,
+html.assistant-dark-mode .truncate.text-bold-600 * {
   color: #a5b4c0 !important;
   font-size: 12.5px !important;
   opacity: 1 !important;
@@ -1636,14 +1476,14 @@ html.gemini-dark-mode .truncate.text-bold-600 * {
 }
 
 /* Chat list timestamp (Clear light grey: 08-26 21:56) */
-html.gemini-dark-mode .chat-users__room time,
-html.gemini-dark-mode .chat-users__item time,
-html.gemini-dark-mode .chat-users__time,
-html.gemini-dark-mode .chat-time,
-html.gemini-dark-mode .chat-users__room small,
-html.gemini-dark-mode .chat-users__item small,
-html.gemini-dark-mode [class*="chat-users"] time,
-html.gemini-dark-mode [class*="chat-users"] small {
+html.assistant-dark-mode .chat-users__room time,
+html.assistant-dark-mode .chat-users__item time,
+html.assistant-dark-mode .chat-users__time,
+html.assistant-dark-mode .chat-time,
+html.assistant-dark-mode .chat-users__room small,
+html.assistant-dark-mode .chat-users__item small,
+html.assistant-dark-mode [class*="chat-users"] time,
+html.assistant-dark-mode [class*="chat-users"] small {
   color: #94a3b8 !important;
   font-size: 11px !important;
   font-weight: 600 !important;
@@ -1651,13 +1491,13 @@ html.gemini-dark-mode [class*="chat-users"] small {
 }
 
 /* Unread Message Count Badges (Số tin nhắn chờ - VIBRANT RED) */
-html.gemini-dark-mode .badge-danger,
-html.gemini-dark-mode .badge-pill,
-html.gemini-dark-mode .badge-glow,
-html.gemini-dark-mode .chat-users__room .badge,
-html.gemini-dark-mode .chat-users__item .badge,
-html.gemini-dark-mode [class*="chat-users"] .badge,
-html.gemini-dark-mode .chat-sidebar .badge {
+html.assistant-dark-mode .badge-danger,
+html.assistant-dark-mode .badge-pill,
+html.assistant-dark-mode .badge-glow,
+html.assistant-dark-mode .chat-users__room .badge,
+html.assistant-dark-mode .chat-users__item .badge,
+html.assistant-dark-mode [class*="chat-users"] .badge,
+html.assistant-dark-mode .chat-sidebar .badge {
   background-color: #ef4444 !important;
   background: #ef4444 !important;
   color: #ffffff !important;
@@ -1670,10 +1510,10 @@ html.gemini-dark-mode .chat-sidebar .badge {
 }
 
 /* Tag ĐƠN HÀNG (Order Badge) - Pop out with luminous purple ONLY when containing text ĐƠN HÀNG */
-html.gemini-dark-mode [class*="badge-order"],
-html.gemini-dark-mode .badge-purple,
-html.gemini-dark-mode .tag-purple,
-html.gemini-dark-mode [class*="order-tag"] {
+html.assistant-dark-mode [class*="badge-order"],
+html.assistant-dark-mode .badge-purple,
+html.assistant-dark-mode .tag-purple,
+html.assistant-dark-mode [class*="order-tag"] {
   background-color: rgba(168, 85, 247, 0.22) !important;
   background: rgba(168, 85, 247, 0.22) !important;
   color: #d8b4fe !important;
@@ -1685,191 +1525,191 @@ html.gemini-dark-mode [class*="order-tag"] {
 }
 
 /* Order & Product Cards Inside Chat Bubbles */
-html.gemini-dark-mode [class*="order-card"],
-html.gemini-dark-mode [class*="product-card"],
-html.gemini-dark-mode [class*="card-product"] {
-  background-color: var(--gemini-sidebar) !important;
-  background: var(--gemini-sidebar) !important;
+html.assistant-dark-mode [class*="order-card"],
+html.assistant-dark-mode [class*="product-card"],
+html.assistant-dark-mode [class*="card-product"] {
+  background-color: var(--assistant-sidebar) !important;
+  background: var(--assistant-sidebar) !important;
   color: #f8fafc !important;
   border-color: rgba(255, 255, 255, 0.1) !important;
 }
 
 /* Form Inputs, Textarea, Selects & Placeholders */
-html.gemini-dark-mode textarea,
-html.gemini-dark-mode input[type="text"],
-html.gemini-dark-mode input[type="search"],
-html.gemini-dark-mode select,
-html.gemini-dark-mode #chat-input,
-html.gemini-dark-mode .form-control {
-  background-color: var(--gemini-panel) !important;
-  background: var(--gemini-panel) !important;
+html.assistant-dark-mode textarea,
+html.assistant-dark-mode input[type="text"],
+html.assistant-dark-mode input[type="search"],
+html.assistant-dark-mode select,
+html.assistant-dark-mode #chat-input,
+html.assistant-dark-mode .form-control {
+  background-color: var(--assistant-panel) !important;
+  background: var(--assistant-panel) !important;
   color: #ffffff !important;
   border-color: rgba(255, 255, 255, 0.1) !important;
 }
 
-html.gemini-dark-mode ::placeholder {
+html.assistant-dark-mode ::placeholder {
   color: #94a3b8 !important;
   opacity: 1 !important;
 }
 
-html.gemini-dark-mode textarea:focus,
-html.gemini-dark-mode input:focus,
-html.gemini-dark-mode #chat-input:focus {
+html.assistant-dark-mode textarea:focus,
+html.assistant-dark-mode input:focus,
+html.assistant-dark-mode #chat-input:focus {
   background-color: #0f172a !important;
   border-color: #6366f1 !important;
   color: #ffffff !important;
 }
 
 /* Text & Labels Overrides */
-html.gemini-dark-mode h1,
-html.gemini-dark-mode h2,
-html.gemini-dark-mode h3,
-html.gemini-dark-mode h4,
-html.gemini-dark-mode h5,
-html.gemini-dark-mode h6,
-html.gemini-dark-mode p,
-html.gemini-dark-mode span:not(.gemini-motivation-bubble),
-html.gemini-dark-mode label,
-html.gemini-dark-mode strong,
-html.gemini-dark-mode a {
+html.assistant-dark-mode h1,
+html.assistant-dark-mode h2,
+html.assistant-dark-mode h3,
+html.assistant-dark-mode h4,
+html.assistant-dark-mode h5,
+html.assistant-dark-mode h6,
+html.assistant-dark-mode p,
+html.assistant-dark-mode span:not(.assistant-motivation-bubble),
+html.assistant-dark-mode label,
+html.assistant-dark-mode strong,
+html.assistant-dark-mode a {
   color: #e2e8f0 !important;
 }
 
-html.gemini-dark-mode .text-muted,
-html.gemini-dark-mode .secondary-text,
-html.gemini-dark-mode time,
-html.gemini-dark-mode small {
+html.assistant-dark-mode .text-muted,
+html.assistant-dark-mode .secondary-text,
+html.assistant-dark-mode time,
+html.assistant-dark-mode small {
   color: #94a3b8 !important;
 }
 
 /* SVG Icons in Dark Mode */
-html.gemini-dark-mode svg:not(.gemini-mascot) {
+html.assistant-dark-mode svg:not(.assistant-mascot) {
   color: #cbd5e1 !important;
 }
 
 /* Right Sidebar Tabs (Orders, Product, Ticket) */
-html.gemini-dark-mode .sidebar-right *,
-html.gemini-dark-mode [class*="right-sidebar"] * {
+html.assistant-dark-mode .sidebar-right *,
+html.assistant-dark-mode [class*="right-sidebar"] * {
   border-color: rgba(255, 255, 255, 0.1) !important;
 }
 
-html.gemini-dark-mode .sidebar-right .nav-tabs .nav-link:not(.active),
-html.gemini-dark-mode [class*="right-sidebar"] .nav-tabs .nav-link:not(.active) {
-  background-color: var(--gemini-sidebar) !important;
+html.assistant-dark-mode .sidebar-right .nav-tabs .nav-link:not(.active),
+html.assistant-dark-mode [class*="right-sidebar"] .nav-tabs .nav-link:not(.active) {
+  background-color: var(--assistant-sidebar) !important;
   color: #94a3b8 !important;
 }
 
-html.gemini-dark-mode .sidebar-right .nav-tabs .nav-link.active,
-html.gemini-dark-mode [class*="right-sidebar"] .nav-tabs .nav-link.active {
-  background-color: var(--gemini-accent) !important;
+html.assistant-dark-mode .sidebar-right .nav-tabs .nav-link.active,
+html.assistant-dark-mode [class*="right-sidebar"] .nav-tabs .nav-link.active {
+  background-color: var(--assistant-accent) !important;
   color: #ffffff !important;
 }
 
 /* Tables, Modals & Dropdowns */
-html.gemini-dark-mode table,
-html.gemini-dark-mode tr,
-html.gemini-dark-mode td,
-html.gemini-dark-mode th,
-html.gemini-dark-mode .dropdown-menu {
-  background-color: var(--gemini-panel) !important;
-  background: var(--gemini-panel) !important;
+html.assistant-dark-mode table,
+html.assistant-dark-mode tr,
+html.assistant-dark-mode td,
+html.assistant-dark-mode th,
+html.assistant-dark-mode .dropdown-menu {
+  background-color: var(--assistant-panel) !important;
+  background: var(--assistant-panel) !important;
   color: #f8fafc !important;
   border-color: rgba(255, 255, 255, 0.1) !important;
 }
 
-/* Gemini Macro System in Dark Mode */
-html.gemini-dark-mode .gemini-macro-toolbar,
-html.gemini-dark-mode .gemini-macro-search-overlay,
-html.gemini-dark-mode .gemini-macro-preview-overlay {
-  background-color: var(--gemini-panel) !important;
-  background: var(--gemini-panel) !important;
+/* Assistant Macro System in Dark Mode */
+html.assistant-dark-mode .assistant-macro-toolbar,
+html.assistant-dark-mode .assistant-macro-search-overlay,
+html.assistant-dark-mode .assistant-macro-preview-overlay {
+  background-color: var(--assistant-panel) !important;
+  background: var(--assistant-panel) !important;
   border-color: rgba(255, 255, 255, 0.1) !important;
   color: #f8fafc !important;
 }
 
-html.gemini-dark-mode .gemini-macro-item {
-  background-color: var(--gemini-sidebar) !important;
-  background: var(--gemini-sidebar) !important;
+html.assistant-dark-mode .assistant-macro-item {
+  background-color: var(--assistant-sidebar) !important;
+  background: var(--assistant-sidebar) !important;
   border-color: rgba(255, 255, 255, 0.1) !important;
   color: #f8fafc !important;
 }
 
-html.gemini-dark-mode .gemini-macro-item:hover,
-html.gemini-dark-mode .gemini-macro-item.selected {
-  background-color: var(--gemini-accent) !important;
-  background: var(--gemini-accent) !important;
-  border-color: var(--gemini-accent) !important;
+html.assistant-dark-mode .assistant-macro-item:hover,
+html.assistant-dark-mode .assistant-macro-item.selected {
+  background-color: var(--assistant-accent) !important;
+  background: var(--assistant-accent) !important;
+  border-color: var(--assistant-accent) !important;
 }
 
 /* --- WARM SEPIA EYE CARE MODE --- */
-html.gemini-sepia-mode {
+html.assistant-sepia-mode {
   filter: sepia(0.35) contrast(0.95) saturate(1.1) !important;
   transition: filter 0.3s ease;
 }
 
 /* --- LEFT SIDEBAR (MAIN MENU / NAVIGATION) - CLEAN ORIGINAL LOOK --- */
-html.gemini-dark-mode .main-menu,
-html.gemini-dark-mode .main-menu.menu-light,
-html.gemini-dark-mode .main-menu.menu-collapsed,
-html.gemini-dark-mode .main-menu-content,
-html.gemini-dark-mode .main-menu .navbar-header {
-  background-color: var(--gemini-sidebar, #0f172a) !important;
-  background: var(--gemini-sidebar, #0f172a) !important;
+html.assistant-dark-mode .main-menu,
+html.assistant-dark-mode .main-menu.menu-light,
+html.assistant-dark-mode .main-menu.menu-collapsed,
+html.assistant-dark-mode .main-menu-content,
+html.assistant-dark-mode .main-menu .navbar-header {
+  background-color: var(--assistant-sidebar, #0f172a) !important;
+  background: var(--assistant-sidebar, #0f172a) !important;
   color: #f8fafc !important;
   border: none !important;
   border-right: 1px solid rgba(255, 255, 255, 0.08) !important;
   box-shadow: none !important;
 }
 
-html.gemini-dark-mode .main-menu .navigation,
-html.gemini-dark-mode .main-menu .navigation-main,
-html.gemini-dark-mode .main-menu .menu-content {
+html.assistant-dark-mode .main-menu .navigation,
+html.assistant-dark-mode .main-menu .navigation-main,
+html.assistant-dark-mode .main-menu .menu-content {
   background-color: transparent !important;
   background: transparent !important;
   border: none !important;
   box-shadow: none !important;
 }
 
-html.gemini-dark-mode .main-menu .navigation li,
-html.gemini-dark-mode .main-menu .navigation li a,
-html.gemini-dark-mode .main-menu .navigation li div,
-html.gemini-dark-mode .main-menu .navigation li i,
-html.gemini-dark-mode .main-menu .navigation li svg,
-html.gemini-dark-mode .main-menu .navigation li span,
-html.gemini-dark-mode .main-menu .menu-content li,
-html.gemini-dark-mode .main-menu .menu-content li a,
-html.gemini-dark-mode .navigation-main li,
-html.gemini-dark-mode .navigation-main li a {
+html.assistant-dark-mode .main-menu .navigation li,
+html.assistant-dark-mode .main-menu .navigation li a,
+html.assistant-dark-mode .main-menu .navigation li div,
+html.assistant-dark-mode .main-menu .navigation li i,
+html.assistant-dark-mode .main-menu .navigation li svg,
+html.assistant-dark-mode .main-menu .navigation li span,
+html.assistant-dark-mode .main-menu .menu-content li,
+html.assistant-dark-mode .main-menu .menu-content li a,
+html.assistant-dark-mode .navigation-main li,
+html.assistant-dark-mode .navigation-main li a {
   border: none !important;
   border-color: transparent !important;
   box-shadow: none !important;
   outline: none !important;
 }
 
-html.gemini-dark-mode .main-menu .navigation li a {
+html.assistant-dark-mode .main-menu .navigation li a {
   background-color: transparent !important;
   color: #cbd5e1 !important;
   border-radius: 4px !important;
 }
 
-html.gemini-dark-mode .main-menu .navigation li.active > a,
-html.gemini-dark-mode .main-menu .navigation li a:hover,
-html.gemini-dark-mode .main-menu .navigation li.sidebar-group-active > a {
+html.assistant-dark-mode .main-menu .navigation li.active > a,
+html.assistant-dark-mode .main-menu .navigation li a:hover,
+html.assistant-dark-mode .main-menu .navigation li.sidebar-group-active > a {
   background-color: rgba(99, 102, 241, 0.2) !important;
   color: #38bdf8 !important;
   border: none !important;
 }
 
-html.gemini-dark-mode .navigation-header span {
+html.assistant-dark-mode .navigation-header span {
   color: #64748b !important;
 }
 
 /* --- FORM POSITIONED ICONS (CALENDAR, SEARCH ICONS INSIDE INPUTS) --- */
-html.gemini-dark-mode .form-control-position,
-html.gemini-dark-mode .form-control-position *,
-html.gemini-dark-mode .has-icon-left .form-control-position,
-html.gemini-dark-mode .has-icon-right .form-control-position,
-html.gemini-dark-mode .position-relative .form-control-position {
+html.assistant-dark-mode .form-control-position,
+html.assistant-dark-mode .form-control-position *,
+html.assistant-dark-mode .has-icon-left .form-control-position,
+html.assistant-dark-mode .has-icon-right .form-control-position,
+html.assistant-dark-mode .position-relative .form-control-position {
   background: transparent !important;
   background-color: transparent !important;
   border: none !important;
@@ -1880,45 +1720,45 @@ html.gemini-dark-mode .position-relative .form-control-position {
 }
 
 /* --- INPUT GROUPS & ADDONS (VND, PREPEND/APPEND) --- */
-html.gemini-dark-mode .input-group-prepend,
-html.gemini-dark-mode .input-group-append {
+html.assistant-dark-mode .input-group-prepend,
+html.assistant-dark-mode .input-group-append {
   margin: 0 !important;
 }
 
-html.gemini-dark-mode .input-group-text {
-  background-color: var(--gemini-sidebar, #0f172a) !important;
-  background: var(--gemini-sidebar, #0f172a) !important;
+html.assistant-dark-mode .input-group-text {
+  background-color: var(--assistant-sidebar, #0f172a) !important;
+  background: var(--assistant-sidebar, #0f172a) !important;
   color: #94a3b8 !important;
   border: 1px solid rgba(255, 255, 255, 0.12) !important;
   font-size: 13px !important;
 }
 
-html.gemini-dark-mode .input-group-prepend .input-group-text {
+html.assistant-dark-mode .input-group-prepend .input-group-text {
   border-right: none !important;
 }
 
-html.gemini-dark-mode .input-group-append .input-group-text {
+html.assistant-dark-mode .input-group-append .input-group-text {
   border-left: none !important;
 }
 
 /* --- RIGHT SIDEBAR (CUSTOMER DETAIL & ORDERS/PRODUCT/TICKET) --- */
-html.gemini-dark-mode .customer-detail,
-html.gemini-dark-mode .customer-info,
-html.gemini-dark-mode .customer-info__explorer-collapse,
-html.gemini-dark-mode .customer-info__section,
-html.gemini-dark-mode .customer-info__section-body,
-html.gemini-dark-mode .tab-detail-wrapper,
+html.assistant-dark-mode .customer-detail,
+html.assistant-dark-mode .customer-info,
+html.assistant-dark-mode .customer-info__explorer-collapse,
+html.assistant-dark-mode .customer-info__section,
+html.assistant-dark-mode .customer-info__section-body,
+html.assistant-dark-mode .tab-detail-wrapper,
 /* --- RIGHT SIDEBAR SEARCH BAR ENHANCEMENT (DỄ NHÌN, NỔI BẬT, KHÔNG BỊ PHẲNG) --- */
-html.gemini-dark-mode .tab-detail__search-bar,
-html.gemini-dark-mode .tab-detail .has-icon-left,
-html.gemini-dark-mode [class*="tab-detail__search-bar"] {
+html.assistant-dark-mode .tab-detail__search-bar,
+html.assistant-dark-mode .tab-detail .has-icon-left,
+html.assistant-dark-mode [class*="tab-detail__search-bar"] {
   background: transparent !important;
   margin-bottom: 8px !important;
 }
 
-html.gemini-dark-mode .tab-detail__search-bar input.form-control,
-html.gemini-dark-mode .tab-detail input[name="keyword"],
-html.gemini-dark-mode .has-icon-left input[name="keyword"] {
+html.assistant-dark-mode .tab-detail__search-bar input.form-control,
+html.assistant-dark-mode .tab-detail input[name="keyword"],
+html.assistant-dark-mode .has-icon-left input[name="keyword"] {
   background-color: #0f172a !important;
   background: #0f172a !important;
   color: #ffffff !important;
@@ -1931,17 +1771,17 @@ html.gemini-dark-mode .has-icon-left input[name="keyword"] {
   transition: all 0.2s ease !important;
 }
 
-html.gemini-dark-mode .tab-detail__search-bar input.form-control:focus,
-html.gemini-dark-mode .tab-detail input[name="keyword"]:focus,
-html.gemini-dark-mode .has-icon-left input[name="keyword"]:focus {
-  border-color: var(--gemini-accent, #6366f1) !important;
+html.assistant-dark-mode .tab-detail__search-bar input.form-control:focus,
+html.assistant-dark-mode .tab-detail input[name="keyword"]:focus,
+html.assistant-dark-mode .has-icon-left input[name="keyword"]:focus {
+  border-color: var(--assistant-accent, #6366f1) !important;
   box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.3), inset 0 1px 2px rgba(0, 0, 0, 0.2) !important;
   background-color: #0f172a !important;
 }
 
 /* Dropdown bộ lọc nằm bên trong thanh tìm kiếm (.tab-detail--select) */
-html.gemini-dark-mode .tab-detail--select,
-html.gemini-dark-mode .form-control-position.tab-detail--select {
+html.assistant-dark-mode .tab-detail--select,
+html.assistant-dark-mode .form-control-position.tab-detail--select {
   display: flex !important;
   align-items: center !important;
   height: 100% !important;
@@ -1955,8 +1795,8 @@ html.gemini-dark-mode .form-control-position.tab-detail--select {
   pointer-events: auto !important;
 }
 
-html.gemini-dark-mode .tab-detail--select [class*="control"],
-html.gemini-dark-mode .tab-detail--select .css-1fhf3k1-control {
+html.assistant-dark-mode .tab-detail--select [class*="control"],
+html.assistant-dark-mode .tab-detail--select .css-1fhf3k1-control {
   background: transparent !important;
   background-color: transparent !important;
   border: none !important;
@@ -1968,27 +1808,27 @@ html.gemini-dark-mode .tab-detail--select .css-1fhf3k1-control {
   margin-right: 6px !important;
 }
 
-html.gemini-dark-mode .tab-detail--select [class*="singleValue"],
-html.gemini-dark-mode .tab-detail--select .css-107lb6w-singleValue {
+html.assistant-dark-mode .tab-detail--select [class*="singleValue"],
+html.assistant-dark-mode .tab-detail--select .css-107lb6w-singleValue {
   color: #38bdf8 !important;
   font-weight: 700 !important;
   font-size: 12.5px !important;
 }
 
-html.gemini-dark-mode .tab-detail--select svg {
+html.assistant-dark-mode .tab-detail--select svg {
   color: #38bdf8 !important;
   stroke: #38bdf8 !important;
   flex-shrink: 0 !important;
 }
 
-html.gemini-dark-mode .tab-detail--select [class*="indicatorSeparator"] {
+html.assistant-dark-mode .tab-detail--select [class*="indicatorSeparator"] {
   display: none !important;
 }
 
 /* All generic search inputs in dark mode */
-html.gemini-dark-mode input[type="search"],
-html.gemini-dark-mode .search-bar input,
-html.gemini-dark-mode input.search-input {
+html.assistant-dark-mode input[type="search"],
+html.assistant-dark-mode .search-bar input,
+html.assistant-dark-mode input.search-input {
   background-color: #0f172a !important;
   border: 1px solid rgba(255, 255, 255, 0.2) !important;
   box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.3) !important;
@@ -1996,86 +1836,86 @@ html.gemini-dark-mode input.search-input {
   border-radius: 6px !important;
 }
 
-html.gemini-dark-mode input[type="search"]:focus,
-html.gemini-dark-mode .search-bar input:focus,
-html.gemini-dark-mode input.search-input:focus {
-  border-color: var(--gemini-accent, #6366f1) !important;
+html.assistant-dark-mode input[type="search"]:focus,
+html.assistant-dark-mode .search-bar input:focus,
+html.assistant-dark-mode input.search-input:focus {
+  border-color: var(--assistant-accent, #6366f1) !important;
   box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.25) !important;
 }
 
-html.gemini-dark-mode .tab-detail__item-order-info,
-html.gemini-dark-mode .tab-detail__item-product-info-image-wrapper {
-  background-color: var(--gemini-panel) !important;
-  background: var(--gemini-panel) !important;
+html.assistant-dark-mode .tab-detail__item-order-info,
+html.assistant-dark-mode .tab-detail__item-product-info-image-wrapper {
+  background-color: var(--assistant-panel) !important;
+  background: var(--assistant-panel) !important;
   color: #f8fafc !important;
   border-color: rgba(255, 255, 255, 0.1) !important;
 }
 
-html.gemini-dark-mode .btn-outline-secondary {
-  background-color: var(--gemini-panel) !important;
+html.assistant-dark-mode .btn-outline-secondary {
+  background-color: var(--assistant-panel) !important;
   color: #94a3b8 !important;
   border-color: rgba(255, 255, 255, 0.1) !important;
 }
 
-html.gemini-dark-mode .btn-outline-secondary.active {
-  background-color: var(--gemini-accent) !important;
+html.assistant-dark-mode .btn-outline-secondary.active {
+  background-color: var(--assistant-accent) !important;
   color: #ffffff !important;
-  border-color: var(--gemini-accent) !important;
+  border-color: var(--assistant-accent) !important;
 }
 
-html.gemini-dark-mode .text-black-50 {
+html.assistant-dark-mode .text-black-50 {
   color: #94a3b8 !important;
 }
 
-html.gemini-dark-mode .tab-detail__item-product-info-name,
-html.gemini-dark-mode .tab-detail__item-id {
+html.assistant-dark-mode .tab-detail__item-product-info-name,
+html.assistant-dark-mode .tab-detail__item-id {
   color: #38bdf8 !important;
 }
 
 /* --- CUSTOMER ROOM LIST & ACTIVE USER ITEM --- */
-html.gemini-dark-mode .chat-users__room,
-html.gemini-dark-mode .chat-users__room.active,
-html.gemini-dark-mode .chat-users__item,
-html.gemini-dark-mode .chat-users__item.active {
-  background-color: var(--gemini-panel) !important;
-  background: var(--gemini-panel) !important;
+html.assistant-dark-mode .chat-users__room,
+html.assistant-dark-mode .chat-users__room.active,
+html.assistant-dark-mode .chat-users__item,
+html.assistant-dark-mode .chat-users__item.active {
+  background-color: var(--assistant-panel) !important;
+  background: var(--assistant-panel) !important;
   border-color: rgba(255, 255, 255, 0.1) !important;
   color: #f8fafc !important;
 }
 
-html.gemini-dark-mode .chat-users__room.active,
-html.gemini-dark-mode .chat-users__item.active {
-  background-color: var(--gemini-accent) !important;
-  background: var(--gemini-accent) !important;
-  border-color: var(--gemini-accent) !important;
+html.assistant-dark-mode .chat-users__room.active,
+html.assistant-dark-mode .chat-users__item.active {
+  background-color: var(--assistant-accent) !important;
+  background: var(--assistant-accent) !important;
+  border-color: var(--assistant-accent) !important;
   color: #ffffff !important;
 }
 
-html.gemini-dark-mode .contact-name {
+html.assistant-dark-mode .contact-name {
   color: #ffffff !important;
 }
 
 /* --- PRONOUN QUICK BUTTONS (Anh / Chị) --- */
-html.gemini-dark-mode .gemini-pronoun-quick-btn {
-  background-color: var(--gemini-panel) !important;
-  background: var(--gemini-panel) !important;
+html.assistant-dark-mode .assistant-pronoun-quick-btn {
+  background-color: var(--assistant-panel) !important;
+  background: var(--assistant-panel) !important;
   color: #e2e8f0 !important;
   border: 1px solid rgba(255, 255, 255, 0.1) !important;
 }
 
-html.gemini-dark-mode .gemini-pronoun-quick-btn:hover,
-html.gemini-dark-mode .gemini-pronoun-quick-btn.active {
-  background-color: var(--gemini-accent) !important;
-  background: var(--gemini-accent) !important;
+html.assistant-dark-mode .assistant-pronoun-quick-btn:hover,
+html.assistant-dark-mode .assistant-pronoun-quick-btn.active {
+  background-color: var(--assistant-accent) !important;
+  background: var(--assistant-accent) !important;
   color: #ffffff !important;
-  border-color: var(--gemini-accent) !important;
+  border-color: var(--assistant-accent) !important;
 }
 
 /* --- SYSTEM MESSAGES TEXT COLOR FIX --- */
-html.gemini-dark-mode .chat-item__content--message-system,
-html.gemini-dark-mode .chat-item__content--message-system *,
-html.gemini-dark-mode .message-system,
-html.gemini-dark-mode [class*="message-system"] {
+html.assistant-dark-mode .chat-item__content--message-system,
+html.assistant-dark-mode .chat-item__content--message-system *,
+html.assistant-dark-mode .message-system,
+html.assistant-dark-mode [class*="message-system"] {
   color: #94a3b8 !important;
   background-color: transparent !important;
   background: transparent !important;
@@ -2083,8 +1923,8 @@ html.gemini-dark-mode [class*="message-system"] {
 }
 
 /* --- CHANNEL LIST ITEM HIGHLIGHT (.channel-items__el) --- */
-html.gemini-dark-mode .channel-items__el:not(.active),
-html.gemini-dark-mode [class*="channel-items"] li:not(.active) {
+html.assistant-dark-mode .channel-items__el:not(.active),
+html.assistant-dark-mode [class*="channel-items"] li:not(.active) {
   background-color: rgba(255, 255, 255, 0.02) !important;
   background: rgba(255, 255, 255, 0.02) !important;
   border: 1px solid rgba(255, 255, 255, 0.08) !important;
@@ -2092,40 +1932,40 @@ html.gemini-dark-mode [class*="channel-items"] li:not(.active) {
   transition: all 0.2s ease !important;
 }
 
-html.gemini-dark-mode .channel-items__el:not(.active):hover,
-html.gemini-dark-mode [class*="channel-items"] li:not(.active):hover {
+html.assistant-dark-mode .channel-items__el:not(.active):hover,
+html.assistant-dark-mode [class*="channel-items"] li:not(.active):hover {
   background-color: rgba(255, 255, 255, 0.07) !important;
   background: rgba(255, 255, 255, 0.07) !important;
   border-color: rgba(255, 255, 255, 0.18) !important;
 }
 
-html.gemini-dark-mode .channel-items__el:not(.active) .channel-name {
+html.assistant-dark-mode .channel-items__el:not(.active) .channel-name {
   color: #cbd5e1 !important;
   font-weight: 600 !important;
 }
 
 /* ACTIVE CHANNEL - VIBRANT HIGHLIGHT WITH GLOW & LEFT INDICATOR BAR */
-html.gemini-dark-mode .channel-items__el.active,
-html.gemini-dark-mode [class*="channel-items"] .active,
-html.gemini-dark-mode li.channel-items__el.active {
+html.assistant-dark-mode .channel-items__el.active,
+html.assistant-dark-mode [class*="channel-items"] .active,
+html.assistant-dark-mode li.channel-items__el.active {
   background-color: rgba(99, 102, 241, 0.22) !important;
   background: linear-gradient(135deg, rgba(99, 102, 241, 0.28) 0%, rgba(79, 70, 229, 0.18) 100%) !important;
   border: 1px solid rgba(99, 102, 241, 0.55) !important;
-  border-left: 4px solid var(--gemini-accent, #6366f1) !important;
+  border-left: 4px solid var(--assistant-accent, #6366f1) !important;
   border-radius: 8px !important;
   box-shadow: 0 4px 14px rgba(99, 102, 241, 0.3), inset 0 0 14px rgba(99, 102, 241, 0.12) !important;
   transform: translateX(2px) !important;
 }
 
-html.gemini-dark-mode .channel-items__el.active .channel-name,
-html.gemini-dark-mode li.channel-items__el.active .channel-name {
+html.assistant-dark-mode .channel-items__el.active .channel-name,
+html.assistant-dark-mode li.channel-items__el.active .channel-name {
   color: #ffffff !important;
   font-weight: 800 !important;
   font-size: 13.5px !important;
 }
 
-html.gemini-dark-mode .channel-items__el .unseen-msg,
-html.gemini-dark-mode .channel-items__el [class*="unseen"] {
+html.assistant-dark-mode .channel-items__el .unseen-msg,
+html.assistant-dark-mode .channel-items__el [class*="unseen"] {
   background-color: #ef4444 !important;
   background: #ef4444 !important;
   color: #ffffff !important;
@@ -2134,151 +1974,151 @@ html.gemini-dark-mode .channel-items__el [class*="unseen"] {
 }
 
 /* --- MAIN MENU ACTIVE ITEM FIX (.side-menu-item.active) --- */
-html.gemini-dark-mode .nav-item.side-menu-item.active,
-html.gemini-dark-mode .nav-item.side-menu-item.active a,
-html.gemini-dark-mode li.side-menu-item.active,
-html.gemini-dark-mode li.side-menu-item.active a {
-  background-color: var(--gemini-accent) !important;
-  background: var(--gemini-accent) !important;
+html.assistant-dark-mode .nav-item.side-menu-item.active,
+html.assistant-dark-mode .nav-item.side-menu-item.active a,
+html.assistant-dark-mode li.side-menu-item.active,
+html.assistant-dark-mode li.side-menu-item.active a {
+  background-color: var(--assistant-accent) !important;
+  background: var(--assistant-accent) !important;
   color: #ffffff !important;
   border-radius: 8px !important;
 }
 
-html.gemini-dark-mode .side-menu-item.active svg,
-html.gemini-dark-mode .side-menu-item.active span,
-html.gemini-dark-mode .side-menu-item.active .menu-item {
+html.assistant-dark-mode .side-menu-item.active svg,
+html.assistant-dark-mode .side-menu-item.active span,
+html.assistant-dark-mode .side-menu-item.active .menu-item {
   color: #ffffff !important;
 }
 
 /* --- RIGHT SIDEBAR TAB BUTTONS FIX (.btn-group .btn-outline-secondary) --- */
-html.gemini-dark-mode .customer-info .btn-group .btn,
-html.gemini-dark-mode .customer-info .btn-group .btn-outline-secondary,
-html.gemini-dark-mode .btn-group .btn-outline-secondary {
-  background-color: var(--gemini-sidebar) !important;
-  background: var(--gemini-sidebar) !important;
+html.assistant-dark-mode .customer-info .btn-group .btn,
+html.assistant-dark-mode .customer-info .btn-group .btn-outline-secondary,
+html.assistant-dark-mode .btn-group .btn-outline-secondary {
+  background-color: var(--assistant-sidebar) !important;
+  background: var(--assistant-sidebar) !important;
   color: #94a3b8 !important;
   border-color: rgba(255, 255, 255, 0.1) !important;
 }
 
-html.gemini-dark-mode .customer-info .btn-group .btn.active,
-html.gemini-dark-mode .customer-info .btn-group .btn-outline-secondary.active,
-html.gemini-dark-mode .btn-group .btn-outline-secondary.active {
-  background-color: var(--gemini-accent) !important;
-  background: var(--gemini-accent) !important;
+html.assistant-dark-mode .customer-info .btn-group .btn.active,
+html.assistant-dark-mode .customer-info .btn-group .btn-outline-secondary.active,
+html.assistant-dark-mode .btn-group .btn-outline-secondary.active {
+  background-color: var(--assistant-accent) !important;
+  background: var(--assistant-accent) !important;
   color: #ffffff !important;
-  border-color: var(--gemini-accent) !important;
+  border-color: var(--assistant-accent) !important;
 }
 
-html.gemini-dark-mode .btn-outline-secondary span {
+html.assistant-dark-mode .btn-outline-secondary span {
   color: inherit !important;
 }
 
 /* --- PAGINATION SORT DROPDOWN FIX (.data-list-rows-dropdown) --- */
-html.gemini-dark-mode .sort-dropdown,
-html.gemini-dark-mode .data-list-rows-dropdown button,
-html.gemini-dark-mode [class*="sort-dropdown"] {
-  background-color: var(--gemini-panel) !important;
-  background: var(--gemini-panel) !important;
+html.assistant-dark-mode .sort-dropdown,
+html.assistant-dark-mode .data-list-rows-dropdown button,
+html.assistant-dark-mode [class*="sort-dropdown"] {
+  background-color: var(--assistant-panel) !important;
+  background: var(--assistant-panel) !important;
   color: #f8fafc !important;
   border: 1px solid rgba(255, 255, 255, 0.1) !important;
 }
 
-html.gemini-dark-mode .sort-dropdown span,
-html.gemini-dark-mode .data-list-rows-dropdown span,
-html.gemini-dark-mode .data-list-rows-dropdown svg {
+html.assistant-dark-mode .sort-dropdown span,
+html.assistant-dark-mode .data-list-rows-dropdown span,
+html.assistant-dark-mode .data-list-rows-dropdown svg {
   color: #f8fafc !important;
 }
 
-html.gemini-dark-mode .data-list-rows-dropdown .dropdown-menu {
-  background-color: var(--gemini-panel) !important;
-  background: var(--gemini-panel) !important;
+html.assistant-dark-mode .data-list-rows-dropdown .dropdown-menu {
+  background-color: var(--assistant-panel) !important;
+  background: var(--assistant-panel) !important;
   border-color: rgba(255, 255, 255, 0.1) !important;
 }
 
-html.gemini-dark-mode .data-list-rows-dropdown .dropdown-item {
+html.assistant-dark-mode .data-list-rows-dropdown .dropdown-item {
   color: #e2e8f0 !important;
 }
 
-html.gemini-dark-mode .data-list-rows-dropdown .dropdown-item:hover {
-  background-color: var(--gemini-accent) !important;
+html.assistant-dark-mode .data-list-rows-dropdown .dropdown-item:hover {
+  background-color: var(--assistant-accent) !important;
   color: #ffffff !important;
 }
 
 /* --- RESET BUTTON FIX (.btn-light) --- */
-html.gemini-dark-mode .btn-light,
-html.gemini-dark-mode button.btn-light,
-html.gemini-dark-mode [class*="btn-light"] {
-  background-color: var(--gemini-panel) !important;
-  background: var(--gemini-panel) !important;
+html.assistant-dark-mode .btn-light,
+html.assistant-dark-mode button.btn-light,
+html.assistant-dark-mode [class*="btn-light"] {
+  background-color: var(--assistant-panel) !important;
+  background: var(--assistant-panel) !important;
   color: #ffffff !important;
   border: 1px solid rgba(255, 255, 255, 0.1) !important;
 }
 
-html.gemini-dark-mode .btn-light:hover {
-  background-color: var(--gemini-accent) !important;
+html.assistant-dark-mode .btn-light:hover {
+  background-color: var(--assistant-accent) !important;
   color: #ffffff !important;
 }
 
 /* --- MODAL HEADER & TITLE FIX (.modal-header) --- */
-html.gemini-dark-mode .modal-header,
-html.gemini-dark-mode .modal-title,
-html.gemini-dark-mode [class*="modal-header"] {
-  background-color: var(--gemini-sidebar) !important;
-  background: var(--gemini-sidebar) !important;
+html.assistant-dark-mode .modal-header,
+html.assistant-dark-mode .modal-title,
+html.assistant-dark-mode [class*="modal-header"] {
+  background-color: var(--assistant-sidebar) !important;
+  background: var(--assistant-sidebar) !important;
   color: #ffffff !important;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
 }
 
-html.gemini-dark-mode .modal-header .modal-title,
-html.gemini-dark-mode .modal-header h5,
-html.gemini-dark-mode .modal-header h4 {
+html.assistant-dark-mode .modal-header .modal-title,
+html.assistant-dark-mode .modal-header h5,
+html.assistant-dark-mode .modal-header h4 {
   color: #ffffff !important;
   font-weight: 700 !important;
 }
 
-html.gemini-dark-mode .modal-header .close,
-html.gemini-dark-mode .modal-header button.close,
-html.gemini-dark-mode .modal-header span[aria-hidden="true"] {
+html.assistant-dark-mode .modal-header .close,
+html.assistant-dark-mode .modal-header button.close,
+html.assistant-dark-mode .modal-header span[aria-hidden="true"] {
   color: #ffffff !important;
   opacity: 0.9 !important;
   text-shadow: none !important;
 }
 
 /* --- FILE UPLOAD DROPZONE FIX (.dropzone) --- */
-html.gemini-dark-mode .dropzone,
-html.gemini-dark-mode [class*="dropzone"] {
-  background-color: var(--gemini-panel) !important;
-  background: var(--gemini-panel) !important;
+html.assistant-dark-mode .dropzone,
+html.assistant-dark-mode [class*="dropzone"] {
+  background-color: var(--assistant-panel) !important;
+  background: var(--assistant-panel) !important;
   color: #cbd5e1 !important;
   border: 2px dashed rgba(255, 255, 255, 0.2) !important;
 }
 
-html.gemini-dark-mode .dropzone p,
-html.gemini-dark-mode .dropzone span,
-html.gemini-dark-mode [class*="dropzone"] p {
+html.assistant-dark-mode .dropzone p,
+html.assistant-dark-mode .dropzone span,
+html.assistant-dark-mode [class*="dropzone"] p {
   color: #94a3b8 !important;
 }
 
 /* --- HIGH CONTRAST BUTTONS & STATUS BADGES --- */
-html.gemini-dark-mode .badge,
-html.gemini-dark-mode [class*="badge"] {
+html.assistant-dark-mode .badge,
+html.assistant-dark-mode [class*="badge"] {
   font-weight: 700 !important;
 }
 
-html.gemini-dark-mode .badge-success,
-html.gemini-dark-mode [class*="badge-success"],
-html.gemini-dark-mode .solved,
-html.gemini-dark-mode [class*="solved"],
-html.gemini-dark-mode button.Solved {
+html.assistant-dark-mode .badge-success,
+html.assistant-dark-mode [class*="badge-success"],
+html.assistant-dark-mode .solved,
+html.assistant-dark-mode [class*="solved"],
+html.assistant-dark-mode button.Solved {
   background-color: #065f46 !important;
   background: #065f46 !important;
   color: #a7f3d0 !important;
   border: 1px solid #10b981 !important;
 }
 
-html.gemini-dark-mode .badge-pending,
-html.gemini-dark-mode [class*="badge-warning"],
-html.gemini-dark-mode [class*="pending"] {
+html.assistant-dark-mode .badge-pending,
+html.assistant-dark-mode [class*="badge-warning"],
+html.assistant-dark-mode [class*="pending"] {
   background-color: #78350f !important;
   background: #78350f !important;
   color: #fde68a !important;
@@ -2290,11 +2130,11 @@ html.gemini-dark-mode [class*="pending"] {
    ========================================================================== */
 
 /* 1. Nút Send / Primary Action Buttons (.btn-primary) */
-html.gemini-dark-mode .btn-primary,
-html.gemini-dark-mode button.btn-primary,
-html.gemini-dark-mode [class*="btn-primary"] {
-  background-color: var(--gemini-accent, #6366f1) !important;
-  background: linear-gradient(135deg, var(--gemini-accent, #6366f1) 0%, #4f46e5 100%) !important;
+html.assistant-dark-mode .btn-primary,
+html.assistant-dark-mode button.btn-primary,
+html.assistant-dark-mode [class*="btn-primary"] {
+  background-color: var(--assistant-accent, #6366f1) !important;
+  background: linear-gradient(135deg, var(--assistant-accent, #6366f1) 0%, #4f46e5 100%) !important;
   color: #ffffff !important;
   border: 1px solid rgba(255, 255, 255, 0.2) !important;
   font-weight: 700 !important;
@@ -2304,22 +2144,22 @@ html.gemini-dark-mode [class*="btn-primary"] {
   letter-spacing: 0.3px !important;
 }
 
-html.gemini-dark-mode .btn-primary:hover,
-html.gemini-dark-mode button.btn-primary:hover,
-html.gemini-dark-mode [class*="btn-primary"]:hover {
+html.assistant-dark-mode .btn-primary:hover,
+html.assistant-dark-mode button.btn-primary:hover,
+html.assistant-dark-mode [class*="btn-primary"]:hover {
   filter: brightness(1.15) !important;
   box-shadow: 0 6px 20px rgba(99, 102, 241, 0.6) !important;
   transform: translateY(-1px) !important;
 }
 
 /* 2. Nút View / Outline Action Buttons (.btn-outline-primary) */
-html.gemini-dark-mode .btn-outline-primary,
-html.gemini-dark-mode button.btn-outline-primary,
-html.gemini-dark-mode [class*="btn-outline-primary"] {
+html.assistant-dark-mode .btn-outline-primary,
+html.assistant-dark-mode button.btn-outline-primary,
+html.assistant-dark-mode [class*="btn-outline-primary"] {
   background-color: rgba(99, 102, 241, 0.12) !important;
   background: rgba(99, 102, 241, 0.12) !important;
   color: #818cf8 !important;
-  border: 1px solid var(--gemini-accent, #6366f1) !important;
+  border: 1px solid var(--assistant-accent, #6366f1) !important;
   font-weight: 700 !important;
   border-radius: 6px !important;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25) !important;
@@ -2327,32 +2167,32 @@ html.gemini-dark-mode [class*="btn-outline-primary"] {
   letter-spacing: 0.3px !important;
 }
 
-html.gemini-dark-mode .btn-outline-primary:hover,
-html.gemini-dark-mode button.btn-outline-primary:hover,
-html.gemini-dark-mode [class*="btn-outline-primary"]:hover {
-  background-color: var(--gemini-accent, #6366f1) !important;
-  background: var(--gemini-accent, #6366f1) !important;
+html.assistant-dark-mode .btn-outline-primary:hover,
+html.assistant-dark-mode button.btn-outline-primary:hover,
+html.assistant-dark-mode [class*="btn-outline-primary"]:hover {
+  background-color: var(--assistant-accent, #6366f1) !important;
+  background: var(--assistant-accent, #6366f1) !important;
   color: #ffffff !important;
-  border-color: var(--gemini-accent, #6366f1) !important;
+  border-color: var(--assistant-accent, #6366f1) !important;
   box-shadow: 0 0 16px rgba(99, 102, 241, 0.5) !important;
   transform: translateY(-1px) !important;
 }
 
 /* Ensure inner text / spans inherit bold bright colors */
-html.gemini-dark-mode .btn-primary *,
-html.gemini-dark-mode .btn-outline-primary *,
-html.gemini-dark-mode .btn-success *,
-html.gemini-dark-mode .btn--new-ticket * {
+html.assistant-dark-mode .btn-primary *,
+html.assistant-dark-mode .btn-outline-primary *,
+html.assistant-dark-mode .btn-success *,
+html.assistant-dark-mode .btn--new-ticket * {
   color: inherit !important;
   font-weight: inherit !important;
 }
 
 /* 3. Nút New / Success Action Buttons (.btn-success, .btn--new-ticket) */
-html.gemini-dark-mode .btn-success,
-html.gemini-dark-mode button.btn-success,
-html.gemini-dark-mode .btn--new-ticket,
-html.gemini-dark-mode [class*="btn-success"],
-html.gemini-dark-mode [class*="btn--new-ticket"] {
+html.assistant-dark-mode .btn-success,
+html.assistant-dark-mode button.btn-success,
+html.assistant-dark-mode .btn--new-ticket,
+html.assistant-dark-mode [class*="btn-success"],
+html.assistant-dark-mode [class*="btn--new-ticket"] {
   background-color: #10b981 !important;
   background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
   color: #ffffff !important;
@@ -2364,30 +2204,30 @@ html.gemini-dark-mode [class*="btn--new-ticket"] {
   letter-spacing: 0.3px !important;
 }
 
-html.gemini-dark-mode .btn-success:hover,
-html.gemini-dark-mode button.btn-success:hover,
-html.gemini-dark-mode .btn--new-ticket:hover,
-html.gemini-dark-mode [class*="btn-success"]:hover,
-html.gemini-dark-mode [class*="btn--new-ticket"]:hover {
+html.assistant-dark-mode .btn-success:hover,
+html.assistant-dark-mode button.btn-success:hover,
+html.assistant-dark-mode .btn--new-ticket:hover,
+html.assistant-dark-mode [class*="btn-success"]:hover,
+html.assistant-dark-mode [class*="btn--new-ticket"]:hover {
   filter: brightness(1.15) !important;
   box-shadow: 0 6px 20px rgba(16, 185, 129, 0.6) !important;
   transform: translateY(-1px) !important;
 }
 
 /* 4. Secondary & Generic Buttons */
-html.gemini-dark-mode .btn-secondary,
-html.gemini-dark-mode [class*="btn-secondary"] {
-  background-color: var(--gemini-panel) !important;
-  background: var(--gemini-panel) !important;
+html.assistant-dark-mode .btn-secondary,
+html.assistant-dark-mode [class*="btn-secondary"] {
+  background-color: var(--assistant-panel) !important;
+  background: var(--assistant-panel) !important;
   color: #ffffff !important;
   border-color: rgba(255, 255, 255, 0.1) !important;
 }
 
 /* --- MODAL CLOSE BUTTON FIX (.close) --- */
-html.gemini-dark-mode button.close,
-html.gemini-dark-mode .modal-header .close,
-html.gemini-dark-mode [class*="modal-header"] button.close,
-html.gemini-dark-mode [class*="modal-header"] .close {
+html.assistant-dark-mode button.close,
+html.assistant-dark-mode .modal-header .close,
+html.assistant-dark-mode [class*="modal-header"] button.close,
+html.assistant-dark-mode [class*="modal-header"] .close {
   background-color: transparent !important;
   background: transparent !important;
   color: #94a3b8 !important;
@@ -2397,55 +2237,55 @@ html.gemini-dark-mode [class*="modal-header"] .close {
   box-shadow: none !important;
 }
 
-html.gemini-dark-mode button.close:hover,
-html.gemini-dark-mode .modal-header .close:hover {
+html.assistant-dark-mode button.close:hover,
+html.assistant-dark-mode .modal-header .close:hover {
   color: #ef4444 !important;
 }
 
 /* --- QUILL RICH TEXT EDITOR FIX (.ql-container, .ql-editor) --- */
-html.gemini-dark-mode .ql-toolbar,
-html.gemini-dark-mode .ql-container,
-html.gemini-dark-mode .ql-editor,
-html.gemini-dark-mode [class*="ql-"] {
-  background-color: var(--gemini-panel) !important;
-  background: var(--gemini-panel) !important;
+html.assistant-dark-mode .ql-toolbar,
+html.assistant-dark-mode .ql-container,
+html.assistant-dark-mode .ql-editor,
+html.assistant-dark-mode [class*="ql-"] {
+  background-color: var(--assistant-panel) !important;
+  background: var(--assistant-panel) !important;
   color: #f8fafc !important;
   border-color: rgba(255, 255, 255, 0.1) !important;
 }
 
-html.gemini-dark-mode .ql-editor::before,
-html.gemini-dark-mode .ql-editor[data-placeholder]::before {
+html.assistant-dark-mode .ql-editor::before,
+html.assistant-dark-mode .ql-editor[data-placeholder]::before {
   color: #94a3b8 !important;
 }
 
-html.gemini-dark-mode .ql-stroke {
+html.assistant-dark-mode .ql-stroke {
   stroke: #cbd5e1 !important;
 }
 
-html.gemini-dark-mode .ql-fill {
+html.assistant-dark-mode .ql-fill {
   fill: #cbd5e1 !important;
 }
 
 /* --- MORE BUTTON FIX (.btn-more) --- */
-html.gemini-dark-mode .btn-more,
-html.gemini-dark-mode .btn.btn-more,
-html.gemini-dark-mode [class*="btn-more"] {
-  background-color: var(--gemini-panel) !important;
-  background: var(--gemini-panel) !important;
+html.assistant-dark-mode .btn-more,
+html.assistant-dark-mode .btn.btn-more,
+html.assistant-dark-mode [class*="btn-more"] {
+  background-color: var(--assistant-panel) !important;
+  background: var(--assistant-panel) !important;
   color: #cbd5e1 !important;
   border: 1px solid rgba(255, 255, 255, 0.1) !important;
 }
 
-html.gemini-dark-mode .btn-more svg,
-html.gemini-dark-mode .btn-more .more-icon,
-html.gemini-dark-mode [class*="btn-more"] svg {
+html.assistant-dark-mode .btn-more svg,
+html.assistant-dark-mode .btn-more .more-icon,
+html.assistant-dark-mode [class*="btn-more"] svg {
   color: #cbd5e1 !important;
   stroke: #cbd5e1 !important;
   fill: #cbd5e1 !important;
 }
 
-html.gemini-dark-mode .btn-more:hover {
-  background-color: var(--gemini-accent) !important;
+html.assistant-dark-mode .btn-more:hover {
+  background-color: var(--assistant-accent) !important;
   color: #ffffff !important;
 }
 
@@ -2454,7 +2294,7 @@ html.gemini-dark-mode .btn-more:hover {
    ========================================================================== */
 
 /* 1. Summary Statistics Bar */
-html.gemini-dark-mode .summary-row {
+html.assistant-dark-mode .summary-row {
   display: inline-flex !important;
   align-items: center !important;
   gap: 6px !important;
@@ -2462,64 +2302,64 @@ html.gemini-dark-mode .summary-row {
   margin-right: 6px !important;
 }
 
-html.gemini-dark-mode .summary-header {
+html.assistant-dark-mode .summary-header {
   color: #cbd5e1 !important;
   font-size: 12px !important;
   font-weight: 600 !important;
   letter-spacing: 0.2px !important;
 }
 
-html.gemini-dark-mode .summary-value {
+html.assistant-dark-mode .summary-value {
   color: #ffffff !important;
   font-size: 13.5px !important;
   font-weight: 800 !important;
 }
 
-html.gemini-dark-mode .summary-value.clickable {
+html.assistant-dark-mode .summary-value.clickable {
   color: #38bdf8 !important;
   cursor: pointer !important;
   transition: color 0.15s ease !important;
 }
 
-html.gemini-dark-mode .summary-value.clickable:hover {
+html.assistant-dark-mode .summary-value.clickable:hover {
   color: #7dd3fc !important;
   text-decoration: underline !important;
 }
 
 /* Distinct Status Metric Highlighting */
-html.gemini-dark-mode #filter-sla-broken {
+html.assistant-dark-mode #filter-sla-broken {
   color: #f43f5e !important; /* Vivid Red */
 }
 
-html.gemini-dark-mode #filter-cancelled {
+html.assistant-dark-mode #filter-cancelled {
   color: #fb7185 !important; /* Rose Red */
 }
 
-html.gemini-dark-mode #filter-wh-processing {
+html.assistant-dark-mode #filter-wh-processing {
   color: #38bdf8 !important; /* Sky Blue */
 }
 
-html.gemini-dark-mode #filter-pending-warehouse,
-html.gemini-dark-mode #filter-pending-cs-call {
+html.assistant-dark-mode #filter-pending-warehouse,
+html.assistant-dark-mode #filter-pending-cs-call {
   color: #fbbf24 !important; /* Amber Yellow */
 }
 
-html.gemini-dark-mode #filter-transform-failed,
-html.gemini-dark-mode #filter-fraud {
+html.assistant-dark-mode #filter-transform-failed,
+html.assistant-dark-mode #filter-fraud {
   color: #f87171 !important; /* Warning Red */
 }
 
-html.gemini-dark-mode #filter-overbooked {
+html.assistant-dark-mode #filter-overbooked {
   color: #c084fc !important; /* Purple */
 }
 
 /* 2. Order Table Header Row */
-html.gemini-dark-mode .header-row,
-html.gemini-dark-mode .m-0.align-items-center.header-row,
-html.gemini-dark-mode div.table-header,
-html.gemini-dark-mode .table-header,
-html.gemini-dark-mode th.table-header,
-html.gemini-dark-mode thead th {
+html.assistant-dark-mode .header-row,
+html.assistant-dark-mode .m-0.align-items-center.header-row,
+html.assistant-dark-mode div.table-header,
+html.assistant-dark-mode .table-header,
+html.assistant-dark-mode th.table-header,
+html.assistant-dark-mode thead th {
   color: #cbd5e1 !important;
   font-size: 12.5px !important;
   font-weight: 700 !important;
@@ -2527,7 +2367,7 @@ html.gemini-dark-mode thead th {
   text-transform: uppercase !important;
 }
 
-html.gemini-dark-mode .header-row {
+html.assistant-dark-mode .header-row {
   border-bottom: 1px solid rgba(255, 255, 255, 0.12) !important;
   padding: 10px 0 !important;
 }
@@ -2536,8 +2376,8 @@ html.gemini-dark-mode .header-row {
    ORDER STATUS CHIPS / BADGES (MODERN PILL BADGE DESIGN)
    ========================================================================== */
 
-html.gemini-dark-mode .chip,
-html.gemini-dark-mode [class*="chip-"] {
+html.assistant-dark-mode .chip,
+html.assistant-dark-mode [class*="chip-"] {
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
@@ -2557,10 +2397,10 @@ html.gemini-dark-mode [class*="chip-"] {
 }
 
 /* Inner chip body & text should be completely transparent without extra borders */
-html.gemini-dark-mode .chip .chip-body,
-html.gemini-dark-mode .chip .chip-text,
-html.gemini-dark-mode [class*="chip-"] .chip-body,
-html.gemini-dark-mode [class*="chip-"] .chip-text {
+html.assistant-dark-mode .chip .chip-body,
+html.assistant-dark-mode .chip .chip-text,
+html.assistant-dark-mode [class*="chip-"] .chip-body,
+html.assistant-dark-mode [class*="chip-"] .chip-text {
   background: transparent !important;
   background-color: transparent !important;
   border: none !important;
@@ -2573,9 +2413,9 @@ html.gemini-dark-mode [class*="chip-"] .chip-text {
 }
 
 /* NEW STATUS (Cyan/Indigo) */
-html.gemini-dark-mode .chip.chip-new,
-html.gemini-dark-mode .chip.chip-primary,
-html.gemini-dark-mode [class*="chip-new"] {
+html.assistant-dark-mode .chip.chip-new,
+html.assistant-dark-mode .chip.chip-primary,
+html.assistant-dark-mode [class*="chip-new"] {
   background-color: rgba(99, 102, 241, 0.18) !important;
   background: rgba(99, 102, 241, 0.18) !important;
   color: #818cf8 !important;
@@ -2583,10 +2423,10 @@ html.gemini-dark-mode [class*="chip-new"] {
 }
 
 /* PROCESSING STATUS (Sky Blue / Cyan) */
-html.gemini-dark-mode .chip.chip-processing,
-html.gemini-dark-mode .chip.chip-pl_processing,
-html.gemini-dark-mode [class*="chip-pl_processing"],
-html.gemini-dark-mode [class*="chip-processing"] {
+html.assistant-dark-mode .chip.chip-processing,
+html.assistant-dark-mode .chip.chip-pl_processing,
+html.assistant-dark-mode [class*="chip-pl_processing"],
+html.assistant-dark-mode [class*="chip-processing"] {
   background-color: rgba(6, 182, 212, 0.18) !important;
   background: rgba(6, 182, 212, 0.18) !important;
   color: #38bdf8 !important;
@@ -2594,11 +2434,11 @@ html.gemini-dark-mode [class*="chip-processing"] {
 }
 
 /* SUCCESS / COMPLETED / DELIVERED (Emerald Green) */
-html.gemini-dark-mode .chip.chip-success,
-html.gemini-dark-mode .chip.chip-delivered,
-html.gemini-dark-mode .chip.chip-completed,
-html.gemini-dark-mode [class*="chip-success"],
-html.gemini-dark-mode [class*="chip-delivered"] {
+html.assistant-dark-mode .chip.chip-success,
+html.assistant-dark-mode .chip.chip-delivered,
+html.assistant-dark-mode .chip.chip-completed,
+html.assistant-dark-mode [class*="chip-success"],
+html.assistant-dark-mode [class*="chip-delivered"] {
   background-color: rgba(16, 185, 129, 0.18) !important;
   background: rgba(16, 185, 129, 0.18) !important;
   color: #34d399 !important;
@@ -2606,11 +2446,11 @@ html.gemini-dark-mode [class*="chip-delivered"] {
 }
 
 /* CANCELLED / FAILED / DANGER (Rose Red) */
-html.gemini-dark-mode .chip.chip-danger,
-html.gemini-dark-mode .chip.chip-cancelled,
-html.gemini-dark-mode .chip.chip-failed,
-html.gemini-dark-mode [class*="chip-danger"],
-html.gemini-dark-mode [class*="chip-cancelled"] {
+html.assistant-dark-mode .chip.chip-danger,
+html.assistant-dark-mode .chip.chip-cancelled,
+html.assistant-dark-mode .chip.chip-failed,
+html.assistant-dark-mode [class*="chip-danger"],
+html.assistant-dark-mode [class*="chip-cancelled"] {
   background-color: rgba(244, 63, 94, 0.18) !important;
   background: rgba(244, 63, 94, 0.18) !important;
   color: #fb7185 !important;
@@ -2618,10 +2458,10 @@ html.gemini-dark-mode [class*="chip-cancelled"] {
 }
 
 /* PENDING / WARNING / ON-HOLD (Amber Yellow) */
-html.gemini-dark-mode .chip.chip-warning,
-html.gemini-dark-mode .chip.chip-pending,
-html.gemini-dark-mode [class*="chip-warning"],
-html.gemini-dark-mode [class*="chip-pending"] {
+html.assistant-dark-mode .chip.chip-warning,
+html.assistant-dark-mode .chip.chip-pending,
+html.assistant-dark-mode [class*="chip-warning"],
+html.assistant-dark-mode [class*="chip-pending"] {
   background-color: rgba(245, 158, 11, 0.18) !important;
   background: rgba(245, 158, 11, 0.18) !important;
   color: #fbbf24 !important;
@@ -2629,38 +2469,38 @@ html.gemini-dark-mode [class*="chip-pending"] {
 }
 
 /* --- STRUCTURAL BOUNDARIES & PANEL DIVIDERS (BỐ CỤC PHÂN CHIA RÕ RÀNG) --- */
-html.gemini-dark-mode .main-menu {
+html.assistant-dark-mode .main-menu {
   border-right: 1px solid rgba(255, 255, 255, 0.1) !important;
 }
 
-html.gemini-dark-mode .sidebar-content,
-html.gemini-dark-mode .chat-sidebar {
+html.assistant-dark-mode .sidebar-content,
+html.assistant-dark-mode .chat-sidebar {
   border-right: 1px solid rgba(255, 255, 255, 0.1) !important;
 }
 
-html.gemini-dark-mode .sidebar-right,
-html.gemini-dark-mode .customer-detail {
+html.assistant-dark-mode .sidebar-right,
+html.assistant-dark-mode .customer-detail {
   border-left: 1px solid rgba(255, 255, 255, 0.1) !important;
 }
 
-html.gemini-dark-mode #navbar-mobile,
-html.gemini-dark-mode .header-navbar {
+html.assistant-dark-mode #navbar-mobile,
+html.assistant-dark-mode .header-navbar {
   border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
 }
 
-html.gemini-dark-mode .card,
-html.gemini-dark-mode .modal-content,
-html.gemini-dark-mode .chat-application,
-html.gemini-dark-mode .chat-users__room {
+html.assistant-dark-mode .card,
+html.assistant-dark-mode .modal-content,
+html.assistant-dark-mode .chat-application,
+html.assistant-dark-mode .chat-users__room {
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35) !important;
   border: 1px solid rgba(255, 255, 255, 0.1) !important;
 }
 
 /* --- CHAT INPUT UTILS TOOLBAR FIX (.chat-app-input--utils) --- */
-html.gemini-dark-mode .chat-app-input--utils,
-html.gemini-dark-mode [class*="chat-app-input--utils"] {
-  background-color: var(--gemini-panel) !important;
-  background: var(--gemini-panel) !important;
+html.assistant-dark-mode .chat-app-input--utils,
+html.assistant-dark-mode [class*="chat-app-input--utils"] {
+  background-color: var(--assistant-panel) !important;
+  background: var(--assistant-panel) !important;
   border-top-left-radius: 8px !important;
   border-top-right-radius: 8px !important;
   padding: 8px 12px !important;
@@ -2668,105 +2508,105 @@ html.gemini-dark-mode [class*="chat-app-input--utils"] {
   border-bottom: none !important;
 }
 
-html.gemini-dark-mode .chat-app-input--utils svg,
-html.gemini-dark-mode .chat-app-input--utils .text-black-50,
-html.gemini-dark-mode .text-black-50 {
+html.assistant-dark-mode .chat-app-input--utils svg,
+html.assistant-dark-mode .chat-app-input--utils .text-black-50,
+html.assistant-dark-mode .text-black-50 {
   color: #cbd5e1 !important;
   stroke: #cbd5e1 !important;
 }
 
-html.gemini-dark-mode .chat-app-input--utils .cursor-pointer:hover svg {
+html.assistant-dark-mode .chat-app-input--utils .cursor-pointer:hover svg {
   color: #38bdf8 !important;
   stroke: #38bdf8 !important;
 }
 
-html.gemini-dark-mode #chat-input,
-html.gemini-dark-mode textarea.message {
+html.assistant-dark-mode #chat-input,
+html.assistant-dark-mode textarea.message {
   border-top-left-radius: 0 !important;
   border-top-right-radius: 0 !important;
   border-color: rgba(255, 255, 255, 0.1) !important;
 }
 
 /* --- QUICK ANSWER & EMOJI SUGGESTIONS PANEL FIX (.chat-suggestions) --- */
-html.gemini-dark-mode .chat-suggestions,
-html.gemini-dark-mode .chat-suggestions .holder,
-html.gemini-dark-mode .footer-quickanswer,
-html.gemini-dark-mode .header-quickanswer,
-html.gemini-dark-mode .emoji-panel,
-html.gemini-dark-mode [class*="quickanswer"] {
-  background-color: var(--gemini-panel) !important;
-  background: var(--gemini-panel) !important;
+html.assistant-dark-mode .chat-suggestions,
+html.assistant-dark-mode .chat-suggestions .holder,
+html.assistant-dark-mode .footer-quickanswer,
+html.assistant-dark-mode .header-quickanswer,
+html.assistant-dark-mode .emoji-panel,
+html.assistant-dark-mode [class*="quickanswer"] {
+  background-color: var(--assistant-panel) !important;
+  background: var(--assistant-panel) !important;
   color: #f8fafc !important;
   border-color: rgba(255, 255, 255, 0.1) !important;
 }
 
-html.gemini-dark-mode .chat-suggestions .nav-tabs,
-html.gemini-dark-mode .chat-suggestions .nav-link {
-  background-color: var(--gemini-sidebar) !important;
+html.assistant-dark-mode .chat-suggestions .nav-tabs,
+html.assistant-dark-mode .chat-suggestions .nav-link {
+  background-color: var(--assistant-sidebar) !important;
   color: #cbd5e1 !important;
   border-color: rgba(255, 255, 255, 0.1) !important;
 }
 
-html.gemini-dark-mode .chat-suggestions .nav-link.active {
-  background-color: var(--gemini-accent) !important;
+html.assistant-dark-mode .chat-suggestions .nav-link.active {
+  background-color: var(--assistant-accent) !important;
   color: #ffffff !important;
 }
 
 /* --- AUTO REPLY BUBBLE DARK MODE CONTRAST FIX --- */
-html.gemini-dark-mode .auto-reply,
-html.gemini-dark-mode [class*="auto-reply"],
-html.gemini-dark-mode div[class*="auto-reply"] {
-  background-color: var(--gemini-sidebar) !important;
-  background: var(--gemini-sidebar) !important;
+html.assistant-dark-mode .auto-reply,
+html.assistant-dark-mode [class*="auto-reply"],
+html.assistant-dark-mode div[class*="auto-reply"] {
+  background-color: var(--assistant-sidebar) !important;
+  background: var(--assistant-sidebar) !important;
   color: #fbbf24 !important;
-  border: 1px solid var(--gemini-accent) !important;
+  border: 1px solid var(--assistant-accent) !important;
 }
 
-html.gemini-dark-mode .auto-reply p,
-html.gemini-dark-mode .auto-reply span,
-html.gemini-dark-mode [class*="auto-reply"] p,
-html.gemini-dark-mode [class*="auto-reply"] span {
+html.assistant-dark-mode .auto-reply p,
+html.assistant-dark-mode .auto-reply span,
+html.assistant-dark-mode [class*="auto-reply"] p,
+html.assistant-dark-mode [class*="auto-reply"] span {
   color: #ffffff !important;
 }
 
-html.gemini-dark-mode .auto-reply [class*="time"],
-html.gemini-dark-mode [class*="auto-reply"] [class*="time"] {
+html.assistant-dark-mode .auto-reply [class*="time"],
+html.assistant-dark-mode [class*="auto-reply"] [class*="time"] {
   color: #a5b4fc !important;
 }
 
 /* --- CUSTOM 6PX DARK MODE SCROLLBAR --- */
-html.gemini-dark-mode ::-webkit-scrollbar,
-html.gemini-dark-mode *::-webkit-scrollbar {
+html.assistant-dark-mode ::-webkit-scrollbar,
+html.assistant-dark-mode *::-webkit-scrollbar {
   width: 6px !important;
   height: 6px !important;
 }
 
-html.gemini-dark-mode ::-webkit-scrollbar-track,
-html.gemini-dark-mode *::-webkit-scrollbar-track {
-  background: var(--gemini-sidebar) !important;
+html.assistant-dark-mode ::-webkit-scrollbar-track,
+html.assistant-dark-mode *::-webkit-scrollbar-track {
+  background: var(--assistant-sidebar) !important;
 }
 
-html.gemini-dark-mode ::-webkit-scrollbar-thumb,
-html.gemini-dark-mode *::-webkit-scrollbar-thumb {
+html.assistant-dark-mode ::-webkit-scrollbar-thumb,
+html.assistant-dark-mode *::-webkit-scrollbar-thumb {
   background: #334155 !important;
   border-radius: 100px !important;
 }
 
-html.gemini-dark-mode ::-webkit-scrollbar-thumb:hover,
-html.gemini-dark-mode *::-webkit-scrollbar-thumb:hover {
+html.assistant-dark-mode ::-webkit-scrollbar-thumb:hover,
+html.assistant-dark-mode *::-webkit-scrollbar-thumb:hover {
   background: #475569 !important;
 }
 
 /* --- CUSTOMER ORDER & PRODUCT CARD OVERHAUL --- */
-html.gemini-dark-mode .chat-item__content--link,
-html.gemini-dark-mode .chat-left .chat-item__content--link,
-html.gemini-dark-mode [class*="chat-item__content--link"],
-html.gemini-dark-mode .message-customer-order,
-html.gemini-dark-mode [class*="message-customer-order"],
-html.gemini-dark-mode .message-product-info,
-html.gemini-dark-mode [class*="message-product-info"] {
-  background-color: var(--gemini-panel, #1e293b) !important;
-  background: var(--gemini-panel, #1e293b) !important;
+html.assistant-dark-mode .chat-item__content--link,
+html.assistant-dark-mode .chat-left .chat-item__content--link,
+html.assistant-dark-mode [class*="chat-item__content--link"],
+html.assistant-dark-mode .message-customer-order,
+html.assistant-dark-mode [class*="message-customer-order"],
+html.assistant-dark-mode .message-product-info,
+html.assistant-dark-mode [class*="message-product-info"] {
+  background-color: var(--assistant-panel, #1e293b) !important;
+  background: var(--assistant-panel, #1e293b) !important;
   border: 1px solid rgba(255, 255, 255, 0.12) !important;
   border-radius: 14px !important;
   padding: 12px 14px !important;
@@ -2774,13 +2614,13 @@ html.gemini-dark-mode [class*="message-product-info"] {
 }
 
 /* Inner nested containers should be transparent */
-html.gemini-dark-mode .chat-item__content--link .message-customer-order,
-html.gemini-dark-mode .chat-item__content--link .message-product-info,
-html.gemini-dark-mode .chat-item__content--link .message__content,
-html.gemini-dark-mode .chat-item__content--link div,
-html.gemini-dark-mode .message-customer-order .message__content,
-html.gemini-dark-mode .message-product-info .message__content,
-html.gemini-dark-mode .message__content {
+html.assistant-dark-mode .chat-item__content--link .message-customer-order,
+html.assistant-dark-mode .chat-item__content--link .message-product-info,
+html.assistant-dark-mode .chat-item__content--link .message__content,
+html.assistant-dark-mode .chat-item__content--link div,
+html.assistant-dark-mode .message-customer-order .message__content,
+html.assistant-dark-mode .message-product-info .message__content,
+html.assistant-dark-mode .message__content {
   background: transparent !important;
   background-color: transparent !important;
   border: none !important;
@@ -2788,10 +2628,10 @@ html.gemini-dark-mode .message__content {
   padding: 0 !important;
 }
 
-html.gemini-dark-mode .hermes-message__title-order,
-html.gemini-dark-mode [class*="hermes-message__title-order"],
-html.gemini-dark-mode .hermes-message__title-product,
-html.gemini-dark-mode [class*="hermes-message__title-product"] {
+html.assistant-dark-mode .hermes-message__title-order,
+html.assistant-dark-mode [class*="hermes-message__title-order"],
+html.assistant-dark-mode .hermes-message__title-product,
+html.assistant-dark-mode [class*="hermes-message__title-product"] {
   color: #38bdf8 !important; /* Bright Cyan for Headers */
   background: transparent !important;
   background-color: transparent !important;
@@ -2803,8 +2643,8 @@ html.gemini-dark-mode [class*="hermes-message__title-product"] {
   padding-bottom: 6px !important;
 }
 
-html.gemini-dark-mode .hermes-title,
-html.gemini-dark-mode [class*="hermes-title"] {
+html.assistant-dark-mode .hermes-title,
+html.assistant-dark-mode [class*="hermes-title"] {
   color: #f8fafc !important;
   font-weight: 600 !important;
   line-height: 1.4 !important;
@@ -2812,20 +2652,20 @@ html.gemini-dark-mode [class*="hermes-title"] {
   margin-bottom: 4px !important;
 }
 
-html.gemini-dark-mode .message__product-info span,
-html.gemini-dark-mode .message__product-info .text-bold-700 {
+html.assistant-dark-mode .message__product-info span,
+html.assistant-dark-mode .message__product-info .text-bold-700 {
   color: #94a3b8 !important;
 }
 
-html.gemini-dark-mode .message__product-info span:last-child {
+html.assistant-dark-mode .message__product-info span:last-child {
   color: #34d399 !important; /* Vibrant emerald for status/price */
   font-weight: 800 !important;
   margin-top: 4px !important;
   display: inline-block !important;
 }
 
-html.gemini-dark-mode .hermes-message__unavailable,
-html.gemini-dark-mode [class*="hermes-message__unavailable"] {
+html.assistant-dark-mode .hermes-message__unavailable,
+html.assistant-dark-mode [class*="hermes-message__unavailable"] {
   color: #94a3b8 !important;
   background-color: rgba(255, 255, 255, 0.05) !important;
   border-radius: 8px !important;
@@ -2833,8 +2673,8 @@ html.gemini-dark-mode [class*="hermes-message__unavailable"] {
   font-style: italic !important;
 }
 
-html.gemini-dark-mode .hermes-price,
-html.gemini-dark-mode [class*="hermes-price"] {
+html.assistant-dark-mode .hermes-price,
+html.assistant-dark-mode [class*="hermes-price"] {
   color: #34d399 !important; /* Vibrant emerald for price */
   font-weight: 800 !important;
   display: block !important;
@@ -2842,8 +2682,8 @@ html.gemini-dark-mode [class*="hermes-price"] {
 }
 
 /* Perfect Square Product Image with 4 Rounded Corners */
-html.gemini-dark-mode .message__product-img-wrapper,
-html.gemini-dark-mode [class*="message__product-img-wrapper"] {
+html.assistant-dark-mode .message__product-img-wrapper,
+html.assistant-dark-mode [class*="message__product-img-wrapper"] {
   width: 56px !important;
   height: 56px !important;
   min-width: 56px !important;
@@ -2862,8 +2702,8 @@ html.gemini-dark-mode [class*="message__product-img-wrapper"] {
   padding: 0 !important;
 }
 
-html.gemini-dark-mode .message__product-img-wrapper img,
-html.gemini-dark-mode [class*="message__product-img-wrapper"] img {
+html.assistant-dark-mode .message__product-img-wrapper img,
+html.assistant-dark-mode [class*="message__product-img-wrapper"] img {
   width: 100% !important;
   height: 100% !important;
   object-fit: cover !important;
@@ -2872,7 +2712,7 @@ html.gemini-dark-mode [class*="message__product-img-wrapper"] img {
 }
 
 /* Toast Notification for Hotkey */
-.gemini-theme-toast {
+.assistant-theme-toast {
   position: fixed;
   bottom: 24px;
   right: 24px;
@@ -2889,90 +2729,90 @@ html.gemini-dark-mode [class*="message__product-img-wrapper"] img {
   gap: 8px;
   backdrop-filter: blur(10px);
   border: 1px solid rgba(255,255,255,0.1);
-  animation: gemini-toast-in 0.3s ease-out;
+  animation: assistant-toast-in 0.3s ease-out;
 }
 
-@keyframes gemini-toast-in {
+@keyframes assistant-toast-in {
   from { transform: translateY(20px); opacity: 0; }
   to { transform: translateY(0); opacity: 1; }
 }
 
-/* --- QUICK MACRO DARK MODE OVERHAUL (#gemini-macro-overlay, #gemini-macro-full-preview) --- */
-html.gemini-dark-mode #gemini-macro-overlay,
-html.gemini-dark-mode #gemini-macro-full-preview {
-  background: var(--gemini-panel, #1e293b) !important;
-  background-color: var(--gemini-panel, #1e293b) !important;
+/* --- QUICK MACRO DARK MODE OVERHAUL (#assistant-macro-overlay, #assistant-macro-full-preview) --- */
+html.assistant-dark-mode #assistant-macro-overlay,
+html.assistant-dark-mode #assistant-macro-full-preview {
+  background: var(--assistant-panel, #1e293b) !important;
+  background-color: var(--assistant-panel, #1e293b) !important;
   border: 1px solid rgba(255, 255, 255, 0.15) !important;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7), 0 0 1px rgba(255, 255, 255, 0.2) !important;
   color: #f8fafc !important;
 }
 
-html.gemini-dark-mode .macro-drag-handle {
+html.assistant-dark-mode .macro-drag-handle {
   background: rgba(255, 255, 255, 0.2) !important;
 }
 
-html.gemini-dark-mode #macro-search-input {
+html.assistant-dark-mode #macro-search-input {
   background: rgba(15, 23, 42, 0.8) !important;
   border: 1px solid rgba(255, 255, 255, 0.15) !important;
   color: #ffffff !important;
 }
 
-html.gemini-dark-mode #macro-search-input::placeholder {
+html.assistant-dark-mode #macro-search-input::placeholder {
   color: #94a3b8 !important;
 }
 
-html.gemini-dark-mode .gemini-macro-card,
-html.gemini-dark-mode [class*="gemini-macro-card"],
-html.gemini-dark-mode .macro-item,
-html.gemini-dark-mode [class*="macro-item"] {
+html.assistant-dark-mode .assistant-macro-card,
+html.assistant-dark-mode [class*="assistant-macro-card"],
+html.assistant-dark-mode .macro-item,
+html.assistant-dark-mode [class*="macro-item"] {
   background: rgba(15, 23, 42, 0.6) !important;
   background-color: rgba(15, 23, 42, 0.6) !important;
   border: 1px solid rgba(255, 255, 255, 0.1) !important;
   color: #f8fafc !important;
 }
 
-html.gemini-dark-mode .gemini-macro-card:hover,
-html.gemini-dark-mode .gemini-macro-card.selected,
-html.gemini-dark-mode .macro-item:hover,
-html.gemini-dark-mode .macro-item.selected {
+html.assistant-dark-mode .assistant-macro-card:hover,
+html.assistant-dark-mode .assistant-macro-card.selected,
+html.assistant-dark-mode .macro-item:hover,
+html.assistant-dark-mode .macro-item.selected {
   background: rgba(99, 102, 241, 0.22) !important;
-  border-color: var(--gemini-accent, #6366f1) !important;
+  border-color: var(--assistant-accent, #6366f1) !important;
 }
 
-html.gemini-dark-mode .gemini-macro-card strong,
-html.gemini-dark-mode .gemini-macro-card .macro-title,
-html.gemini-dark-mode .macro-item strong {
+html.assistant-dark-mode .assistant-macro-card strong,
+html.assistant-dark-mode .assistant-macro-card .macro-title,
+html.assistant-dark-mode .macro-item strong {
   color: #38bdf8 !important;
 }
 
-html.gemini-dark-mode .gemini-macro-card p,
-html.gemini-dark-mode .gemini-macro-card .macro-desc,
-html.gemini-dark-mode .macro-item p {
+html.assistant-dark-mode .assistant-macro-card p,
+html.assistant-dark-mode .assistant-macro-card .macro-desc,
+html.assistant-dark-mode .macro-item p {
   color: #cbd5e1 !important;
 }
 
-html.gemini-dark-mode .preview-inner {
+html.assistant-dark-mode .preview-inner {
   background: transparent !important;
 }
 
-html.gemini-dark-mode .preview-inner strong,
-html.gemini-dark-mode #gemini-macro-full-preview strong,
-html.gemini-dark-mode #gemini-macro-full-preview h4,
-html.gemini-dark-mode #gemini-macro-full-preview h3 {
+html.assistant-dark-mode .preview-inner strong,
+html.assistant-dark-mode #assistant-macro-full-preview strong,
+html.assistant-dark-mode #assistant-macro-full-preview h4,
+html.assistant-dark-mode #assistant-macro-full-preview h3 {
   color: #38bdf8 !important;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
 }
 
-html.gemini-dark-mode .preview-inner .m-content,
-html.gemini-dark-mode #gemini-macro-full-preview .m-content,
-html.gemini-dark-mode #gemini-macro-full-preview p,
-html.gemini-dark-mode #gemini-macro-full-preview span {
+html.assistant-dark-mode .preview-inner .m-content,
+html.assistant-dark-mode #assistant-macro-full-preview .m-content,
+html.assistant-dark-mode #assistant-macro-full-preview p,
+html.assistant-dark-mode #assistant-macro-full-preview span {
   color: #e2e8f0 !important;
 }
 
 /* --- QUICK MACRO SEARCH RESULTS ITEMS DARK MODE OVERHAUL --- */
-html.gemini-dark-mode .macro-search-item,
-html.gemini-dark-mode [class*="macro-search-item"] {
+html.assistant-dark-mode .macro-search-item,
+html.assistant-dark-mode [class*="macro-search-item"] {
   background: rgba(15, 23, 42, 0.75) !important;
   background-color: rgba(15, 23, 42, 0.75) !important;
   border: 1px solid rgba(255, 255, 255, 0.1) !important;
@@ -2980,54 +2820,54 @@ html.gemini-dark-mode [class*="macro-search-item"] {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
 }
 
-html.gemini-dark-mode .macro-search-item:hover,
-html.gemini-dark-mode .macro-search-item.selected,
-html.gemini-dark-mode [class*="macro-search-item"]:hover {
+html.assistant-dark-mode .macro-search-item:hover,
+html.assistant-dark-mode .macro-search-item.selected,
+html.assistant-dark-mode [class*="macro-search-item"]:hover {
   background: rgba(99, 102, 241, 0.22) !important;
   background-color: rgba(99, 102, 241, 0.22) !important;
-  border-color: var(--gemini-accent, #6366f1) !important;
+  border-color: var(--assistant-accent, #6366f1) !important;
   box-shadow: 0 8px 24px rgba(99, 102, 241, 0.25) !important;
 }
 
-html.gemini-dark-mode .macro-search-item strong,
-html.gemini-dark-mode [class*="macro-search-item"] strong {
+html.assistant-dark-mode .macro-search-item strong,
+html.assistant-dark-mode [class*="macro-search-item"] strong {
   color: #38bdf8 !important;
   font-weight: 800 !important;
 }
 
-html.gemini-dark-mode .macro-search-item p,
-html.gemini-dark-mode [class*="macro-search-item"] p {
+html.assistant-dark-mode .macro-search-item p,
+html.assistant-dark-mode [class*="macro-search-item"] p {
   color: #cbd5e1 !important;
 }
 
 /* Category Badges in Dark Mode */
-html.gemini-dark-mode .m-category-tag {
+html.assistant-dark-mode .m-category-tag {
   background: rgba(99, 102, 241, 0.2) !important;
   color: #a5b4fc !important;
   border-color: rgba(99, 102, 241, 0.4) !important;
 }
 
-html.gemini-dark-mode .m-category-tag.cat-general {
+html.assistant-dark-mode .m-category-tag.cat-general {
   background: rgba(16, 185, 129, 0.2) !important;
   color: #6ee7b7 !important;
   border-color: rgba(16, 185, 129, 0.4) !important;
 }
 
-html.gemini-dark-mode .m-category-tag.cat-warning {
+html.assistant-dark-mode .m-category-tag.cat-warning {
   background: rgba(244, 63, 94, 0.2) !important;
   color: #fda4af !important;
   border-color: rgba(244, 63, 94, 0.4) !important;
 }
 
 /* Use Count Badges in Dark Mode */
-html.gemini-dark-mode .m-use-count {
+html.assistant-dark-mode .m-use-count {
   background: rgba(245, 158, 11, 0.2) !important;
   color: #fcd34d !important;
   border-color: rgba(245, 158, 11, 0.4) !important;
 }
 
 /* Highlighted Search Keywords in Dark Mode */
-html.gemini-dark-mode .macro-search-item mark {
+html.assistant-dark-mode .macro-search-item mark {
   background: rgba(234, 179, 8, 0.3) !important;
   color: #fef08a !important;
   border: 1px solid rgba(234, 179, 8, 0.5) !important;
@@ -3040,16 +2880,16 @@ html.gemini-dark-mode .macro-search-item mark {
    ========================================================================== */
 
 /* 1. React-Select Control (Select Header) - Strictly Scoped */
-html.gemini-dark-mode .css-2b097c-container:not(.tab-detail--select .css-2b097c-container) [class*="control"],
-html.gemini-dark-mode .react-select-container:not(.tab-detail--select .react-select-container) [class*="control"],
-html.gemini-dark-mode .select__control,
-html.gemini-dark-mode .react-select__control,
-html.gemini-dark-mode div.css-yk16xz-control:not(.tab-detail--select div.css-yk16xz-control),
-html.gemini-dark-mode div.css-1pahdxg-control,
-html.gemini-dark-mode div.css-1s2u09g-control,
-html.gemini-dark-mode div.css-t3ipsp-control {
-  background-color: var(--gemini-panel, #1e293b) !important;
-  background: var(--gemini-panel, #1e293b) !important;
+html.assistant-dark-mode .css-2b097c-container:not(.tab-detail--select .css-2b097c-container) [class*="control"],
+html.assistant-dark-mode .react-select-container:not(.tab-detail--select .react-select-container) [class*="control"],
+html.assistant-dark-mode .select__control,
+html.assistant-dark-mode .react-select__control,
+html.assistant-dark-mode div.css-yk16xz-control:not(.tab-detail--select div.css-yk16xz-control),
+html.assistant-dark-mode div.css-1pahdxg-control,
+html.assistant-dark-mode div.css-1s2u09g-control,
+html.assistant-dark-mode div.css-t3ipsp-control {
+  background-color: var(--assistant-panel, #1e293b) !important;
+  background: var(--assistant-panel, #1e293b) !important;
   border: 1px solid rgba(255, 255, 255, 0.15) !important;
   border-radius: 4px !important;
   color: #f8fafc !important;
@@ -3057,48 +2897,48 @@ html.gemini-dark-mode div.css-t3ipsp-control {
   min-height: 38px !important;
 }
 
-html.gemini-dark-mode .css-2b097c-container:not(.tab-detail--select .css-2b097c-container) [class*="control"]:hover,
-html.gemini-dark-mode .css-2b097c-container:not(.tab-detail--select .css-2b097c-container) [class*="control"][class*="is-focused"] {
-  border-color: var(--gemini-accent, #6366f1) !important;
-  box-shadow: 0 0 0 1px var(--gemini-accent, #6366f1) !important;
+html.assistant-dark-mode .css-2b097c-container:not(.tab-detail--select .css-2b097c-container) [class*="control"]:hover,
+html.assistant-dark-mode .css-2b097c-container:not(.tab-detail--select .css-2b097c-container) [class*="control"][class*="is-focused"] {
+  border-color: var(--assistant-accent, #6366f1) !important;
+  box-shadow: 0 0 0 1px var(--assistant-accent, #6366f1) !important;
 }
 
 /* 2. React-Select Values & Placeholders */
-html.gemini-dark-mode .css-2b097c-container [class*="singleValue"],
-html.gemini-dark-mode .react-select-container [class*="singleValue"],
-html.gemini-dark-mode .css-1hwfws3,
-html.gemini-dark-mode .css-1hwfws3 * {
+html.assistant-dark-mode .css-2b097c-container [class*="singleValue"],
+html.assistant-dark-mode .react-select-container [class*="singleValue"],
+html.assistant-dark-mode .css-1hwfws3,
+html.assistant-dark-mode .css-1hwfws3 * {
   color: #f8fafc !important;
 }
 
-html.gemini-dark-mode .css-2b097c-container [class*="placeholder"],
-html.gemini-dark-mode .react-select-container [class*="placeholder"],
-html.gemini-dark-mode .css-1wa3eu0-placeholder {
+html.assistant-dark-mode .css-2b097c-container [class*="placeholder"],
+html.assistant-dark-mode .react-select-container [class*="placeholder"],
+html.assistant-dark-mode .css-1wa3eu0-placeholder {
   color: #94a3b8 !important;
 }
 
-html.gemini-dark-mode .css-2b097c-container input,
-html.gemini-dark-mode .react-select-container input {
+html.assistant-dark-mode .css-2b097c-container input,
+html.assistant-dark-mode .react-select-container input {
   color: #ffffff !important;
 }
 
-html.gemini-dark-mode .css-2b097c-container [class*="indicatorSeparator"] {
+html.assistant-dark-mode .css-2b097c-container [class*="indicatorSeparator"] {
   background-color: rgba(255, 255, 255, 0.15) !important;
 }
 
-html.gemini-dark-mode .css-2b097c-container [class*="indicatorContainer"] svg {
+html.assistant-dark-mode .css-2b097c-container [class*="indicatorContainer"] svg {
   color: #94a3b8 !important;
   fill: #94a3b8 !important;
 }
 
 /* 3. React-Select Floating Menu Popup - Strictly Scoped */
-html.gemini-dark-mode .css-2b097c-container [class*="menu"],
-html.gemini-dark-mode .react-select-container [class*="menu"],
-html.gemini-dark-mode .select__menu,
-html.gemini-dark-mode .react-select__menu,
-html.gemini-dark-mode div.css-26l3qy-menu {
-  background-color: var(--gemini-sidebar, #0f172a) !important;
-  background: var(--gemini-sidebar, #0f172a) !important;
+html.assistant-dark-mode .css-2b097c-container [class*="menu"],
+html.assistant-dark-mode .react-select-container [class*="menu"],
+html.assistant-dark-mode .select__menu,
+html.assistant-dark-mode .react-select__menu,
+html.assistant-dark-mode div.css-26l3qy-menu {
+  background-color: var(--assistant-sidebar, #0f172a) !important;
+  background: var(--assistant-sidebar, #0f172a) !important;
   border: 1px solid rgba(255, 255, 255, 0.18) !important;
   border-radius: 6px !important;
   box-shadow: 0 12px 35px rgba(0, 0, 0, 0.7), 0 0 1px rgba(255, 255, 255, 0.2) !important;
@@ -3110,22 +2950,22 @@ html.gemini-dark-mode div.css-26l3qy-menu {
 }
 
 /* 4. React-Select Menu List */
-html.gemini-dark-mode .css-2b097c-container [class*="MenuList"],
-html.gemini-dark-mode .react-select-container [class*="MenuList"],
-html.gemini-dark-mode .select__menu-list,
-html.gemini-dark-mode .react-select__menu-list {
-  background-color: var(--gemini-sidebar, #0f172a) !important;
-  background: var(--gemini-sidebar, #0f172a) !important;
+html.assistant-dark-mode .css-2b097c-container [class*="MenuList"],
+html.assistant-dark-mode .react-select-container [class*="MenuList"],
+html.assistant-dark-mode .select__menu-list,
+html.assistant-dark-mode .react-select__menu-list {
+  background-color: var(--assistant-sidebar, #0f172a) !important;
+  background: var(--assistant-sidebar, #0f172a) !important;
   padding: 4px !important;
   border-radius: 6px !important;
   max-height: 260px !important;
 }
 
 /* 5. React-Select Options */
-html.gemini-dark-mode .css-2b097c-container [class*="option"],
-html.gemini-dark-mode .react-select-container [class*="option"],
-html.gemini-dark-mode .select__option,
-html.gemini-dark-mode .react-select__option {
+html.assistant-dark-mode .css-2b097c-container [class*="option"],
+html.assistant-dark-mode .react-select-container [class*="option"],
+html.assistant-dark-mode .select__option,
+html.assistant-dark-mode .react-select__option {
   background-color: transparent !important;
   background: transparent !important;
   color: #f1f5f9 !important;
@@ -3137,42 +2977,42 @@ html.gemini-dark-mode .react-select__option {
   transition: all 0.15s ease !important;
 }
 
-html.gemini-dark-mode .css-2b097c-container [class*="option"]:hover,
-html.gemini-dark-mode .css-2b097c-container [class*="option"][class*="is-focused"],
-html.gemini-dark-mode .select__option--is-focused {
+html.assistant-dark-mode .css-2b097c-container [class*="option"]:hover,
+html.assistant-dark-mode .css-2b097c-container [class*="option"][class*="is-focused"],
+html.assistant-dark-mode .select__option--is-focused {
   background-color: rgba(99, 102, 241, 0.25) !important;
   background: rgba(99, 102, 241, 0.25) !important;
   color: #ffffff !important;
 }
 
-html.gemini-dark-mode .css-2b097c-container [class*="option"][class*="is-selected"],
-html.gemini-dark-mode .select__option--is-selected {
-  background-color: var(--gemini-accent, #6366f1) !important;
-  background: var(--gemini-accent, #6366f1) !important;
+html.assistant-dark-mode .css-2b097c-container [class*="option"][class*="is-selected"],
+html.assistant-dark-mode .select__option--is-selected {
+  background-color: var(--assistant-accent, #6366f1) !important;
+  background: var(--assistant-accent, #6366f1) !important;
   color: #ffffff !important;
   font-weight: 700 !important;
 }
 
 /* 6. Generic Native Select & Dropdown Menus */
-html.gemini-dark-mode select option {
-  background-color: var(--gemini-sidebar, #0f172a) !important;
+html.assistant-dark-mode select option {
+  background-color: var(--assistant-sidebar, #0f172a) !important;
   color: #f8fafc !important;
 }
 
-html.gemini-dark-mode .dropdown-menu {
-  background-color: var(--gemini-sidebar, #0f172a) !important;
-  background: var(--gemini-sidebar, #0f172a) !important;
+html.assistant-dark-mode .dropdown-menu {
+  background-color: var(--assistant-sidebar, #0f172a) !important;
+  background: var(--assistant-sidebar, #0f172a) !important;
   border: 1px solid rgba(255, 255, 255, 0.15) !important;
   box-shadow: 0 12px 30px rgba(0, 0, 0, 0.6) !important;
   border-radius: 6px !important;
 }
 
-html.gemini-dark-mode .dropdown-item {
+html.assistant-dark-mode .dropdown-item {
   color: #e2e8f0 !important;
 }
 
-html.gemini-dark-mode .dropdown-item:hover,
-html.gemini-dark-mode .dropdown-item:focus {
+html.assistant-dark-mode .dropdown-item:hover,
+html.assistant-dark-mode .dropdown-item:focus {
   background-color: rgba(99, 102, 241, 0.2) !important;
   color: #ffffff !important;
 }
@@ -3181,17 +3021,17 @@ html.gemini-dark-mode .dropdown-item:focus {
    TAB-DETAIL--SELECT EMBEDDED SEARCH FILTER (100% TRANSPARENT, NO GRAY BOX)
    ========================================================================== */
 
-html.gemini-dark-mode .tab-detail--select,
-html.gemini-dark-mode .tab-detail--select *,
-html.gemini-dark-mode .tab-detail--select .css-2b097c-container,
-html.gemini-dark-mode .tab-detail--select [class*="control"],
-html.gemini-dark-mode .tab-detail--select div[class*="control"],
-html.gemini-dark-mode .tab-detail--select div.css-yk16xz-control,
-html.gemini-dark-mode .tab-detail--select div.css-1fhf3k1-control,
-html.gemini-dark-mode .tab-detail--select div.css-1hwfws3,
-html.gemini-dark-mode .tab-detail--select [class*="singleValue"],
-html.gemini-dark-mode .tab-detail--select div.css-1uccc91-singleValue,
-html.gemini-dark-mode .tab-detail--select div.css-107lb6w-singleValue {
+html.assistant-dark-mode .tab-detail--select,
+html.assistant-dark-mode .tab-detail--select *,
+html.assistant-dark-mode .tab-detail--select .css-2b097c-container,
+html.assistant-dark-mode .tab-detail--select [class*="control"],
+html.assistant-dark-mode .tab-detail--select div[class*="control"],
+html.assistant-dark-mode .tab-detail--select div.css-yk16xz-control,
+html.assistant-dark-mode .tab-detail--select div.css-1fhf3k1-control,
+html.assistant-dark-mode .tab-detail--select div.css-1hwfws3,
+html.assistant-dark-mode .tab-detail--select [class*="singleValue"],
+html.assistant-dark-mode .tab-detail--select div.css-1uccc91-singleValue,
+html.assistant-dark-mode .tab-detail--select div.css-107lb6w-singleValue {
   background: transparent !important;
   background-color: transparent !important;
   box-shadow: none !important;
@@ -3200,10 +3040,10 @@ html.gemini-dark-mode .tab-detail--select div.css-107lb6w-singleValue {
   border-left: none !important;
 }
 
-html.gemini-dark-mode .tab-detail--select [class*="control"],
-html.gemini-dark-mode .tab-detail--select div[class*="control"],
-html.gemini-dark-mode .tab-detail--select div.css-yk16xz-control,
-html.gemini-dark-mode .tab-detail--select div.css-1fhf3k1-control {
+html.assistant-dark-mode .tab-detail--select [class*="control"],
+html.assistant-dark-mode .tab-detail--select div[class*="control"],
+html.assistant-dark-mode .tab-detail--select div.css-yk16xz-control,
+html.assistant-dark-mode .tab-detail--select div.css-1fhf3k1-control {
   border-right: 1px solid rgba(255, 255, 255, 0.2) !important;
   border-radius: 0 !important;
 }
@@ -3213,10 +3053,10 @@ html.gemini-dark-mode .tab-detail--select div.css-1fhf3k1-control {
    ========================================================================== */
 
 /* Inactive tabs */
-html.gemini-dark-mode .btn-group .btn-outline-primary:not(.active),
-html.gemini-dark-mode .btn-group .btn:not(.active),
-html.gemini-dark-mode .btn-group button:not(.active),
-html.gemini-dark-mode .w-100.btn.btn-outline-primary:not(.active) {
+html.assistant-dark-mode .btn-group .btn-outline-primary:not(.active),
+html.assistant-dark-mode .btn-group .btn:not(.active),
+html.assistant-dark-mode .btn-group button:not(.active),
+html.assistant-dark-mode .w-100.btn.btn-outline-primary:not(.active) {
   background-color: #1e293b !important;
   background: #1e293b !important;
   color: #94a3b8 !important;
@@ -3226,9 +3066,9 @@ html.gemini-dark-mode .w-100.btn.btn-outline-primary:not(.active) {
   opacity: 0.9 !important;
 }
 
-html.gemini-dark-mode .btn-group .btn-outline-primary:not(.active):hover,
-html.gemini-dark-mode .btn-group button:not(.active):hover,
-html.gemini-dark-mode .w-100.btn.btn-outline-primary:not(.active):hover {
+html.assistant-dark-mode .btn-group .btn-outline-primary:not(.active):hover,
+html.assistant-dark-mode .btn-group button:not(.active):hover,
+html.assistant-dark-mode .w-100.btn.btn-outline-primary:not(.active):hover {
   background-color: rgba(255, 255, 255, 0.08) !important;
   background: rgba(255, 255, 255, 0.08) !important;
   color: #ffffff !important;
@@ -3237,15 +3077,15 @@ html.gemini-dark-mode .w-100.btn.btn-outline-primary:not(.active):hover {
 }
 
 /* Active tab - VIBRANT SOLID HIGHLIGHT */
-html.gemini-dark-mode .btn-group .btn-outline-primary.active,
-html.gemini-dark-mode .btn-group .btn.active,
-html.gemini-dark-mode .btn-group button.active,
-html.gemini-dark-mode .w-100.btn.btn-outline-primary.active,
-html.gemini-dark-mode .btn-outline-primary.active {
-  background-color: var(--gemini-accent, #6366f1) !important;
-  background: linear-gradient(135deg, var(--gemini-accent, #6366f1) 0%, #4f46e5 100%) !important;
+html.assistant-dark-mode .btn-group .btn-outline-primary.active,
+html.assistant-dark-mode .btn-group .btn.active,
+html.assistant-dark-mode .btn-group button.active,
+html.assistant-dark-mode .w-100.btn.btn-outline-primary.active,
+html.assistant-dark-mode .btn-outline-primary.active {
+  background-color: var(--assistant-accent, #6366f1) !important;
+  background: linear-gradient(135deg, var(--assistant-accent, #6366f1) 0%, #4f46e5 100%) !important;
   color: #ffffff !important;
-  border-color: var(--gemini-accent, #6366f1) !important;
+  border-color: var(--assistant-accent, #6366f1) !important;
   font-weight: 800 !important;
   box-shadow: 0 2px 10px rgba(99, 102, 241, 0.5) !important;
   z-index: 2 !important;
@@ -3255,18 +3095,18 @@ html.gemini-dark-mode .btn-outline-primary.active {
 /* ==========================================================================
    CREATE TICKET TOP HEADER & CARD STYLES (.top, .top .card-body, .primary)
    ========================================================================== */
-html.gemini-dark-mode .top,
-html.gemini-dark-mode .top .card,
-html.gemini-dark-mode .top .card-body,
-html.gemini-dark-mode [class*="ticket"] .top,
-html.gemini-dark-mode [class*="ticket"] .card-body {
-  background-color: var(--gemini-panel, #1e293b) !important;
-  background: var(--gemini-panel, #1e293b) !important;
+html.assistant-dark-mode .top,
+html.assistant-dark-mode .top .card,
+html.assistant-dark-mode .top .card-body,
+html.assistant-dark-mode [class*="ticket"] .top,
+html.assistant-dark-mode [class*="ticket"] .card-body {
+  background-color: var(--assistant-panel, #1e293b) !important;
+  background: var(--assistant-panel, #1e293b) !important;
   border-color: rgba(255, 255, 255, 0.1) !important;
   color: #f8fafc !important;
 }
 
-html.gemini-dark-mode .top .card-body {
+html.assistant-dark-mode .top .card-body {
   border-radius: 12px !important;
   border: 1px solid rgba(255, 255, 255, 0.08) !important;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25) !important;
@@ -3274,9 +3114,9 @@ html.gemini-dark-mode .top .card-body {
   margin-bottom: 12px !important;
 }
 
-html.gemini-dark-mode .top h5,
-html.gemini-dark-mode .top .card-body h5,
-html.gemini-dark-mode [class*="ticket"] h5 {
+html.assistant-dark-mode .top h5,
+html.assistant-dark-mode .top .card-body h5,
+html.assistant-dark-mode [class*="ticket"] h5 {
   color: #ffffff !important;
   font-weight: 700 !important;
   font-size: 16px !important;
@@ -3287,19 +3127,19 @@ html.gemini-dark-mode [class*="ticket"] h5 {
   gap: 8px !important;
 }
 
-html.gemini-dark-mode .top .card-body .d-flex,
-html.gemini-dark-mode .top .d-flex {
+html.assistant-dark-mode .top .card-body .d-flex,
+html.assistant-dark-mode .top .d-flex {
   color: #94a3b8 !important;
   font-size: 13px !important;
   font-weight: 500 !important;
   align-items: center !important;
 }
 
-html.gemini-dark-mode .top .primary,
-html.gemini-dark-mode .top span.primary,
-html.gemini-dark-mode .card-body span.primary,
-html.gemini-dark-mode [class*="ticket"] span.primary,
-html.gemini-dark-mode span.primary {
+html.assistant-dark-mode .top .primary,
+html.assistant-dark-mode .top span.primary,
+html.assistant-dark-mode .card-body span.primary,
+html.assistant-dark-mode [class*="ticket"] span.primary,
+html.assistant-dark-mode span.primary {
   color: #818cf8 !important;
   background: rgba(99, 102, 241, 0.14) !important;
   border: 1px solid rgba(99, 102, 241, 0.3) !important;

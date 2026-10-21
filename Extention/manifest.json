@@ -1,22 +1,17 @@
 {
   "manifest_version": 3,
   "name": "Trợ Lý Chat",
-  "version": "4.3.4",
+  "version": "4.3.5",
   "description": "Hệ thống kiểm duyệt Onpoint - Tích hợp nhận diện Brand & Sàn đa nền tảng.",
   "permissions": [
     "storage",
-    "alarms",
-    "activeTab",
-    "scripting"
+    "alarms"
   ],
   "host_permissions": [
-    "https://api.beegadget.net/*",
     "https://macro.beegadget.net/*",
     "*://*.onpoint.vn/*",
     "*://*.opollo.vn/*",
-    "*://*.lazada.vn/*",
-    "*://*.shopee.vn/*",
-    "*://*.tiktok.com/*"
+    "https://shop.tiktok.com/*"
   ],
   "background": {
     "service_worker": "background.js",
@@ -27,9 +22,7 @@
       "matches": [
         "*://*.onpoint.vn/*",
         "*://*.opollo.vn/*",
-        "*://*.lazada.vn/*",
-        "*://*.shopee.vn/*",
-        "*://*.tiktok.com/*"
+        "https://shop.tiktok.com/*"
       ],
       "js": [
         "content.js"
@@ -52,13 +45,11 @@
       "matches": [
         "*://*.onpoint.vn/*",
         "*://*.opollo.vn/*",
-        "*://*.lazada.vn/*",
-        "*://*.shopee.vn/*",
-        "*://*.tiktok.com/*"
+        "https://shop.tiktok.com/*"
       ]
     }
   ],
   "icons": {
     "128": "icon128.png"
   }
-}
+}
