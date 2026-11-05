@@ -5,7 +5,6 @@ const HEARTBEAT_URL = `${API_BASE_URL}/user/heartbeat`;
 const CONFIG_ALARM = "ASSISTANT_AUTO_FETCH";
 const HEARTBEAT_ALARM = "ASSISTANT_HEARTBEAT";
 
-// 1. SETUP ALARMS & LISTENERS
 chrome.runtime.onInstalled.addListener(() => {
   fetchRemoteConfig();
   sendHeartbeat();
@@ -24,7 +23,6 @@ chrome.runtime.onStartup.addListener(() => {
   sendHeartbeat();
 });
 
-// Lắng nghe thay đổi AuthToken trong Storage để tải config ngay lập tức
 chrome.storage.onChanged.addListener((changes, namespace) => {
   if (namespace === 'sync' && changes.authToken) {
     fetchRemoteConfig();

@@ -178,71 +178,7 @@ if (window.ASSISTANT_CONTENT_SCRIPT_LOADED) {
 
   const doneTypingInterval = 400;
 
-  // ---------- MOOD & EMPATHY SETTINGS ----------
-  const MOOD_INDICATORS = {
-    // 1. Phàn nàn / Tiêu cực (General Complaints)
-    complaint: [
-      "tệ", "kém", "bực", "lừa đảo", "không hài lòng", "tố cáo", "report", "phốt",
-      "thái độ", "ăn chặn", "thất vọng", "vô trách nhiệm", "như hạch", "như l", "đcm", "dm", "clm", "vcl", "mất dạy", "vớ vẩn",
-      "hoàn hàng", "trả hàng", "không cải thiện", "làm ăn không uy tín", "chán đời", "trả lời chán",
-      "treo đầu dê", "lừa dối", "quá tệ", "thất vọng quá", "không bao giờ quay lại", "cạch mặt", "uy tín ở đâu"
-    ],
-    // 2. Logistics (Vận chuyển & Giao hàng) - Urgent & Delayed
-    logistics: [
-      "chờ lâu quá", "gần 1 tuần rồi", "ship lâu", "bao ngày lấy hàng không thành công",
-      "không cập nhật", "kho long bình", "đứng yên", "không liên lạc được shipper",
-      "shipper bảo hàng cấm giao", "giao nhầm", "sai địa chỉ", "nhầm người nhận",
-      "ship gấp", "cần gấp", "ship sớm", "giao sớm", "giao gấp", "nhanh hộ", "đang cần",
-      "khi nào có hàng", "bao giờ giao", "chậm trễ", "lâu thế", "hối đơn", "giục đơn", "đi hàng chưa"
-    ],
-    // 3. Product Quality (Sản phẩm & Chất lượng)
-    quality: [
-      "bể vỡ", "móp méo", "vòi hỏng", "tách nước", "đốm đen", "vón cục",
-      "nóng rát", "nổi mụn", "kích ứng", "mùi hôi", "mùi hắc",
-      "cận date", "không biết đọc ngày sản xuất", "hết hạn", "hsd",
-      "hàng cũ", "đã qua sử dụng", "trầy xước", "không giống hình", "sai mẫu", "sai màu", "sai size"
-    ],
-    // 4. Fake Suspicion (Nghi ngờ hàng giả)
-    fakeSuspicion: [
-      "hàng giả", "fake", "nhái", "không chính hãng", "check code", "auth không", "tem mác",
-      "thật hay giả", "khác biệt bao bì", "quét mã", "check var", "hàng trộn", "không có tem"
-    ],
-    // 5. Gifts & Promos (Quà tặng & Khuyến mãi)
-    gifts: [
-      "thiếu quà", "sai quà", "không có quà", "quà minigame", "lỗi hiển thị quà",
-      "không áp dụng được voucher", "không thanh toán được", "mã giảm giá",
-      "không nhận được quà", "chưa có quà", "quà của mình đâu", "quà tặng đâu", "quà kèm theo"
-    ],
-    // 6. Service Experience (Trải nghiệm & Cảm xúc)
-    service: [
-      "alo", "shop ơi", "sao chưa trả lời", "trả lời đi em", "mệt quá", "sao hỏi đi hỏi lại",
-      "pending quá hạn", "tư vấn sai", "nhân viên thái độ", "trả lời chậm", "đợi mãi",
-      "rep đi", "trả lời đi", "có ai không", "đang cần gấp mà"
-    ],
 
-    // Case Exclusion (Optional/Over-empathy)
-    exclude: [
-      "giá bao nhiêu", "thành phần", "cách dùng", "còn hàng không", "khi nào có live",
-      "mình bao nhiêu tuổi", "da mình là", "tư vấn cho mình", "chọn size", "có hsd đến khi nào",
-      "hướng dẫn sử dụng", "review", "cho mình xem hình thật"
-    ],
-
-    emojis: ["😠", "😡", "🤬", "👿", "👎", "😤", "☹️", "😟"],
-    lastAnalyzedText: null,
-    lastActiveSession: null,
-    // Compiled regex cache
-    compiled: {
-      complaint: null,
-      logistics: null,
-      quality: null,
-      fake: null,
-      gifts: null,
-      service: null,
-      exclude: null
-    }
-  };
-
-  let moodAlertPanel = null;
 
   // ---------- REPORTING SYSTEM ----------
   const REPORT_KEY = "assistant_quality_logs";
@@ -257,11 +193,11 @@ if (window.ASSISTANT_CONTENT_SCRIPT_LOADED) {
       const logEntry = {
         timestamp: new Date().toISOString(),
         account: accountName,
-        user: accountName, // Use extension login as primary identity
+        user: accountName,
         group: csUser.group,
         brand: context.currentBrand,
         platform: context.currentMarketplace,
-        customerId: context.customerId, // Added for tracking
+        customerId: context.customerId,
         action: actionType,
         details: detail,
         url: window.location.href
@@ -269,7 +205,6 @@ if (window.ASSISTANT_CONTENT_SCRIPT_LOADED) {
 
       console.log("[Assistant Report] Recording action:", logEntry);
 
-      // 1. Send to Server (via Background)
       chrome.runtime.sendMessage({ action: "SAVE_QUALITY_LOG", data: logEntry }, (response) => {
         if (chrome.runtime.lastError) {
           console.warn("[Report] Background current unreachable for server logging:", chrome.runtime.lastError);
@@ -278,7 +213,6 @@ if (window.ASSISTANT_CONTENT_SCRIPT_LOADED) {
         }
       });
 
-      // 2. Fallback: Save to Local Storage (Keep for personal view)
       chrome.storage.local.get(REPORT_KEY, (data) => {
         const logs = data[REPORT_KEY] || [];
         logs.push(logEntry);
@@ -293,7 +227,6 @@ if (window.ASSISTANT_CONTENT_SCRIPT_LOADED) {
     let account = "";
     let userId = null;
 
-    // 1. Kiểm tra các selector hiển thị tên/tài khoản CS trên Onpoint, Opollo, Shopee, Pancake,...
     const userSelectors = [
       ".user-profile-name",
       ".account-name",
@@ -321,7 +254,6 @@ if (window.ASSISTANT_CONTENT_SCRIPT_LOADED) {
 
     if (userEl) {
       let raw = userEl.textContent.trim().replace(/\s+/g, ' ');
-      // Handle mock format: "CS: Nguyễn Văn A (Nhóm 1)"
       if (raw.startsWith("CS:")) {
         const match = raw.match(/CS:\s*([^(]+)(?:\(([^)]+)\))?/);
         if (match) {
@@ -335,7 +267,6 @@ if (window.ASSISTANT_CONTENT_SCRIPT_LOADED) {
       }
     }
 
-    // 2. Tra cứu localStorage trên trang chat quản lý (Onpoint / Opollo)
     if (name === "CS_Unknown") {
       try {
         for (const k of ['user', 'profile', 'currentUser', 'auth_user', 'account']) {
@@ -354,7 +285,6 @@ if (window.ASSISTANT_CONTENT_SCRIPT_LOADED) {
       } catch (e) {}
     }
 
-    // 3. Fallback đồng bộ từ tài khoản Macro / Extension đã lưu
     if (name === "CS_Unknown" && cachedCSUser.name !== "CS_Unknown") {
       name = cachedCSUser.name;
     }
@@ -368,7 +298,6 @@ if (window.ASSISTANT_CONTENT_SCRIPT_LOADED) {
       userId = cachedCSUser.userId;
     }
 
-    // 4. Fallback cuối nếu có cachedConfig.username
     if (name === "CS_Unknown" && cachedConfig?.username) {
       name = cachedConfig.username.toUpperCase();
     }
@@ -412,7 +341,6 @@ if (window.ASSISTANT_CONTENT_SCRIPT_LOADED) {
       ".order-id"
     ],
 
-    // ✅ Nút send thực tế bạn cung cấp + fallback
     SEND_BUTTON_SELECTORS: [
       "button.button--icon.btn.btn-primary.btn-sm",
       "button[aria-label*='Send' i]",
@@ -426,7 +354,6 @@ if (window.ASSISTANT_CONTENT_SCRIPT_LOADED) {
     ].join(",")
   };
 
-  // ---------- ANALYSIS ----------
 
   function getAnalysis(text) {
     if (!cachedConfig || !text) {
@@ -622,7 +549,6 @@ if (window.ASSISTANT_CONTENT_SCRIPT_LOADED) {
     }
   }
 
-  // ---------- ZALO VIOLATION ALERT SYSTEM ----------
   let lastViolationAlertHash = "";
   let lastViolationAlertTime = 0;
 
@@ -636,7 +562,6 @@ if (window.ASSISTANT_CONTENT_SCRIPT_LOADED) {
     const currentText = (textContent || getChatText(currentActiveTextarea) || "").trim();
     if (!currentText) return;
 
-    // Collect all violations without duplicates
     const violations = [];
     const seenViolationKeys = new Set();
 
@@ -661,8 +586,22 @@ if (window.ASSISTANT_CONTENT_SCRIPT_LOADED) {
 
     if (violations.length === 0) return;
 
-    // Anti-spam debounce: same text & violations within 10 seconds
-    const alertKey = `${currentText}__${violations.map(v => v.word).sort().join('_')}__${actionStatus}`;
+    // Additional customerId fallback from active chat card or DOM header
+    let customerId = context.customerId;
+    if (!customerId || customerId === "N/A" || customerId === "") {
+      const activeCardName = document.querySelector(".chat-users__room.active h6, .chat-users__item.active h6, .chat_header h6, .chat_navbar h6, .chat-users__name");
+      if (activeCardName && activeCardName.textContent.trim()) {
+        customerId = activeCardName.textContent.trim().replace(/\s+/g, ' ');
+      }
+    }
+
+    // Mask ID khách hàng: chỉ lấy tối đa 6 ký tự đầu, phần còn lại che bằng *****
+    const cleanCustId = (customerId || "").replace(/_/g, " ").trim();
+    const maskedCustomerId = cleanCustId && cleanCustId !== "N/A" && cleanCustId !== "Chưa xác định"
+      ? (cleanCustId.length > 6 ? `${cleanCustId.slice(0, 6)}*****` : `${cleanCustId}*****`)
+      : "Chưa xác định";
+
+    const alertKey = `${maskedCustomerId}__${violations.map(v => v.word).sort().join('_')}__${actionStatus}`;
     const now = Date.now();
     if (lastViolationAlertHash === alertKey && (now - lastViolationAlertTime) < 10000) {
       console.log("[Assistant Alert] Anti-spam: Duplicate violation alert suppressed within 10s window.");
@@ -675,15 +614,6 @@ if (window.ASSISTANT_CONTENT_SCRIPT_LOADED) {
     const context = getCurrentContext();
     const csUser = getCurrentCSUser();
 
-    // Additional customerId fallback from active chat card or DOM header
-    let customerId = context.customerId;
-    if (!customerId || customerId === "N/A" || customerId === "") {
-      const activeCardName = document.querySelector(".chat-users__room.active h6, .chat-users__item.active h6, .chat_header h6, .chat_navbar h6, .chat-users__name");
-      if (activeCardName && activeCardName.textContent.trim()) {
-        customerId = activeCardName.textContent.trim().replace(/\s+/g, ' ');
-      }
-    }
-
     const payload = {
       csUser: {
         name: csUser.name,
@@ -691,12 +621,11 @@ if (window.ASSISTANT_CONTENT_SCRIPT_LOADED) {
         account: csUser.account || cachedCSUser.account || cachedConfig?.username || "CS",
         userId: csUser.userId || cachedCSUser.userId || null
       },
-      customerId: customerId || "Chưa xác định",
+      customerId: maskedCustomerId,
       channel: context.channelFullName || document.querySelector(".channel-items__el.active .channel-name")?.textContent?.trim() || "Chưa xác định",
       brand: context.currentBrand !== "general" ? context.currentBrand : "Chưa xác định",
       platform: context.currentMarketplace !== "general" ? context.currentMarketplace : "Chưa xác định",
       violations,
-      messageContent: currentText,
       actionStatus,
       timestamp: new Date().toISOString(),
       url: window.location.href
@@ -970,23 +899,26 @@ if (window.ASSISTANT_CONTENT_SCRIPT_LOADED) {
       // Gửi cảnh báo Zalo cập nhật trạng thái đã cố tình bypass gửi
       triggerZaloViolationAlert(analysis, "bypassed", currentChatText);
 
-      forceAllowSend = true;
       suggestionPanel.classList.remove("assistant-blocking-active");
-      hideUI();
+      hideUI(false); // Preserve bypass flag
 
-      // Re-enable send button
-      if (sendBtn) {
-        sendBtn.style.pointerEvents = '';
-        sendBtn.style.opacity = '';
-      }
+      // Re-enable bypass and auto-reset after safety timeout
+      forceAllowSend = true;
+      setTimeout(() => { forceAllowSend = false; }, 2500);
 
-      // Tìm và click nút gửi thật
+      // Re-enable send button completely (styles, disabled state, classes)
       const foundSendBtn = sendBtn || document.querySelector(CONFIG.SEND_BUTTON_SELECTORS);
       if (foundSendBtn) {
+        foundSendBtn.style.pointerEvents = '';
+        foundSendBtn.style.opacity = '';
+        foundSendBtn.disabled = false;
+        foundSendBtn.removeAttribute('disabled');
+        foundSendBtn.removeAttribute('aria-disabled');
+        foundSendBtn.classList.remove('disabled', 'ant-btn-disabled');
+
         console.log("[Assistant] User bypassed: Triggering send button click.");
         foundSendBtn.click();
       } else {
-        // Fallback: nếu không tìm thấy nút, ít nhất người dùng có thể thử gõ Enter lại
         console.warn("[Assistant] Bypassed but send button not found for auto-click.");
       }
     });
@@ -995,9 +927,14 @@ if (window.ASSISTANT_CONTENT_SCRIPT_LOADED) {
       suggestionPanel.classList.remove("assistant-blocking-active");
 
       // Re-enable send button when closing alert
-      if (sendBtn) {
-        sendBtn.style.pointerEvents = '';
-        sendBtn.style.opacity = '';
+      const foundSendBtn = sendBtn || document.querySelector(CONFIG.SEND_BUTTON_SELECTORS);
+      if (foundSendBtn) {
+        foundSendBtn.style.pointerEvents = '';
+        foundSendBtn.style.opacity = '';
+        foundSendBtn.disabled = false;
+        foundSendBtn.removeAttribute('disabled');
+        foundSendBtn.removeAttribute('aria-disabled');
+        foundSendBtn.classList.remove('disabled', 'ant-btn-disabled');
       }
 
       hideUI();
@@ -1110,50 +1047,8 @@ if (window.ASSISTANT_CONTENT_SCRIPT_LOADED) {
       suggestionPanel.classList.remove("gemini-wide");
     }
 
-    const hasErrors = finalLines.length > 0;
-    const showEditor = (hasErrors || isDifferent || pronounConflict);
-
-    const fullHighlightedText = showEditor
-      ? diffHighlight(valNow, suggestedText, pronounConflict, analysis)
-      : escapeHtml(suggestedText);
-
-    let displayHtml = fullHighlightedText;
-    let isFragmented = false;
-
-    // Focused View: Only show lines with errors/changes if the text is multiline
-    if (showEditor && suggestedText.includes('\n')) {
-      const lines = fullHighlightedText.split('\n');
-      const errorLines = lines.filter(l => l.includes('assistant-highlight-') || l.includes('gemini-processed-'));
-
-      if (errorLines.length > 0 && errorLines.length < lines.length) {
-        displayHtml = errorLines.join('<div class="gemini-fragment-divider">...</div>');
-        isFragmented = true;
-      }
-    }
-
-    // Store state for the Apply button
-    suggestionPanel.__fullSuggestedText = suggestedText;
-    suggestionPanel.__isFragmented = isFragmented;
-    suggestionPanel.__analysis_source = valNow;
-
-    const suggestHtml = showEditor
-      ? `
-      <details class="assistant-details" open>
-        <summary class="assistant-summary">
-          ✨ Gợi ý chỉnh sửa
-          <span class="assistant-summary-hint"></span>
-        </summary>
-
-        <div class="assistant-suggest-wrap">
-          <div class="assistant-suggest-edit ${isFragmented ? 'gemini-is-fragmented' : ''}" id="assistant-suggest-content" contenteditable="${isFragmented ? 'false' : 'true'}" spellcheck="false" style="max-height: 250px; overflow-y: auto;">${displayHtml}</div>
-        </div>
-      </details>
-    `
-      : ``;
-
     const actionsHtml = `
-    <div class="gemini-actions ${!showEditor ? 'gemini-actions-alone' : ''}">
-      ${showEditor ? '<button class="gemini-apply-btn" id="gemini-apply-suggest" type="button">Áp dụng</button>' : ''}
+    <div class="gemini-actions gemini-actions-alone">
       <button class="gemini-secondary-btn" id="gemini-close-panel" type="button">Đóng</button>
     </div>
   `;
@@ -1173,7 +1068,7 @@ if (window.ASSISTANT_CONTENT_SCRIPT_LOADED) {
       suggestionPanel.innerHTML = `
       <div class="assistant-panel ${isMinimized ? 'gemini-minimized-state' : ''} ${isHoverMode ? 'gemini-mini-mode-inner' : ''}" style="max-height: 85vh !important; display: flex !important; flex-direction: column !important; overflow: hidden !important; min-width: 320px;">
         <div class="assistant-panel-header" id="gemini-drag-handle" style="cursor: move;">
-          <div class="assistant-title" style="font-size: 11px;">✨ ${isHoverMode ? 'Gợi ý chỉnh sửa' : 'Kiểm tra nội dung'}</div>
+          <div class="assistant-title" style="font-size: 11px;">✨ Kiểm tra nội dung</div>
           <div class="header-tools" style="display: flex; align-items: center; gap: 4px;">
             ${!isHoverMode ? `
             <div class="gemini-opacity-wrapper" style="display: none; align-items: center; gap: 6px; background: rgba(255,255,255,0.9); padding: 2px 8px; border-radius: 10px; border: 1px solid #ddd; margin-right: 2px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
@@ -1191,7 +1086,6 @@ if (window.ASSISTANT_CONTENT_SCRIPT_LOADED) {
 
         <div class="assistant-panel-body" style="flex: 1; overflow-y: auto; padding: 12px; ${isMinimized ? 'display: none;' : ''}">
           ${errorsHtml}
-          ${suggestHtml}
         </div>
 
         <div class="assistant-panel-footer" style="${isMinimized ? 'display: none;' : ''}">
@@ -1270,17 +1164,6 @@ if (window.ASSISTANT_CONTENT_SCRIPT_LOADED) {
     } else {
       repositionPanel();
     }
-
-    // Wire up Apply button
-    document.getElementById("gemini-apply-suggest")?.addEventListener("click", (e) => {
-      e.stopPropagation();
-      const text = suggestionPanel.__fullSuggestedText;
-      if (text && currentActiveTextarea) {
-        setChatText(currentActiveTextarea, text);
-        reportQualityAction("APPLY_SUGGESTION", { original: suggestionPanel.__analysis_source });
-        hideUI();
-      }
-    });
 
     document.getElementById("gemini-close-panel")?.addEventListener("click", (e) => {
       e.stopPropagation();
@@ -1407,7 +1290,7 @@ if (window.ASSISTANT_CONTENT_SCRIPT_LOADED) {
     }, doneTypingInterval);
   }
 
-  function hideUI() {
+  function hideUI(resetBypass = true) {
     clearTimeout(typingTimer);
     if (suggestionPanel) {
       suggestionPanel.style.display = "none";
@@ -1416,7 +1299,9 @@ if (window.ASSISTANT_CONTENT_SCRIPT_LOADED) {
     if (assistantOverlay) {
       assistantOverlay.style.display = "none";
     }
-    forceAllowSend = false;
+    if (resetBypass) {
+      forceAllowSend = false;
+    }
 
     // REMOVED: statusPill.style.display = "none" from here
     // Toolbar should be managed solely by updateToolbarStatus(analysis, text)
@@ -1753,93 +1638,24 @@ if (window.ASSISTANT_CONTENT_SCRIPT_LOADED) {
       fetchCategoryHierarchy();
     }
 
-    // Merge & Compile Mood Indicators (Empathy Analysis)
-    const remoteMood = config.moodIndicators || {};
-    const mergeAndCompile = (key, defaultList) => {
-      const remoteList = remoteMood[key] || [];
-      const combined = [...new Set([...defaultList, ...remoteList])];
-      MOOD_INDICATORS[key] = combined; // Update list for reference
-      MOOD_INDICATORS.compiled[key === "fakeSuspicion" ? "fake" : key] = createRegex(combined);
-    };
 
-    mergeAndCompile("complaint", MOOD_INDICATORS.complaint);
-    mergeAndCompile("logistics", MOOD_INDICATORS.logistics);
-    mergeAndCompile("quality", MOOD_INDICATORS.quality);
-    mergeAndCompile("fakeSuspicion", MOOD_INDICATORS.fakeSuspicion);
-    mergeAndCompile("gifts", MOOD_INDICATORS.gifts);
-    mergeAndCompile("service", MOOD_INDICATORS.service);
-    mergeAndCompile("exclude", MOOD_INDICATORS.exclude);
-
-    console.log("[Assistant Content] Empathy Mood Indicators Compiled.");
     try {
       injectGlobalMotivationMascot();
     } catch (e) {}
   }
 
-  // ---------- DIFF & HIGHLIGHT ----------
 
-  function diffHighlight(original, suggested, pronounConflict = null, analysis = null) {
-    const sOrig = (original || "").trim();
-    const sSug = (suggested || sOrig || "").trim();
-    const words1 = sOrig.split(/(\s+)/);
-    const words2 = sSug.split(/(\s+)/);
-
-    const pronounRegex = /(?<!\p{L})(anh[\s/]+chị|anh\s+chị|anh|chị)(?!\p{L})/giu;
-
-    const isWordInErrors = (word, list) => {
-      if (!list || !list.length) return false;
-      const c = word.trim().toLowerCase();
-      return list.some(e => (e.msg && e.msg.toLowerCase().includes(`"${c}"`)) || (e.word && e.word.trim().toLowerCase() === c));
-    };
-
-    const isGrammarError = (word, list) => {
-      if (!list || !list.length) return false;
-      const c = word.trim().toLowerCase();
-      return list.some(e => e.msg && e.msg.toLowerCase().includes(`"${c}"`) && (e.msg.includes("Telex") || e.msg.includes("VNI") || e.msg.includes("bất thường")));
-    };
-
-    let html = "";
-    let i = 0;
-    for (let j = 0; j < words2.length; j++) {
-      const w2 = words2[j];
-      const w1 = words1[i] || "";
-
-      pronounRegex.lastIndex = 0;
-      const isP = pronounRegex.test(w2);
-      let isC = false, isW = false;
-
-      if (analysis) {
-        if (isWordInErrors(w2, analysis.forbidden) || isWordInErrors(w2, analysis.brands) || isWordInErrors(w2, analysis.platforms)) isC = true;
-        if (!isC && isGrammarError(w2, analysis.grammar)) isW = true;
-      }
-
-      if (w1.normalize() === w2.normalize()) {
-        if (isC) html += `<span class="assistant-highlight-red">${escapeHtml(w2)}</span>`;
-        else if (isP && pronounConflict) html += `<span class="assistant-highlight-blue">${escapeHtml(w2)}</span>`;
-        else if (isW) html += `<span class="assistant-highlight-amber">${escapeHtml(w2)}</span>`;
-        else html += escapeHtml(w2);
-        i++;
-      } else {
-        // Mismatch
-        if (isC) html += `<span class="assistant-highlight-red">${escapeHtml(w2)}</span>`;
-        else if (isP) html += `<span class="assistant-highlight-blue">${escapeHtml(w2)}</span>`;
-        else if (isW) html += `<span class="assistant-highlight-amber">${escapeHtml(w2)}</span>`;
-        else {
-          const cls = w2.trim() === "" ? "gemini-processed-msg assistant-highlight-space" : "gemini-processed-text";
-          html += `<span class="${cls}">${escapeHtml(w2)}</span>`;
-        }
-        // Sync
-        if (words1[i + 1] && words1[i + 1].normalize() === w2.normalize()) i += 2;
-        else if (w1.trim() && w2.trim()) i++;
-      }
-    }
-    return html;
-  }
 
   // ---------- UTILS ----------
 
   function escapeHtml(s) {
-    return (s || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    if (s == null) return "";
+    return String(s)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
   }
 
   function superClean(str) {
@@ -2139,243 +1955,7 @@ if (window.ASSISTANT_CONTENT_SCRIPT_LOADED) {
     return false;
   }
 
-  // ---------- MOOD ANALYSIS ----------
 
-  function analyzeMood(text) {
-    if (!text) return { isNegative: false, reasons: [], category: null };
-
-    const results = {
-      isNegative: false,
-      reasons: [],
-      category: null
-    };
-
-    const lower = text.toLowerCase();
-
-    // Exclusion Check
-    if (MOOD_INDICATORS.compiled.exclude && MOOD_INDICATORS.compiled.exclude.test(lower)) {
-      return results;
-    }
-
-    // Check compiled categories
-    const categories = [
-      { key: "quality", label: "QUALITY_ISSUE" },
-      { key: "fake", label: "FAKE_SUSPICION" },
-      { key: "logistics", label: "LOGISTICS_ISSUE" },
-      { key: "gifts", label: "PROMO_ISSUE" },
-      { key: "service", label: "SERVICE_ISSUE" },
-      { key: "complaint", label: "COMPLAINT" }
-    ];
-
-    for (const cat of categories) {
-      if (MOOD_INDICATORS.compiled[cat.key] && MOOD_INDICATORS.compiled[cat.key].test(lower)) {
-        results.isNegative = true;
-        results.category = cat.key;
-        results.reasons.push(cat.label);
-        // Note: we continue to pick up all reasons, but first one sets category
-      }
-    }
-
-    // Priority 2: Intensive Mood (CAPS / Punc)
-    const letters = text.replace(/[^\p{L}]/gu, "");
-    if (letters.length > 5) {
-      const caps = letters.replace(/[\p{Ll}]/gu, "").length;
-      if (caps / letters.length > 0.7) {
-        results.isNegative = true;
-        results.reasons.push("CAPS_LOCK");
-        if (!results.category) results.category = "angry";
-      }
-    }
-
-    if (/([?!]){3,}/.test(text)) {
-      results.isNegative = true;
-      results.reasons.push("PUNCTUATION");
-      if (!results.category) results.category = "angry";
-    }
-
-    // Emojis
-    for (const emoji of MOOD_INDICATORS.emojis) {
-      if (text.includes(emoji)) {
-        results.isNegative = true;
-        results.reasons.push("EMOJI");
-        if (!results.category) results.category = "angry";
-        break;
-      }
-    }
-
-    return results;
-  }
-
-  function updateMoodAlert(mood) {
-    if (!moodAlertPanel) createMoodUI();
-
-    const adviceMap = {
-      logistics: {
-        title: "Giao hàng hơi chậm túi nè~",
-        action: "Đồng cảm với khách vì sự chờ đợi không như mong đợi, xin lỗi chân thành và hứa kiểm tra ngay tiến độ nhé! ✨"
-      },
-      quality: {
-        title: "Sản phẩm gặp chút trục trặc rồi~",
-        action: "Hãy thấu hiểu cảm xúc của khách khi nhận hàng không ưng ý, xin lỗi và cam kết hỗ trợ tận tình nha! 💝"
-      },
-      fake: {
-        title: "Khách đang lăn tăn hàng giả nè~",
-        action: "Hãy xoa dịu nỗi bất an bằng sự thấu hiểu, khẳng định uy tín và giải đáp kỹ lưỡng để khách an tâm nhé! 🛡️"
-      },
-      gifts: {
-        title: "Quà tặng bị lạc lối rồi~",
-        action: "Hãy đồng cảm vì trải nghiệm quà tặng không như mong đợi, xin lỗi và hứa sẽ kiểm tra lại thông tin ngay nhé! 🎀"
-      },
-      service: {
-        title: "Khách đang hối thúc nè~",
-        action: "Hãy xin lỗi vì để khách đợi, phản hồi thật nhanh và ngọt ngào để xoa dịu khách nha! ⚡"
-      },
-      complaint: {
-        title: "Khách đang buồn lòng lắm đó~",
-        action: "Hãy xin lỗi thật sâu sắc, đừng chỉ 'Cảm ơn' suông mà hãy ôm trọn cảm xúc của khách nhé! ❤️"
-      },
-      angry: {
-        title: "Khách đang cực kỳ gắt luôn~",
-        action: "Hãy giữ bình tĩnh, xin lỗi thật khéo và xoa dịu 'ngọn lửa' này ngay lập tức nha! 🧊"
-      }
-    };
-
-    if (mood.isNegative) {
-      const textEl = moodAlertPanel.querySelector(".gemini-mood-text");
-      const iconEl = moodAlertPanel.querySelector(".gemini-mood-icon");
-
-      const advice = adviceMap[mood.category] || adviceMap.angry;
-      const iconMap = {
-        logistics: "🚚",
-        quality: "📦",
-        fake: "🤨",
-        gifts: "🎁",
-        service: "😤",
-        complaint: "🤬",
-        angry: "🔥"
-      };
-
-      if (textEl) {
-        textEl.innerHTML = `
-        <div style="font-size: 16px; font-weight: 700; margin-bottom: 6px; display: flex; align-items: center; gap: 8px;">
-          ${iconMap[mood.category] || iconMap.angry} ${advice.title}
-        </div>
-        <div style="font-size: 14px; font-weight: 500; opacity: 0.9; line-height: 1.5;">${advice.action}</div>
-        <div style="margin-top: 12px; padding-top: 10px; border-top: 1px dashed rgba(0,0,0,0.1); font-size: 12px; font-style: italic; opacity: 0.7; color: currentColor;">
-          Nếu tớ nhận diện nhầm tình huống, cho tớ xin lỗi nha! ✨
-        </div>
-      `;
-      }
-      // We already included the icon in the innerHTML title for better layout, 
-      // but let's keep iconEl for backward compatibility or hide it if redundant.
-      if (iconEl) iconEl.style.display = "none";
-
-      moodAlertPanel.style.display = "flex";
-
-      // Clear previous classes
-      document.body.classList.remove("gemini-mood-negative", "gemini-mood-info");
-      moodAlertPanel.className = "";
-
-      // Logic: Red Alert for complaints/quality/service, Blue/Info for logistics/gifts/fake
-      const isHighAlert = ["complaint", "quality", "service", "angry"].includes(mood.category) || !mood.category;
-
-      if (isHighAlert) {
-        document.body.classList.add("gemini-mood-negative");
-        moodAlertPanel.classList.add("gemini-mood-type-error");
-      } else {
-        document.body.classList.add("gemini-mood-info");
-        moodAlertPanel.classList.add("gemini-mood-type-info");
-      }
-    } else {
-      moodAlertPanel.style.display = "none";
-      document.body.classList.remove("gemini-mood-negative", "gemini-mood-info");
-    }
-  }
-
-  function scanCustomerMessages() {
-    const ctx = getCurrentContext();
-    const sessionKey = `${ctx.currentBrand}-${ctx.currentMarketplace}-${ctx.customerId}`;
-
-    if (MOOD_INDICATORS.lastActiveSession && MOOD_INDICATORS.lastActiveSession !== sessionKey) {
-      MOOD_INDICATORS.lastAnalyzedText = null;
-      updateMoodAlert({ isNegative: false });
-    }
-    MOOD_INDICATORS.lastActiveSession = sessionKey;
-
-    // 1. Find ALL messages in the current view
-    // We need both customer and agent messages to detect "Agent Silence"
-    const allMessagesRaw = document.querySelectorAll(".chat-item, .shopee-messenger-chat-item, .msg-item");
-    if (!allMessagesRaw.length && ctx.currentMarketplace === "shopee") {
-      // Fallback for Shopee if main class isn't found
-      const shopeeMsgs = document.querySelectorAll(".shopee-messenger-chat-item");
-      if (!shopeeMsgs.length) return;
-    }
-
-    const msgs = Array.from(allMessagesRaw).slice(-10); // Take last 10 for interaction context
-    if (!msgs.length) return;
-
-    // Identify which ones are from 'customer'
-    const customerMsgs = msgs.filter(m => {
-      // Admin system (provided by user)
-      if (m.classList.contains("chat-item--customer")) return true;
-      // Shopee
-      if (m.classList.contains("shopee-messenger-chat-item--customer")) return true;
-      // Lazada / Fallbacks
-      if (m.classList.contains("received") || m.classList.contains("msg-item--customer")) return true;
-      // Generic left alignment check
-      const style = window.getComputedStyle(m);
-      if (style.textAlign === "left" || style.justifyContent.includes("flex-start")) return true;
-      return false;
-    });
-
-    if (!customerMsgs.length) return;
-
-    // 2. Interaction Pass: Agent Silence detection
-    // If the last 3-4 messages are ALL from the customer, trigger empathy for wait time
-    let customerStreak = 0;
-    for (let i = msgs.length - 1; i >= 0; i--) {
-      const isCustomer = customerMsgs.includes(msgs[i]);
-      if (isCustomer) customerStreak++;
-      else break; // Agent replied
-    }
-
-    // 3. Last 5 text extraction for semantic pass
-    const recentCustomerMsgs = customerMsgs.slice(-5);
-    const combinedText = recentCustomerMsgs.map(m => m.innerText.trim()).join(" | ");
-
-    if (combinedText === MOOD_INDICATORS.lastAnalyzedText && customerStreak < 3) return;
-    MOOD_INDICATORS.lastAnalyzedText = combinedText;
-
-    let finalMood = { isNegative: false, reasons: [], category: null };
-
-    // Pass A: Silent Treatment (Urgency)
-    if (customerStreak >= 3) {
-      finalMood.isNegative = true;
-      finalMood.category = "service";
-      finalMood.reasons.push("AGENT_SILENCE");
-    }
-
-    // Pass B: Keyword Analysis (individual and combined)
-    // Individual most recent first
-    for (let i = recentCustomerMsgs.length - 1; i >= 0; i--) {
-      const mood = analyzeMood(recentCustomerMsgs[i].innerText);
-      if (mood.isNegative) {
-        finalMood.isNegative = true;
-        if (!finalMood.category) finalMood.category = mood.category;
-        mood.reasons.forEach(r => { if (!finalMood.reasons.includes(r)) finalMood.reasons.push(r); });
-      }
-    }
-
-    // Combined pass (for semantic build-up)
-    const combinedMood = analyzeMood(combinedText);
-    if (combinedMood.isNegative) {
-      finalMood.isNegative = true;
-      if (!finalMood.category) finalMood.category = combinedMood.category;
-      combinedMood.reasons.forEach(r => { if (!finalMood.reasons.includes(r)) finalMood.reasons.push(r); });
-    }
-
-    // updateMoodAlert(finalMood); // Temporarily disabled by user request
-  }
 
   function escapeRegExp(s) {
     return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -2412,128 +1992,7 @@ if (window.ASSISTANT_CONTENT_SCRIPT_LOADED) {
     document.body.appendChild(assistantOverlay);
   }
 
-  function createMoodUI() {
-    if (document.getElementById("assistant-mood-alert")) {
-      moodAlertPanel = document.getElementById("assistant-mood-alert");
-      return;
-    }
 
-    moodAlertPanel = document.createElement("div");
-    moodAlertPanel.id = "assistant-mood-alert";
-    moodAlertPanel.innerHTML = `
-    <div class="gemini-mood-content">
-        <span class="gemini-mood-icon" style="align-self: flex-start; margin-top: 2px;"></span>
-        <div class="gemini-mood-text" style="flex: 1;">
-            Hệ thống phát hiện cảm xúc khách hàng đang không tốt...
-        </div>
-        <button class="gemini-mood-close" title="Đóng" style="align-self: flex-start;">✕</button>
-    </div>
-  `;
-    document.body.appendChild(moodAlertPanel);
-
-    moodAlertPanel.querySelector(".gemini-mood-close").addEventListener("click", () => {
-      moodAlertPanel.style.display = "none";
-      document.body.classList.remove("gemini-mood-negative");
-    });
-
-    // Inject CSS for mood alert if not already in a stylesheet
-    if (!document.getElementById("gemini-mood-styles")) {
-      const style = document.createElement("style");
-      style.id = "gemini-mood-styles";
-      style.textContent = `
-            #assistant-mood-alert {
-                position: fixed;
-                top: 25px;
-                left: 50%;
-                transform: translateX(-50%);
-                z-index: 1000000;
-                background: rgba(255, 245, 245, 0.85);
-                backdrop-filter: blur(12px);
-                border: 1px solid rgba(254, 202, 202, 0.5);
-                color: #991b1b;
-                padding: 14px 28px;
-                border-radius: 24px;
-                box-shadow: 0 12px 30px -5px rgba(153, 27, 27, 0.12), 0 4px 10px -2px rgba(153, 27, 27, 0.05);
-                display: none;
-                align-items: center;
-                font-size: 14px;
-                font-weight: 600;
-                animation: gemini-premium-bounce 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-                letter-spacing: -0.01em;
-            }
-            #assistant-mood-alert.gemini-mood-type-info {
-                background: rgba(240, 249, 255, 0.85);
-                border-color: rgba(186, 230, 253, 0.5);
-                color: #0369a1;
-                box-shadow: 0 12px 30px -5px rgba(3, 105, 161, 0.12), 0 4px 10px -2px rgba(3, 105, 161, 0.05);
-            }
-            .gemini-mood-content {
-                display: flex;
-                align-items: center;
-                gap: 14px;
-                max-width: 550px;
-                line-height: 1.5;
-            }
-            .gemini-mood-icon { 
-                font-size: 20px;
-                filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
-            }
-            .gemini-mood-close {
-                background: rgba(0,0,0,0.03);
-                border: none;
-                color: currentColor;
-                opacity: 0.4;
-                cursor: pointer;
-                font-size: 14px;
-                width: 24px;
-                height: 24px;
-                border-radius: 50%;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                margin-left: 12px;
-                transition: all 0.2s;
-            }
-            .gemini-mood-close:hover { opacity: 1; background: rgba(0,0,0,0.08); }
-            
-            @keyframes gemini-premium-bounce {
-                from { transform: translate(-50%, -80px) scale(0.9); opacity: 0; }
-                to { transform: translate(-50%, 0) scale(1); opacity: 1; }
-            }
-            
-            /* Custom Scrollbar for the glow effect if needed */
-            body.gemini-mood-negative::after, body.gemini-mood-info::after {
-                content: '';
-                position: fixed;
-                inset: 10px;
-                pointer-events: none;
-                border-radius: 20px;
-                z-index: 999999;
-                transition: all 0.5s ease;
-            }
-            
-            body.gemini-mood-negative::after {
-                box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.1), inset 0 0 80px rgba(239, 68, 68, 0.15);
-                animation: gemini-soft-pulse-red 3s infinite ease-in-out;
-            }
-            
-            body.gemini-mood-info::after {
-                box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.08), inset 0 0 80px rgba(14, 165, 233, 0.12);
-                animation: gemini-soft-pulse-blue 3.5s infinite ease-in-out;
-            }
-
-            @keyframes gemini-soft-pulse-red {
-                0%, 100% { transform: scale(1); opacity: 0.7; }
-                50% { transform: scale(1.005); opacity: 1; }
-            }
-            @keyframes gemini-soft-pulse-blue {
-                0%, 100% { transform: scale(1); opacity: 0.6; }
-                50% { transform: scale(1.005); opacity: 0.9; }
-            }
-        `;
-      document.head.appendChild(style);
-    }
-  }
 
   function attachListeners(element) {
     if (!element || element.dataset.geminiAttached) return;
@@ -3475,7 +2934,6 @@ if (window.ASSISTANT_CONTENT_SCRIPT_LOADED) {
   function scan() {
     const chatInput = document.getElementById("chat-input");
     if (chatInput) attachListeners(chatInput);
-    scanCustomerMessages();
     injectMacroToolbarButton(); // Tích hợp vào thanh công cụ chat
     injectGlobalMotivationMascot(); // Tích hợp vào Navbar Mobile (nếu có)
     checkMacroConnectionStatusLabel(); // Kiểm tra hiển thị trạng thái kết nối Macro
@@ -3784,9 +3242,7 @@ if (window.ASSISTANT_CONTENT_SCRIPT_LOADED) {
 
     if (!bubble) {
       container.innerHTML = `
-        <div class="gemini-motivation-bubble nav-mode" id="gemini-motivation-text" style="opacity: 1; transition: opacity 0.5s ease;">
-          ${messages[0] || ''}
-        </div>
+        <div class="gemini-motivation-bubble nav-mode" id="gemini-motivation-text" style="opacity: 1; transition: opacity 0.5s ease;"></div>
         <span class="cursor-pointer assistant-mascot-wrapper" style="display: ${showMascot ? 'inline-flex' : 'none'};">
           <svg class="assistant-mascot" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <rect x="4" y="8" width="16" height="12" rx="4" fill="currentColor" fill-opacity="0.15"></rect>
@@ -3798,6 +3254,7 @@ if (window.ASSISTANT_CONTENT_SCRIPT_LOADED) {
         </span>
       `;
       bubble = container.querySelector("#gemini-motivation-text");
+      if (bubble) bubble.textContent = messages[0] || '';
       mascotSvg = container.querySelector(".assistant-mascot");
     } else {
       bubble.style.opacity = "1";
@@ -4550,10 +4007,11 @@ if (window.ASSISTANT_CONTENT_SCRIPT_LOADED) {
       try { obj = JSON.parse(content); } catch (e) { obj = content; }
     }
     if (typeof obj === 'string') {
-      // For legacy HTML macros, we want to see the formatting in preview
-      // but ensure plain newlines (\n) also show up as breaks
-      return obj.replace(/\n/g, '<br/>');
+      // Escape all HTML to prevent stored XSS, then convert newlines to breaks
+      return escapeHtml(stripHtml(obj)).replace(/\n/g, '<br/>');
     }
+
+    const isSafeCssColor = (val) => typeof val === 'string' && /^#([0-9a-fA-F]{3,8})$|^rgba?\(\s*\d+\s*,\s*\d+\s*,\s*\d+(\s*,\s*[\d.]+\s*)?\)$|^[a-zA-Z]+$/.test(val.trim());
 
     const parseNode = (node) => {
       if (!node) return "";
@@ -4569,12 +4027,16 @@ if (window.ASSISTANT_CONTENT_SCRIPT_LOADED) {
           if (node.format & 8) text = `<u>${text}</u>`;   // Underline
         }
 
-        // Handle style (colors/highlights)
-        if (node.style) {
+        // Handle style (colors/highlights) - strictly sanitize CSS
+        if (node.style && typeof node.style === 'string') {
           const styles = node.style.split(';').filter(s => s.trim());
-          const validStyles = styles.filter(s => s.includes('color') || s.includes('background-color'));
+          const validStyles = styles.filter(s => {
+            const lower = s.toLowerCase();
+            return (lower.includes('color:') || lower.includes('background-color:')) &&
+                   !/[<>"'()\\{}]/.test(s);
+          });
           if (validStyles.length) {
-            text = `<span style="${validStyles.join(';')}">${text}</span>`;
+            text = `<span style="${escapeHtml(validStyles.join(';'))}">${text}</span>`;
           }
         }
 
@@ -4582,8 +4044,12 @@ if (window.ASSISTANT_CONTENT_SCRIPT_LOADED) {
         if (node.bold) text = `<strong>${text}</strong>`;
         if (node.italic) text = `<em>${text}</em>`;
         if (node.underline) text = `<u>${text}</u>`;
-        if (node.color) text = `<span style="color: ${node.color}">${text}</span>`;
-        if (node.backgroundColor) text = `<span style="background-color: ${node.backgroundColor}">${text}</span>`;
+        if (node.color && isSafeCssColor(node.color)) {
+          text = `<span style="color: ${escapeHtml(node.color)}">${text}</span>`;
+        }
+        if (node.backgroundColor && isSafeCssColor(node.backgroundColor)) {
+          text = `<span style="background-color: ${escapeHtml(node.backgroundColor)}">${text}</span>`;
+        }
 
         return text;
       }
